@@ -2,7 +2,7 @@ PYSRC=../py
 BUILD=build
 
 CC = gcc
-CFLAGS = -I. -I$(PYSRC) -Wall -Werror -ansi -std=gnu99 -Os #-DNDEBUG
+CFLAGS = -I. -I$(PYSRC) -Wall -Werror -ansi -std=gnu11 -Os #-DNDEBUG
 LDFLAGS = -lm
 
 SRC_C = \
@@ -93,4 +93,5 @@ $(BUILD)/emitcpy.o: $(PYSRC)/emit.h
 $(BUILD)/emitbc.o: $(PYSRC)/emit.h
 
 clean:
-	/bin/rm -r $(BUILD)
+	/bin/rm -rf ./$(BUILD)
+	/bin/rm py

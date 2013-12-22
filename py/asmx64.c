@@ -89,7 +89,13 @@ struct _asm_x64_t {
 void *alloc_mem(uint req_size, uint *alloc_size, bool is_exec) {
     req_size = (req_size + 0xfff) & (~0xfff);
     int prot = PROT_READ | PROT_WRITE | (is_exec ? PROT_EXEC : 0);
+#ifdef __APPLE__
+    void *ptr = mmap(NULL, req_size, prot, MAP_PRIVATE | MAP_ANON, -1, 0);
+#else
     void *ptr = mmap(NULL, req_size, prot, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
+
+
     if (ptr == MAP_FAILED) {
         assert(0);
     }

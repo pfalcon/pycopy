@@ -4,6 +4,12 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef __LP64__
+    #define FMT_SIZE_T "llu"
+#else
+    #define FMT_SIZE_T "lu"
+#endif
+
 #include "misc.h"
 #include "mpconfig.h"
 #include "bc0.h"
@@ -70,7 +76,7 @@ void mp_show_byte_code(const byte *ip, int len) {
 
             case MP_BC_LOAD_FAST_N:
                 DECODE_UINT;
-                printf("LOAD_FAST_N %lu", unum);
+                printf("LOAD_FAST_N %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_LOAD_NAME:
@@ -111,7 +117,7 @@ void mp_show_byte_code(const byte *ip, int len) {
 
             case MP_BC_STORE_FAST_N:
                 DECODE_UINT;
-                printf("STORE_FAST_N %lu", unum);
+                printf("STORE_FAST_N %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_STORE_NAME:
@@ -245,22 +251,22 @@ void mp_show_byte_code(const byte *ip, int len) {
 
             case MP_BC_BINARY_OP:
                 unum = *ip++;
-                printf("BINARY_OP %lu", unum);
+                printf("BINARY_OP %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_COMPARE_OP:
                 unum = *ip++;
-                printf("COMPARE_OP %lu", unum);
+                printf("COMPARE_OP %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_BUILD_TUPLE:
                 DECODE_UINT;
-                printf("BUILD_TUPLE %lu", unum);
+                printf("BUILD_TUPLE %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_BUILD_LIST:
                 DECODE_UINT;
-                printf("BUILD_LIST %lu", unum);
+                printf("BUILD_LIST %"FMT_SIZE_T, unum);
                 break;
 
                 /*
@@ -305,22 +311,22 @@ void mp_show_byte_code(const byte *ip, int len) {
 
             case MP_BC_UNPACK_SEQUENCE:
                 DECODE_UINT;
-                printf("UNPACK_SEQUENCE %lu", unum);
+                printf("UNPACK_SEQUENCE %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_MAKE_FUNCTION:
                 DECODE_UINT;
-                printf("MAKE_FUNCTION %lu", unum);
+                printf("MAKE_FUNCTION %"FMT_SIZE_T, unum);
                 break;
 
             case MP_BC_CALL_FUNCTION:
                 DECODE_UINT;
-                printf("CALL_FUNCTION n=%lu nkw=%lu", unum & 0xff, (unum >> 8) & 0xff);
+                printf("CALL_FUNCTION n=%"FMT_SIZE_T"nkw=%"FMT_SIZE_T, unum & 0xff, (unum >> 8) & 0xff);
                 break;
 
             case MP_BC_CALL_METHOD:
                 DECODE_UINT;
-                printf("CALL_METHOD n=%lu nkw=%lu", unum & 0xff, (unum >> 8) & 0xff);
+                printf("CALL_METHOD n=%"FMT_SIZE_T" nkw=%"FMT_SIZE_T, unum & 0xff, (unum >> 8) & 0xff);
                 break;
 
             case MP_BC_RETURN_VALUE:
