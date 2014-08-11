@@ -1,0 +1,7 @@
+#!/bin/sh
+
+OPENWRT_SDK=~/toolchain/OpenWrt-SDK-brcm47xx-for-linux-i486-gcc-4.6-linaro_uClibc-0.9.33.2
+
+qemu-mipsel -L $OPENWRT_SDK/staging_dir/toolchain-mipsel_gcc-4.6-linaro_uClibc-0.9.33.2 \
+    -E LD_LIBRARY_PATH=$OPENWRT_SDK/staging_dir/target-mipsel_uClibc-0.9.33.2/usr/lib \
+    $(dirname $0)/micropython "$@"
