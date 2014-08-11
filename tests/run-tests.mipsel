@@ -1,0 +1,1 @@
+MICROPY_MICROPYTHON=../unix/micropython.mipsel ./run-tests "$@"
