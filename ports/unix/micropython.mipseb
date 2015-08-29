@@ -1,0 +1,7 @@
+#!/bin/sh
+
+OPENWRT_SDK=~/toolchain/OpenWrt-SDK-atheros-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2
+
+qemu-mips -L $OPENWRT_SDK/staging_dir/toolchain-mips_mips32_gcc-4.8-linaro_uClibc-0.9.33.2 \
+    -E LD_LIBRARY_PATH=$OPENWRT_SDK/staging_dir/target-mips_mips32_uClibc-0.9.33.2/usr/lib \
+    $(dirname $0)/micropython "$@"
