@@ -384,7 +384,7 @@ void uart_irq_handler(mp_uint_t uart_id) {
 /******************************************************************************/
 /* Serial bindings for LWIP modules (SLIP/PPP), polling only for now          */
 
-#ifdef MICROPY_PY_LWIP_SLIP
+#ifdef __no_MICROPY_PY_LWIP_SLIP
 sio_fd_t sio_open(u8_t dvnum) {
     if (dvnum >= 1 && dvnum <= MP_ARRAY_SIZE(MP_STATE_PORT(pyb_uart_obj_all))) {
         if (MP_STATE_PORT(pyb_uart_obj_all)[dvnum - 1] == NULL) {
