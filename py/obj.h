@@ -676,11 +676,19 @@ qstr mp_obj_code_get_name(const byte *code_info);
 mp_obj_t mp_identity(mp_obj_t self);
 MP_DECLARE_CONST_FUN_OBJ(mp_identity_obj);
 
+// Helper structure to support overriding of attributes
+// in a builtin (ROM) module.
+typedef struct _mp_obj_module_override_helper_t {
+    mp_obj_dict_t **overrides;
+    mp_attr_fun_t setattr;
+} mp_obj_module_override_helper_t;
+
 // module
 typedef struct _mp_obj_module_t {
     mp_obj_base_t base;
     qstr name;
     mp_obj_dict_t *globals;
+    const mp_obj_module_override_helper_t *override_helper;
 } mp_obj_module_t;
 mp_obj_dict_t *mp_obj_module_get_globals(mp_obj_t self_in);
 // check if given module object is a package

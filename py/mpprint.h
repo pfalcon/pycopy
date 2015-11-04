@@ -51,7 +51,7 @@ typedef struct _mp_print_t {
 extern const mp_print_t mp_plat_print;
 #if MICROPY_PY_IO
 // 2) Wrapper for printing to sys.stdout.
-extern const mp_print_t mp_sys_stdout_print;
+extern /*const*/ mp_print_t mp_sys_stdout_print;
 #endif
 
 int mp_print_str(const mp_print_t *print, const char *str);

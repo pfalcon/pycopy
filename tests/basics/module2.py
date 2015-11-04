@@ -1,6 +1,6 @@
 # uPy behaviour only: builtin modules are read-only
-import sys
+import micropython
 try:
-    sys.x = 1
+    micropython.x = 1
 except AttributeError:
     print("AttributeError")

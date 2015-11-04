@@ -33,6 +33,8 @@
 #include "py/runtime.h"
 #include "py/builtin.h"
 
+STATIC const mp_map_t mp_builtin_module_map;
+
 STATIC void module_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     mp_obj_module_t *self = self_in;
@@ -54,6 +56,16 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     mp_obj_module_t *self = self_in;
     if (dest[0] == MP_OBJ_NULL) {
         // load attribute
+        if (self->override_helper) {
+            mp_obj_dict_t *overrides = *self->override_helper->overrides;
+            if (overrides != MP_OBJ_NULL) {
+                mp_map_elem_t *elem = mp_map_lookup(&overrides->map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
+                if (elem != NULL) {
+                    dest[0] = elem->value;
+                    return;
+                }
+            }
+        }
         mp_map_elem_t *elem = mp_map_lookup(&self->globals->map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
         if (elem != NULL) {
             dest[0] = elem->value;
@@ -71,8 +83,23 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             } else
             #endif
             {
-                // can't delete or store to fixed map
-                return;
+                #if 1
+                if (self->override_helper) {
+                    if (*self->override_helper->overrides != MP_OBJ_NULL) {
+//printf("Found existing override\n");
+                        dict = *self->override_helper->overrides;
+                    } else {
+//printf("Creating new override\n");
+                        dict = mp_obj_new_dict(1);
+                        *self->override_helper->overrides = dict;
+                    }
+                    self->override_helper->setattr(self_in, attr, dest);
+                } else
+                #endif
+                {
+                    // can't delete or store to fixed map
+                    return;
+                }
             }
         }
         if (dest[1] == MP_OBJ_NULL) {
@@ -107,6 +134,7 @@ mp_obj_t mp_obj_new_module(qstr module_name) {
     o->base.type = &mp_type_module;
     o->name = module_name;
     o->globals = mp_obj_new_dict(MICROPY_MODULE_DICT_SIZE);
+    o->override_helper = NULL;
 
     // store __name__ entry in the module
     mp_obj_dict_store(o->globals, MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(module_name));
