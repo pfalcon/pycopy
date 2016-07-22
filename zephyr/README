@@ -1,0 +1,22 @@
+This is initial proof of concept port of MicroPython to Zephyr RTOS
+http://zephyrproject.org. It only integrates with Zephyr's console
+subsystem so far.
+
+Supported out of the box is Zephyr's armv7-m (Cortex-M3) architecture,
+with qemu_cortex_m3 being a default target. Supporting others architectures
+may require editing makefiles.
+
+To build:
+
+Intstall Zephyr SDK and Zephyr source from the link above. Configure
+Zephyr environment as described in its instructions. Then:
+
+    make
+
+To run in QEMU:
+
+    make qemu
+
+To build for a real board (see link above for supported Cortex-M boards):
+
+    make BOARD=frdm_k64f
