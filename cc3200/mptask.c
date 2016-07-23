@@ -175,7 +175,7 @@ soft_reset:
 
     if (!safeboot) {
         // run boot.py
-        int ret = pyexec_file("boot.py");
+        int ret = pyexec_file("boot.py", false);
         if (ret & PYEXEC_FORCED_EXIT) {
             goto soft_reset_exit;
         }
@@ -200,7 +200,7 @@ soft_reset:
             } else {
                 main_py = mp_obj_str_get_str(MP_STATE_PORT(machine_config_main));
             }
-            int ret = pyexec_file(main_py);
+            int ret = pyexec_file(main_py, false);
             if (ret & PYEXEC_FORCED_EXIT) {
                 goto soft_reset_exit;
             }

@@ -488,11 +488,17 @@ friendly_repl_reset:
 
 #endif // MICROPY_REPL_EVENT_DRIVEN
 
-int pyexec_file(const char *filename) {
+// This function is mostly intended to execute boot.py/main.py, i.e.
+// run in unattended mode. It has bool param because many people
+// find diagnostic message printed on board boot confusing (treat
+// it as "error"), so ports affected may silence them.
+int pyexec_file(const char *filename, bool silent) {
     mp_lexer_t *lex = mp_lexer_new_from_file(filename);
 
     if (lex == NULL) {
-        printf("could not open file '%s' for reading\n", filename);
+        if (!silent) {
+            printf("could not open file '%s' for reading\n", filename);
+        }
         return false;
     }
 
