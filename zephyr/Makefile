@@ -9,15 +9,17 @@
 # Zephyr build system.
 #
 
-ARCH ?= arm
-BOARD = qemu_cortex_m3
+ARCH ?= x86
+BOARD = qemu_x86
 
 # Zephyr toolchain config is 2-pass, so included twice
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 
-CFLAGS_CORTEX_M3 = -mthumb -mcpu=cortex-m3 -mabi=aapcs
-CFLAGS_TARGET = $(CFLAGS_CORTEX_M3)
+CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs -DCONFIG_ARM=y -DCONFIG_ISA_THUMB2=y
+CFLAGS_x86 = -fno-asynchronous-unwind-tables -ffreestanding -fno-stack-protector \
+    -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium -DCONFIG_X86=1
+CFLAGS_TARGET = $(CFLAGS_$(ARCH))
 
 include ../py/mkenv.mk
 include ../py/py.mk
