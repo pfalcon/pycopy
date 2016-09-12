@@ -11,14 +11,18 @@
 
 ARCH ?= x86
 BOARD = qemu_x86
+# Zephyr 1.5.0
+OUTDIR_PREFIX =
+# Zephyr 1.6.0
+#OUTDIR_PREFIX = $(BOARD)
 
 # Zephyr toolchain config is 2-pass, so included twice
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 
-CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs -DCONFIG_ARM=y -DCONFIG_ISA_THUMB2=y
+CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs
 CFLAGS_x86 = -fno-asynchronous-unwind-tables -ffreestanding -fno-stack-protector \
-    -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium -DCONFIG_X86=1
+    -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium
 CFLAGS_TARGET = $(CFLAGS_$(ARCH))
 
 include ../py/mkenv.mk
@@ -27,6 +31,9 @@ include ../py/py.mk
 INC += -I.
 INC += -I..
 INC += -I$(BUILD)
+INC += -I$(ZEPHYR_BASE)/include -I$(ZEPHYR_BASE) \
+    -Ioutdir/$(OUTDIR_PREFIX)/misc/generated/sysgen \
+    -I$(dir $(Z_AUTOCONF_H))
 
 SRC_C = main.c \
 	uart_core.c \
@@ -48,6 +55,15 @@ all: $(LIBMICROPYTHON)
 
 qemu: all
 	make -f Makefile.zephyr qemu BOARD=$(BOARD)
+
+Z_AUTOCONF_H = outdir/$(OUTDIR_PREFIX)/include/generated/autoconf.h
+
+$(LIBMICROPYTHON): $(Z_AUTOCONF_H)
+build/genhdr/qstr.i.last: $(Z_AUTOCONF_H)
+
+$(Z_AUTOCONF_H):
+	rm -f $(LIBMICROPYTHON)
+	-make -f Makefile.zephyr BOARD=$(BOARD)
 
 # Clean Zephyr things too
 CLEAN_EXTRA = outdir
