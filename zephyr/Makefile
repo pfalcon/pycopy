@@ -74,6 +74,17 @@ $(GENERIC_TARGETS) $(KCONFIG_TARGETS) $(CLEAN_TARGETS):
 	$(RM) -f outdir/$(OUTDIR_PREFIX)/zephyr.lnk
 	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) $@
 
+# Note: doesn't rebuild binary, just runs qemu against it
+qemu-net:
+	$(ZEPHYR_SDK_INSTALL_DIR)/sysroots/i686-pokysdk-linux/usr/bin/qemu-system-i386 -m 32 -cpu qemu32 \
+	    -no-reboot -nographic -vga none -display none -net none -clock dynticks -no-acpi -balloon none \
+	    -L $(ZEPHYR_SDK_INSTALL_DIR)/sysroots/i686-pokysdk-linux/usr/share/qemu \
+	    -bios bios.bin -machine type=pc-0.14 -pidfile qemu.pid \
+	    -serial mon:stdio -serial none -serial unix:/tmp/slip.sock \
+	    -kernel outdir/$(OUTDIR_PREFIX)/zephyr.elf
+# For GDB debugging with QEMU
+#-s -S
+
 $(LIBMICROPYTHON): $(Z_SYSGEN_H)
 build/genhdr/qstr.i.last: $(Z_SYSGEN_H)
 
