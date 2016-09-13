@@ -32,16 +32,22 @@ INC += -I.
 INC += -I..
 INC += -I$(BUILD)
 INC += -I$(ZEPHYR_BASE)/include -I$(ZEPHYR_BASE) \
+    -I$(ZEPHYR_BASE)/net/ip -I$(ZEPHYR_BASE)/net/ip/contiki -I$(ZEPHYR_BASE)/net/ip/contiki/os \
     -Ioutdir/$(OUTDIR_PREFIX)/misc/generated/sysgen \
     -I$(dir $(Z_AUTOCONF_H))
 
 SRC_C = main.c \
 	uart_core.c \
+	modsocket.c \
 	lib/utils/stdout_helpers.c \
 	lib/utils/printf.c \
 	lib/utils/pyexec.c \
 	lib/mp-readline/readline.c \
+	lib/netutils/netutils.c \
 	$(SRC_MOD)
+
+# List of sources for qstr extraction
+SRC_QSTR += $(SRC_C)
 
 OBJ = $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
 
