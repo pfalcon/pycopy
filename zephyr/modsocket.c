@@ -33,6 +33,7 @@
 
 #include "py/nlr.h"
 #include "py/obj.h"
+#include "py/stream.h"
 #include "lib/netutils/netutils.h"
 
 // Zephyr includes
@@ -148,6 +149,42 @@ STATIC mp_obj_t socket_send(mp_obj_t self_in, mp_obj_t buf_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(socket_send_obj, socket_send);
 
+STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t size, int *errcode) {
+    socket_obj_t *self = self_in;
+
+    struct net_buf *netbuf = ip_buf_get_tx(self->sock);
+    uint8_t *ptr = net_buf_add(netbuf, size);
+    memcpy(ptr, buf, size);
+    ip_buf_appdatalen(netbuf) = size;
+
+    int ret = net_send(netbuf);
+    if (ret == 0) {
+        return size;
+    }
+    *errcode = ret;
+    return MP_STREAM_ERROR;
+}
+
+STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t size, int *errcode) {
+    socket_obj_t *self = self_in;
+
+    if (self->state == STATE_PEER_CLOSED) {
+        return 0;
+    }
+
+    struct net_buf *netbuf = net_receive(self->sock, WAIT_TICKS);
+    mp_uint_t copy_sz = MIN(size, ip_buf_appdatalen(netbuf));
+    if (copy_sz < ip_buf_appdatalen(netbuf)) {
+        printf("Warning: extra data in netbuf lost\n");
+    }
+    memcpy(buf, ip_buf_appdata(netbuf), copy_sz);
+    if (uip_closed(netbuf)) {
+//printf("uip_closed() == true\n");
+        self->state = STATE_PEER_CLOSED;
+    }
+    ip_buf_unref(netbuf);
+    return copy_sz;
+}
 
 STATIC mp_obj_t socket_recv(mp_obj_t self_in, mp_obj_t len_in) {
     socket_obj_t *self = self_in;
@@ -181,14 +218,23 @@ STATIC const mp_map_elem_t socket_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_send), (mp_obj_t)&socket_send_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_recv), (mp_obj_t)&socket_recv_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_close), (mp_obj_t)&socket_close_obj },
+
+    { MP_OBJ_NEW_QSTR(MP_QSTR_read), (mp_obj_t)&mp_stream_read_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_write), (mp_obj_t)&mp_stream_write_obj },
 };
 STATIC MP_DEFINE_CONST_DICT(socket_locals_dict, socket_locals_dict_table);
+
+STATIC const mp_stream_p_t socket_stream_p = {
+    .read = socket_read,
+    .write = socket_write,
+};
 
 STATIC const mp_obj_type_t socket_type = {
     { &mp_type_type },
     .name = MP_QSTR_socket,
     .print = socket_print,
     .make_new = socket_make_new,
+    .protocol = &socket_stream_p,
     .locals_dict = (mp_obj_t)&socket_locals_dict,
 };
 
