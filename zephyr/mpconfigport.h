@@ -90,6 +90,7 @@ typedef long mp_off_t;
     mp_obj_t mp_kbd_exception; \
     const char *readline_hist[8];
 
+extern const struct _mp_obj_module_t mp_module_socket;
 extern const struct _mp_obj_module_t mp_module_time;
 
 #if MICROPY_PY_UTIME
@@ -99,6 +100,7 @@ extern const struct _mp_obj_module_t mp_module_time;
 #endif
 
 #define MICROPY_PORT_BUILTIN_MODULES \
+    { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_socket) }, \
     MICROPY_PY_UTIME_DEF \
 
 // extra built in names to add to the global namespace

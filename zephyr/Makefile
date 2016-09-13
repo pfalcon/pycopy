@@ -36,12 +36,14 @@ SRC_C = main.c \
 	help.c \
 	modutime.c \
 	uart_core.c \
+	modsocket.c \
 	lib/utils/stdout_helpers.c \
 	lib/utils/printf.c \
 	lib/utils/pyexec.c \
 	lib/utils/interrupt_char.c \
 	lib/utils/pyhelp.c \
 	lib/mp-readline/readline.c \
+	lib/netutils/netutils.c \
 	$(SRC_MOD)
 
 # List of sources for qstr extraction
