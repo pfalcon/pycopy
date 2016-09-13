@@ -47,5 +47,10 @@ typedef long mp_off_t;
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8];
 
+extern const struct _mp_obj_module_t mp_module_socket;
+
+#define MICROPY_PORT_BUILTIN_MODULES \
+    { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_socket) }, \
+
 // Include Zephyr's autoconf.h, which should be made first by Zephyr makefiles
 #include "autoconf.h"
