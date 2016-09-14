@@ -16,6 +16,10 @@ OUTDIR_PREFIX =
 # Zephyr 1.6.0
 #OUTDIR_PREFIX = $(BOARD)
 
+MICROPY_PY_USSL = 1
+MICROPY_SSL_MBEDTLS = 1
+MICROPY_SSL_MBEDTLS_INCLUDE = $(ZEPHYR_BASE)/ext/lib/crypto/mbedtls/include
+
 # Zephyr toolchain config is 2-pass, so included twice
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
