@@ -24,4 +24,10 @@ MDEF_FILE = prj.mdef
 export LDFLAGS_zephyr += -L$(CURDIR)
 export ALL_LIBS += micropython
 
+# Need to reference dir with mbedTLS config. ZEPHYRINCLUDE doesn't work
+# (gets completely overriden by Z). Using STDINCLUDE is definitely a
+# hack, but it happens not to be overriden by Z.
+#export ZEPHYRINCLUDE += -I$(CURDIR)/src
+export STDINCLUDE += -I$(CURDIR)/src
+
 include ${ZEPHYR_BASE}/Makefile.inc
