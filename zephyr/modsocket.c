@@ -63,6 +63,8 @@ typedef struct _socket_obj_t {
     mp_obj_base_t base;
     struct net_context *sock;
     struct net_addr peer_addr;
+    struct net_buf *incoming;
+    mp_uint_t recv_offset;
 
     #define STATE_NEW 0
     #define STATE_CONNECTING 1
@@ -76,11 +78,13 @@ STATIC void socket_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kin
     (void)kind;
     socket_obj_t *self = self_in;
     if (self->sock != NULL) {
-        mp_printf(print, "<socket %p: state=%d Zstatus=%d uip_conn=%p>",
+        struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
+        mp_printf(print, "<socket %p: state=%d Zstatus=%d uip_conn=%p uip_flags=%x>",
             self->sock,
             self->state,
             net_context_get_connection_status(self->sock),
-            net_context_get_internal_connection(self->sock));
+            uip_connr,
+            uip_connr ? uip_connr->tcpstateflags : -1);
     } else {
         mp_printf(print, "<socket %p: state=%d>", self->sock, self->state);
     }
@@ -101,6 +105,8 @@ STATIC mp_obj_t socket_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     // We don't know if this will be client or server socket, so it's
     // instantiated lazily
     o->sock = NULL;
+    o->incoming = NULL;
+    o->recv_offset = 0;
     o->state = STATE_NEW;
     return o;
 }
@@ -120,7 +126,7 @@ STATIC mp_obj_t socket_connect(mp_obj_t self_in, mp_obj_t addr_in) {
     int proto = IPPROTO_TCP;
     self->sock = net_context_get(proto, &self->peer_addr, port, &my_addr, 0);
 
-    int ret = net_context_tcp_init(self->sock, NULL, NET_TCP_TYPE_CLIENT);
+    int ret = net_context_tcp_init(self->sock, /*NULL,*/ NET_TCP_TYPE_CLIENT);
     printf("ret=%d\n", ret);
     // Blocking wait until actually connected
     while (net_context_get_connection_status(self->sock) == -EINPROGRESS) {
@@ -149,41 +155,63 @@ STATIC mp_obj_t socket_send(mp_obj_t self_in, mp_obj_t buf_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(socket_send_obj, socket_send);
 
-STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t size, int *errcode) {
+STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t len, int *errcode) {
+    //printf("socket_write(%p, %p, %d)\n", self_in, buf, len);
     socket_obj_t *self = self_in;
+    struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
+
+    while (uip_outstanding(uip_connr)) {
+        printf("wait outstanding flush of %d bytes (connflags: %x)\n", uip_outstanding(uip_connr), uip_connr->tcpstateflags);
+        task_sleep(sys_clock_ticks_per_sec / 10);
+    }
 
     struct net_buf *netbuf = ip_buf_get_tx(self->sock);
-    uint8_t *ptr = net_buf_add(netbuf, size);
-    memcpy(ptr, buf, size);
-    ip_buf_appdatalen(netbuf) = size;
+    uint8_t *ptr = net_buf_add(netbuf, len);
+    memcpy(ptr, buf, len);
+    ip_buf_appdatalen(netbuf) = len;
 
     int ret = net_send(netbuf);
-    if (ret == 0) {
-        return size;
+    if (ret >= 0) {
+        return len;
     }
     *errcode = ret;
     return MP_STREAM_ERROR;
 }
 
-STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t size, int *errcode) {
+STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t len, int *errcode) {
     socket_obj_t *self = self_in;
+    struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
+    //printf("socket_read(%p, %p, %d) conn_flags: %x\n", self_in, buf, len, uip_connr->tcpstateflags);
 
-    if (self->state == STATE_PEER_CLOSED) {
-        return 0;
+    if (self->incoming == NULL) {
+        if (self->state == STATE_PEER_CLOSED || uip_connr->tcpstateflags == UIP_CLOSED) {
+            //printf("socket_read: Returning EOF\n");
+            return 0;
+        }
+        //printf("socket_read: calling net_receive\n");
+        self->incoming = net_receive(self->sock, WAIT_TICKS);
+        if (uip_closed(self->incoming)) {
+            //printf("uip_closed() == true\n");
+            self->state = STATE_PEER_CLOSED;
+        }
     }
 
-    struct net_buf *netbuf = net_receive(self->sock, WAIT_TICKS);
-    mp_uint_t copy_sz = MIN(size, ip_buf_appdatalen(netbuf));
-    if (copy_sz < ip_buf_appdatalen(netbuf)) {
-        printf("Warning: extra data in netbuf lost\n");
+    mp_uint_t remaining = ip_buf_appdatalen(self->incoming) - self->recv_offset;
+    if (len > remaining) {
+        len = remaining;
     }
-    memcpy(buf, ip_buf_appdata(netbuf), copy_sz);
-    if (uip_closed(netbuf)) {
-//printf("uip_closed() == true\n");
-        self->state = STATE_PEER_CLOSED;
+
+    memcpy(buf, ip_buf_appdata(self->incoming) + self->recv_offset, len);
+    remaining -= len;
+    if (remaining == 0) {
+        ip_buf_unref(self->incoming);
+        self->incoming = NULL;
+        self->recv_offset = 0;
+    } else {
+        self->recv_offset += len;
     }
-    ip_buf_unref(netbuf);
-    return copy_sz;
+
+    return len;
 }
 
 STATIC mp_obj_t socket_recv(mp_obj_t self_in, mp_obj_t len_in) {
