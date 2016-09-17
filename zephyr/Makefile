@@ -20,6 +20,8 @@ MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
 MICROPY_SSL_MBEDTLS_INCLUDE = $(ZEPHYR_BASE)/ext/lib/crypto/mbedtls/include
 
+FROZEN_DIR = scripts
+
 # Zephyr toolchain config is 2-pass, so included twice
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
@@ -48,6 +50,7 @@ SRC_C = main.c \
 	lib/utils/pyexec.c \
 	lib/mp-readline/readline.c \
 	lib/netutils/netutils.c \
+	$(BUILD)/frozen.c \
 	$(SRC_MOD)
 
 # List of sources for qstr extraction
