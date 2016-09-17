@@ -44,6 +44,11 @@
 #define PACK_ALIAS_STRUCT __attribute__((__packed__,__may_alias__))
 #include <net/ip/contiki/ip/uipaddr.h>
 
+#if 1 // print debugging info
+#define DEBUG_printf DEBUG_printf
+#else // don't print debugging info
+#define DEBUG_printf(...) (void)0
+#endif
 
 #define IPADDR {{192, 0, 2, 2}}
 #define MY_IPADDR {IPADDR}
@@ -125,7 +130,7 @@ STATIC mp_obj_t socket_connect(mp_obj_t self_in, mp_obj_t addr_in) {
     // Get address
     uint8_t ip[NETUTILS_IPV4ADDR_BUFSIZE];
     mp_uint_t port = netutils_parse_inet_addr(addr_in, ip, NETUTILS_BIG);
-    printf("resolved: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+    DEBUG_printf("resolved: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
     struct in_addr in4addr_peer = {{{ip[0], ip[1], ip[2], ip[3]}}};
     self->peer_addr.in_addr = in4addr_peer;
@@ -135,10 +140,10 @@ STATIC mp_obj_t socket_connect(mp_obj_t self_in, mp_obj_t addr_in) {
     self->sock = net_context_get(proto, &self->peer_addr, port, &my_addr, 0);
 
     int ret = net_context_tcp_init(self->sock, /*NULL,*/ NET_TCP_TYPE_CLIENT);
-    printf("ret=%d\n", ret);
+    DEBUG_printf("net_context_tcp_init()=%d\n", ret);
     // Blocking wait until actually connected
     while (net_context_get_connection_status(self->sock) == -EINPROGRESS) {
-        printf("st=%d\n", net_context_get_connection_status(self->sock));
+        DEBUG_printf("waiting to connect: %d\n", net_context_get_connection_status(self->sock));
         task_sleep(sys_clock_ticks_per_sec / 10);
     }
 
@@ -164,12 +169,12 @@ STATIC mp_obj_t socket_send(mp_obj_t self_in, mp_obj_t buf_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(socket_send_obj, socket_send);
 
 STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t len, int *errcode) {
-    //printf("socket_write(%p, %p, %d)\n", self_in, buf, len);
+    DEBUG_printf("socket_write(%p, %p, %d)\n", self_in, buf, len);
     socket_obj_t *self = self_in;
     struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
 
     while (uip_outstanding(uip_connr)) {
-        printf("wait outstanding flush of %d bytes (connflags: %x)\n", uip_outstanding(uip_connr), uip_connr->tcpstateflags);
+        DEBUG_printf("wait outstanding flush of %d bytes (connflags: %x)\n", uip_outstanding(uip_connr), uip_connr->tcpstateflags);
         task_sleep(sys_clock_ticks_per_sec / 10);
     }
 
@@ -189,17 +194,17 @@ STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t len, 
 STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t len, int *errcode) {
     socket_obj_t *self = self_in;
     struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
-    //printf("socket_read(%p, %p, %d) conn_flags: %x\n", self_in, buf, len, uip_connr->tcpstateflags);
+    DEBUG_printf("socket_read(%p, %p, %d) conn_flags: %x\n", self_in, buf, len, uip_connr->tcpstateflags);
 
     while (self->incoming == NULL) {
         if (self->state == STATE_PEER_CLOSED || uip_connr->tcpstateflags == UIP_CLOSED) {
-            //printf("socket_read: Returning EOF\n");
+            DEBUG_printf("socket_read: Returning EOF\n");
             return 0;
         }
-        //printf("socket_read: calling net_receive\n");
+        DEBUG_printf("socket_read: calling net_receive\n");
         self->incoming = net_receive(self->sock, WAIT_TICKS);
         if (uip_closed(self->incoming)) {
-            //printf("uip_closed() == true\n");
+            DEBUG_printf("uip_closed() == true\n");
             self->state = STATE_PEER_CLOSED;
         }
         if (ip_buf_appdatalen(self->incoming) == 0) {
