@@ -21,6 +21,8 @@ MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
 MICROPY_SSL_MBEDTLS_INCLUDE = $(ZEPHYR_BASE)/ext/lib/crypto/mbedtls/include
 
+FROZEN_DIR = scripts
+
 # Zephyr (generated) config files - must be defined before include below
 Z_SYSGEN_H = outdir/$(OUTDIR_PREFIX)/misc/generated/sysgen/sysgen.h
 Z_EXPORTS = outdir/$(OUTDIR_PREFIX)/Makefile.export
