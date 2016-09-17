@@ -191,7 +191,7 @@ STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t len, int *er
     struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
     //printf("socket_read(%p, %p, %d) conn_flags: %x\n", self_in, buf, len, uip_connr->tcpstateflags);
 
-    if (self->incoming == NULL) {
+    while (self->incoming == NULL) {
         if (self->state == STATE_PEER_CLOSED || uip_connr->tcpstateflags == UIP_CLOSED) {
             //printf("socket_read: Returning EOF\n");
             return 0;
@@ -201,6 +201,11 @@ STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t len, int *er
         if (uip_closed(self->incoming)) {
             //printf("uip_closed() == true\n");
             self->state = STATE_PEER_CLOSED;
+        }
+        if (ip_buf_appdatalen(self->incoming) == 0) {
+            // We may be passed 0-length packet to indicate peer closed
+            // condition (or by any other reason).
+            self->incoming = NULL;
         }
     }
 
