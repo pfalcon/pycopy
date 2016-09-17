@@ -79,12 +79,20 @@ STATIC void socket_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kin
     socket_obj_t *self = self_in;
     if (self->sock != NULL) {
         struct uip_conn *uip_connr = net_context_get_internal_connection(self->sock);
-        mp_printf(print, "<socket %p: state=%d Zstatus=%d uip_conn=%p uip_flags=%x>",
+        mp_printf(print, "<socket %p: state=%d Zstatus=%d income=%p(@%d) uip_conn=%p",
             self->sock,
             self->state,
             net_context_get_connection_status(self->sock),
-            uip_connr,
-            uip_connr ? uip_connr->tcpstateflags : -1);
+            self->incoming,
+            self->recv_offset,
+            uip_connr);
+
+        if (uip_connr != NULL) {
+            mp_printf(print, " uip_flags=%x uip_oustand=%d",
+                uip_connr->tcpstateflags,
+                uip_outstanding(uip_connr));
+        }
+        mp_printf(print, ">");
     } else {
         mp_printf(print, "<socket %p: state=%d>", self->sock, self->state);
     }
