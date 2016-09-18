@@ -147,6 +147,11 @@ STATIC mp_obj_t socket_connect(mp_obj_t self_in, mp_obj_t addr_in) {
         task_sleep(sys_clock_ticks_per_sec / 10);
     }
 
+    if (net_context_get_connection_status(self->sock) == -ECONNRESET) {
+        self->state = STATE_PEER_CLOSED;
+        nlr_raise(mp_obj_new_exception_arg1(&mp_type_OSError, MP_OBJ_NEW_SMALL_INT(MP_ECONNRESET)));
+    }
+
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(socket_connect_obj, socket_connect);
