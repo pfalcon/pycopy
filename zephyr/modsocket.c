@@ -184,6 +184,9 @@ STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t len, 
     }
 
     struct net_buf *netbuf = ip_buf_get_tx(self->sock);
+    if (len > net_buf_tailroom(netbuf)) {
+        len = net_buf_tailroom(netbuf);
+    }
     uint8_t *ptr = net_buf_add(netbuf, len);
     memcpy(ptr, buf, len);
     ip_buf_appdatalen(netbuf) = len;
