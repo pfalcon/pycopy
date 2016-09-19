@@ -43,7 +43,7 @@
 #include <net/net_socket.h>
 #include <net/ip_buf.h>
 #define PACK_ALIAS_STRUCT __attribute__((__packed__,__may_alias__))
-#include <net/ip/contiki/ip/uipaddr.h>
+#include <contiki/ip/uipaddr.h>
 
 #if 1 // print debugging info
 #define DEBUG_printf DEBUG_printf
