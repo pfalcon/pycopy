@@ -9,12 +9,17 @@
 # Zephyr build system.
 #
 
-ARCH ?= x86
-BOARD = qemu_x86
+BOARD ?= qemu_x86
 # Zephyr 1.5.0
 OUTDIR_PREFIX =
 # Zephyr 1.6.0
 #OUTDIR_PREFIX = $(BOARD)
+
+DOTCONFIG = outdir/$(OUTDIR_PREFIX)/.config
+DQUOTE = "
+# "
+include $(DOTCONFIG)
+override ARCH = $(subst $(DQUOTE),,$(CONFIG_ARCH))
 
 MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
@@ -27,8 +32,18 @@ include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 
 CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs
+ifeq ($(CONFIG_FLOAT), y)
+ifeq ($(CONFIG_FP_SOFTABI), y)
+CFLAGS_arm += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+endif
+ifeq ($(CONFIG_FP_HARDABI), y)
+CFLAGS_arm += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
+endif
+
 CFLAGS_x86 = -fno-asynchronous-unwind-tables -ffreestanding -fno-stack-protector \
     -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium
+
 CFLAGS_TARGET = $(CFLAGS_$(ARCH))
 
 include ../py/mkenv.mk
@@ -63,11 +78,14 @@ CFLAGS = -std=gnu99 $(TOOLCHAIN_CFLAGS) $(INC) $(CFLAGS_MOD) $(COPT) $(CFLAGS_TA
 
 include ../py/mkrules.mk
 
-all: $(LIBMICROPYTHON)
-	make -f Makefile.zephyr BOARD=$(BOARD)
+$(DOTCONFIG) :
+	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) initconfig
 
-qemu: all
-	make -f Makefile.zephyr qemu BOARD=$(BOARD)
+GENERIC_TARGETS = all zephyr qemu qemugdb flash debug
+KCONFIG_TARGETS = config nconfig menuconfig xconfig gconfig
+
+$(GENERIC_TARGETS) $(KCONFIG_TARGETS): $(LIBMICROPYTHON)
+	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) $@
 
 # Note: doesn't rebuild binary, just runs qemu against it
 qemu-net:
@@ -88,7 +106,7 @@ build/genhdr/qstr.i.last: $(Z_AUTOCONF_H)
 
 $(Z_AUTOCONF_H):
 	rm -f $(LIBMICROPYTHON)
-	-make -f Makefile.zephyr BOARD=$(BOARD)
+	-$(MAKE) -f Makefile.zephyr BOARD=$(BOARD)
 
 # Clean Zephyr things too
 CLEAN_EXTRA = outdir
