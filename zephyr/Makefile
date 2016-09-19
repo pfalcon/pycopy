@@ -71,11 +71,11 @@ include ../py/mkrules.mk
 $(Z_DOTCONFIG):
 	make -f Makefile.zephyr BOARD=$(BOARD) initconfig
 
-all: $(LIBMICROPYTHON)
-	make -f Makefile.zephyr BOARD=$(BOARD)
+GENERIC_TARGETS = all zephyr qemu qemugdb flash debug
+KCONFIG_TARGETS = config nconfig menuconfig xconfig gconfig
 
-qemu: all
-	make -f Makefile.zephyr qemu BOARD=$(BOARD)
+$(GENERIC_TARGETS) $(KCONFIG_TARGETS): $(LIBMICROPYTHON)
+	make -f Makefile.zephyr BOARD=$(BOARD) $@
 
 # Note: doesn't rebuild binary, just runs qemu against it
 qemu-net:
