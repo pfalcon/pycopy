@@ -9,7 +9,7 @@
 # Zephyr build system.
 #
 
-BOARD = qemu_x86
+BOARD ?= qemu_x86
 # Zephyr 1.5.0
 OUTDIR_PREFIX =
 # Zephyr 1.6.0
