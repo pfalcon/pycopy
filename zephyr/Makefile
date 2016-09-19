@@ -79,13 +79,13 @@ CFLAGS = -std=gnu99 $(TOOLCHAIN_CFLAGS) $(INC) $(CFLAGS_MOD) $(COPT) $(CFLAGS_TA
 include ../py/mkrules.mk
 
 $(DOTCONFIG) :
-	make -f Makefile.zephyr BOARD=$(BOARD) initconfig
+	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) initconfig
 
 GENERIC_TARGETS = all zephyr qemu qemugdb flash debug
 KCONFIG_TARGETS = config nconfig menuconfig xconfig gconfig
 
 $(GENERIC_TARGETS) $(KCONFIG_TARGETS): $(LIBMICROPYTHON)
-	make -f Makefile.zephyr BOARD=$(BOARD) $@
+	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) $@
 
 # Note: doesn't rebuild binary, just runs qemu against it
 qemu-net:
@@ -106,7 +106,7 @@ build/genhdr/qstr.i.last: $(Z_AUTOCONF_H)
 
 $(Z_AUTOCONF_H):
 	rm -f $(LIBMICROPYTHON)
-	-make -f Makefile.zephyr BOARD=$(BOARD)
+	-$(MAKE) -f Makefile.zephyr BOARD=$(BOARD)
 
 # Clean Zephyr things too
 CLEAN_EXTRA = outdir
