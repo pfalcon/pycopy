@@ -9,12 +9,17 @@
 # Zephyr build system.
 #
 
-ARCH ?= x86
 BOARD = qemu_x86
 # Zephyr 1.5.0
 OUTDIR_PREFIX =
 # Zephyr 1.6.0
 #OUTDIR_PREFIX = $(BOARD)
+
+DOTCONFIG = outdir/$(OUTDIR_PREFIX)/.config
+DQUOTE = "
+# "
+include $(DOTCONFIG)
+override ARCH = $(subst $(DQUOTE),,$(CONFIG_ARCH))
 
 MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
@@ -62,6 +67,9 @@ COPT = -Os -DNDEBUG -fdata-sections -ffunction-sections
 CFLAGS = -std=gnu99 $(TOOLCHAIN_CFLAGS) $(INC) $(CFLAGS_MOD) $(COPT) $(CFLAGS_TARGET)
 
 include ../py/mkrules.mk
+
+$(DOTCONFIG) :
+	make -f Makefile.zephyr BOARD=$(BOARD) initconfig
 
 all: $(LIBMICROPYTHON)
 	make -f Makefile.zephyr BOARD=$(BOARD)
