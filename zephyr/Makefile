@@ -32,8 +32,18 @@ include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 
 CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs
+ifeq ($(CONFIG_FLOAT), y)
+ifeq ($(CONFIG_FP_SOFTABI), y)
+CFLAGS_arm += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+endif
+ifeq ($(CONFIG_FP_HARDABI), y)
+CFLAGS_arm += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
+endif
+
 CFLAGS_x86 = -fno-asynchronous-unwind-tables -ffreestanding -fno-stack-protector \
     -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium
+
 CFLAGS_TARGET = $(CFLAGS_$(ARCH))
 
 include ../py/mkenv.mk
