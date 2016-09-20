@@ -205,7 +205,7 @@ STATIC mp_uint_t socket_read(mp_obj_t self_in, void *buf, mp_uint_t len, int *er
     DEBUG_printf("socket_read(%p, %p, %d) conn_flags: %x\n", self_in, buf, len, uip_connr->tcpstateflags);
 
     while (self->incoming == NULL) {
-        if (self->state == STATE_PEER_CLOSED || uip_connr->tcpstateflags == UIP_CLOSED) {
+        if (self->state == STATE_PEER_CLOSED /*|| uip_connr->tcpstateflags == UIP_CLOSED*/) {
             DEBUG_printf("socket_read: Returning EOF\n");
             return 0;
         }
