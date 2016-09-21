@@ -58,6 +58,7 @@
 // These are uIP public interface variables wich specify this host address/netmask.
 uip_ipaddr_t uip_hostaddr = IPADDR;
 uip_ipaddr_t uip_netmask = { { 255, 255, 255, 0 } };
+uip_ipaddr_t uip_draddr = {{192, 0, 2, 1}};
 
 static struct net_addr my_addr = {
     .family = AF_INET,
