@@ -15,11 +15,12 @@ BOARD ?= qemu_x86
 # Zephyr 1.6.0
 OUTDIR_PREFIX = $(BOARD)
 
+# Zephyr (generated) config files - must be defined before include below
 Z_DOTCONFIG = outdir/$(OUTDIR_PREFIX)/.config
+Z_AUTOCONF_H = outdir/$(OUTDIR_PREFIX)/include/generated/autoconf.h
 DQUOTE = "
 # "
-include $(Z_DOTCONFIG)
-override ARCH = $(subst $(DQUOTE),,$(CONFIG_ARCH))
+include z_config_proxy.mk
 
 MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
@@ -31,10 +32,7 @@ FROZEN_DIR = scripts
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
 
-CFLAGS_arm = -mthumb -mcpu=cortex-m3 -mabi=aapcs
-CFLAGS_x86 = -fno-asynchronous-unwind-tables -ffreestanding -fno-stack-protector \
-    -fno-omit-frame-pointer -mpreferred-stack-boundary=2 -mno-sse -march=pentium
-CFLAGS_TARGET = $(CFLAGS_$(ARCH))
+CFLAGS_TARGET = $(cflags-y)
 
 include ../py/mkenv.mk
 include ../py/py.mk
@@ -88,9 +86,6 @@ qemu-net:
 # For GDB debugging with QEMU
 #-s -S
 
-
-Z_AUTOCONF_H = outdir/$(OUTDIR_PREFIX)/include/generated/autoconf.h
-
 $(LIBMICROPYTHON): $(Z_AUTOCONF_H)
 build/genhdr/qstr.i.last: $(Z_AUTOCONF_H)
 
@@ -98,5 +93,12 @@ $(Z_AUTOCONF_H):
 	rm -f $(LIBMICROPYTHON)
 	-$(MAKE) -f Makefile.zephyr BOARD=$(BOARD)
 
+zephyr_arch.mk: $(Z_DOTCONFIG)
+	echo "include $(ZEPHYR_BASE)/arch/$(ARCH)/Makefile" >$@
+
+z_config_proxy.mk:
+	$(MAKE) -f Makefile.zephyr BOARD=$(BOARD) initconfig
+	echo "include z_config.mk" >$@
+
 # Clean Zephyr things too
-CLEAN_EXTRA = outdir
+CLEAN_EXTRA = outdir z_config_proxy.mk
