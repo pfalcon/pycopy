@@ -29,6 +29,7 @@
 #define MICROPY_PY_CMATH            (0)
 #define MICROPY_PY_IO               (0)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
+#define MICROPY_PY_UTIME            (1)
 /* TODO: Would really like IS_ENABLED(CONFIG_NETWORKING) here but Zephyr
  *       doesn't have this yet...
  */
@@ -66,7 +67,13 @@ typedef long mp_off_t;
     { MP_OBJ_NEW_QSTR(MP_QSTR_help), (mp_obj_t)&mp_builtin_help_obj }, \
 
 extern const struct _mp_obj_module_t mp_module_socket;
+extern const struct _mp_obj_module_t mp_module_time;
 
+#if MICROPY_PY_UTIME
+#define MICROPY_PY_UTIME_DEF { MP_ROM_QSTR(MP_QSTR_utime), MP_ROM_PTR(&mp_module_time) },
+#else
+#define MICROPY_PY_UTIME_DEF
+#endif
 #if MICROPY_PY_SOCKET
 #define MICROPY_PY_SOCKET_DEF { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_socket) },
 #else
@@ -74,5 +81,6 @@ extern const struct _mp_obj_module_t mp_module_socket;
 #endif
 
 #define MICROPY_PORT_BUILTIN_MODULES \
+    MICROPY_PY_UTIME_DEF \
     MICROPY_PY_SOCKET_DEF \
 
