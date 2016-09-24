@@ -20,3 +20,21 @@ To run in QEMU:
 To build for a real board (see link above for supported Cortex-M boards):
 
     make BOARD=frdm_k64f
+
+For boards with limited FLASH it may be necessary to disable unnecessary
+features. For example to run with BOARD=qemu_cortex_m3 try:
+
+    make BOARD=qemu_cortex_m3 initconfig
+    $ZEPHYR_BASE/scripts/config --file outdir/qemu_cortex_m3/.config \
+	    --disable NETWORKING \
+	    --disable MBEDTLS
+    make BOARD=qemu_cortex_m3
+
+As before we can run this in QEMU too:
+
+    make BOARD=qemu_cortex_m3 qemu
+
+The clean targets (clean, pristine, mrproper) all act like their Zephyr
+namesakes. In particular a "clean" will causes a full rebuild but will not
+remove the .config file.
+
