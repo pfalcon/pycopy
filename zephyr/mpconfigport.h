@@ -1,5 +1,8 @@
 #include <alloca.h>
 
+// Include Zephyr's autoconf.h, which should be made first by Zephyr makefiles
+#include "autoconf.h"
+
 // Saving extra crumbs to make sure binary fits in 128K
 #define MICROPY_COMP_CONST_FOLDING  (0)
 #define MICROPY_COMP_CONST (0)
@@ -26,6 +29,14 @@
 #define MICROPY_PY_CMATH            (0)
 #define MICROPY_PY_IO               (0)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
+/* TODO: Would really like IS_ENABLED(CONFIG_NETWORKING) here but Zephyr
+ *       doesn't have this yet...
+ */
+#ifdef CONFIG_NETWORKING
+#define MICROPY_PY_SOCKET           (1)
+#else
+#define MICROPY_PY_SOCKET           (0)
+#endif
 #define MICROPY_PY_STRUCT           (1)
 #define MICROPY_PY_SYS_MODULES      (0)
 #define MICROPY_LONGINT_IMPL (MICROPY_LONGINT_IMPL_LONGLONG)
@@ -52,8 +63,12 @@ typedef long mp_off_t;
 
 extern const struct _mp_obj_module_t mp_module_socket;
 
-#define MICROPY_PORT_BUILTIN_MODULES \
-    { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_socket) }, \
+#if MICROPY_PY_SOCKET
+#define MICROPY_PY_SOCKET_DEF { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_socket) },
+#else
+#define MICROPY_PY_SOCKET_DEF
+#endif
 
-// Include Zephyr's autoconf.h, which should be made first by Zephyr makefiles
-#include "autoconf.h"
+#define MICROPY_PORT_BUILTIN_MODULES \
+    MICROPY_PY_SOCKET_DEF \
+

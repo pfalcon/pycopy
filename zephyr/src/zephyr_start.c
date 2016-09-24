@@ -4,9 +4,11 @@
 int real_main(void);
 
 void main(void) {
+#ifdef CONFIG_NETWORKING
     if (net_init() < 0) {
         printf("Error in net_init()\n");
     }
+#endif
     zephyr_getchar_init();
     real_main();
 }

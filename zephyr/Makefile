@@ -20,9 +20,11 @@ Z_SYSGEN_H = outdir/$(OUTDIR_PREFIX)/misc/generated/sysgen/sysgen.h
 Z_EXPORTS = outdir/$(OUTDIR_PREFIX)/Makefile.export
 include $(Z_EXPORTS)
 
+ifdef CONFIG_MBEDTLS
 MICROPY_PY_USSL = 1
 MICROPY_SSL_MBEDTLS = 1
 MICROPY_SSL_MBEDTLS_INCLUDE = $(ZEPHYR_BASE)/ext/lib/crypto/mbedtls/include
+endif
 
 FROZEN_DIR = scripts
 
@@ -36,9 +38,12 @@ INC += -I$(ZEPHYR_BASE)/net/ip
 INC += -I$(ZEPHYR_BASE)/net/ip/contiki
 INC += -I$(ZEPHYR_BASE)/net/ip/contiki/os
 
+ifdef CONFIG_NETWORKING
+SRC_MOD += modsocket.c
+endif
+
 SRC_C = main.c \
 	uart_core.c \
-	modsocket.c \
 	lib/utils/stdout_helpers.c \
 	lib/utils/printf.c \
 	lib/utils/pyexec.c \
