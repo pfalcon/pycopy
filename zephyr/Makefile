@@ -42,7 +42,8 @@ ifdef CONFIG_NETWORKING
 SRC_MOD += modsocket.c
 endif
 
-SRC_C = main.c \
+SRC_C = help.c \
+	main.c \
 	uart_core.c \
 	lib/utils/stdout_helpers.c \
 	lib/utils/printf.c \
@@ -53,10 +54,15 @@ SRC_C = main.c \
 	$(BUILD)/frozen.c \
 	$(SRC_MOD)
 
+LIB_SRC_C = $(addprefix lib/,\
+	utils/pyhelp.c \
+	)
+
 # List of sources for qstr extraction
 SRC_QSTR += $(SRC_C)
 
 OBJ = $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
+OBJ += $(addprefix $(BUILD)/, $(LIB_SRC_C:.c=.o))
 
 CFLAGS = $(KBUILD_CFLAGS) $(NOSTDINC_FLAGS) $(ZEPHYRINCLUDE) \
 	 -std=gnu99 -DNDEBUG $(INC)
