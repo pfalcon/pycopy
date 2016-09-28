@@ -54,6 +54,7 @@
 #define MICROPY_PY_CMATH            (0)
 #define MICROPY_PY_IO               (0)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
+#define MICROPY_PY_MACHINE          (1)
 /* TODO: Would really like IS_ENABLED(CONFIG_NETWORKING) here but Zephyr
  *       doesn't have this yet...
  */
@@ -99,6 +100,7 @@ typedef long mp_off_t;
     mp_obj_t mp_kbd_exception; \
     const char *readline_hist[8];
 
+extern const struct _mp_obj_module_t mp_module_machine;
 extern const struct _mp_obj_module_t mp_module_socket;
 extern const struct _mp_obj_module_t mp_module_time;
 
@@ -115,6 +117,7 @@ extern const struct _mp_obj_module_t mp_module_time;
 #endif
 
 #define MICROPY_PORT_BUILTIN_MODULES \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, \
     MICROPY_PY_SOCKET_DEF \
     MICROPY_PY_UTIME_DEF \
 
