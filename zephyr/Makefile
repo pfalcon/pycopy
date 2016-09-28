@@ -45,6 +45,8 @@ endif
 SRC_C = help.c \
 	main.c \
 	modutime.c \
+	modmachine.c \
+	modpybpin.c \
 	uart_core.c \
 	lib/utils/stdout_helpers.c \
 	lib/utils/printf.c \
