@@ -33,6 +33,7 @@
 
 #include "py/nlr.h"
 #include "py/obj.h"
+#include "py/runtime.h"
 #include "py/stream.h"
 #include "lib/netutils/netutils.h"
 
@@ -79,6 +80,15 @@ typedef struct _socket_obj_t {
     #define STATE_CLOSED 4
     byte state;
 } socket_obj_t;
+
+static inline void poll_sockets(void) {
+    if (MP_STATE_VM(mp_pending_exception) != NULL) {
+        mp_obj_t obj = MP_STATE_VM(mp_pending_exception);
+        MP_STATE_VM(mp_pending_exception) = MP_OBJ_NULL;
+        nlr_raise(obj);
+    }
+    task_sleep(sys_clock_ticks_per_sec / 10);
+}
 
 STATIC void socket_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
@@ -145,7 +155,7 @@ STATIC mp_obj_t socket_connect(mp_obj_t self_in, mp_obj_t addr_in) {
     // Blocking wait until actually connected
     while (net_context_get_connection_status(self->sock) == -EINPROGRESS) {
         DEBUG_printf("waiting to connect: %d\n", net_context_get_connection_status(self->sock));
-        task_sleep(sys_clock_ticks_per_sec / 10);
+        poll_sockets();
     }
 
     if (net_context_get_connection_status(self->sock) == -ECONNRESET) {
@@ -181,7 +191,7 @@ STATIC mp_uint_t socket_write(mp_obj_t self_in, const void *buf, mp_uint_t len, 
 
     while (uip_outstanding(uip_connr)) {
         DEBUG_printf("wait outstanding flush of %d bytes (connflags: %x)\n", uip_outstanding(uip_connr), uip_connr->tcpstateflags);
-        task_sleep(sys_clock_ticks_per_sec / 10);
+        poll_sockets();
     }
 
     struct net_buf *netbuf = ip_buf_get_tx(self->sock);
