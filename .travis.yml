@@ -33,29 +33,6 @@ script:
   - mkdir -p ${HOME}/persist
   # Save new firmware for reference, but only if building a main branch, not a pull request
   - '[ "$TRAVIS_PULL_REQUEST" = "false" ] && cp minimal/build/firmware.bin ${HOME}/persist/'
-  - make -C unix deplibs
-  - make -C unix
-  - make -C unix nanbox
-  - make -C bare-arm
-  - make -C qemu-arm test
-  - make -C stmhal
-  - make -C stmhal -B MICROPY_PY_WIZNET5K=1 MICROPY_PY_CC3K=1
-  - make -C stmhal BOARD=STM32F4DISC
-  - make -C teensy
-  - make -C cc3200 BTARGET=application BTYPE=release
-  - make -C cc3200 BTARGET=bootloader  BTYPE=release
-  - make -C windows CROSS_COMPILE=i686-w64-mingw32-
-
-  # run tests without coverage info
-  #- (cd tests && MICROPY_CPYTHON3=python3.4 ./run-tests)
-  #- (cd tests && MICROPY_CPYTHON3=python3.4 ./run-tests --emit native)
-
-  # run tests with coverage info
-  - make -C unix coverage
-  - (cd tests && MICROPY_CPYTHON3=python3.4 MICROPY_MICROPYTHON=../unix/micropython_coverage ./run-tests)
-  - (cd tests && MICROPY_CPYTHON3=python3.4 MICROPY_MICROPYTHON=../unix/micropython_coverage ./run-tests -d thread)
-  - (cd tests && MICROPY_CPYTHON3=python3.4 MICROPY_MICROPYTHON=../unix/micropython_coverage ./run-tests --emit native)
-  - (cd tests && MICROPY_CPYTHON3=python3.4 MICROPY_MICROPYTHON=../unix/micropython_coverage ./run-tests --via-mpy -d basics)
 
 after_success:
   - (cd unix && coveralls --root .. --build-root . --gcov $(which gcov) --gcov-options '\-o build-coverage/' --include py --include extmod)
