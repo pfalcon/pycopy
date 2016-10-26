@@ -119,8 +119,8 @@ extern const struct _mp_obj_module_t mp_module_time;
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, \
     MICROPY_PY_SOCKET_DEF \
-    MICROPY_PY_UTIME_DEF \
+    MICROPY_PY_UTIME_DEF
 
 // extra built in names to add to the global namespace
 #define MICROPY_PORT_BUILTINS \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_help), (mp_obj_t)&mp_builtin_help_obj }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_help), (mp_obj_t)&mp_builtin_help_obj },

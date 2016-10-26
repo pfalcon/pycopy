@@ -73,9 +73,8 @@ STATIC mp_obj_t pyb_pin_obj_init_helper(pyb_pin_obj_t *self, mp_uint_t n_args, c
     if (ret) {
         nlr_raise(mp_obj_new_exception_msg(&mp_type_ValueError, "invalid pin"));
     }
-    
+
     // get initial value
-    int value;
     if (args[ARG_value].u_obj != MP_OBJ_NULL) {
 	(void) gpio_pin_write(self->port, self->pin,
 			mp_obj_is_true(args[ARG_value].u_obj));
