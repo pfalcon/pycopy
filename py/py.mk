@@ -27,6 +27,8 @@ CFLAGS_MOD += -DMICROPY_PY_USSL=1
 ifeq ($(MICROPY_SSL_AXTLS),1)
 CFLAGS_MOD += -DMICROPY_SSL_AXTLS=1 -I../lib/axtls/ssl -I../lib/axtls/crypto -I../lib/axtls/config
 LDFLAGS_MOD += -Lbuild -laxtls
+# Automatically build libaxtls before building uPy module
+$(PY_BUILD)/../extmod/modussl_axtls.o: $(BUILD)/libaxtls.a
 else ifeq ($(MICROPY_SSL_MBEDTLS),1)
 # Can be overriden by ports which have "builtin" mbedTLS
 MICROPY_SSL_MBEDTLS_INCLUDE ?= ../lib/mbedtls/include
