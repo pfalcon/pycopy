@@ -96,6 +96,7 @@ int real_main(void) {
     #endif
 
 soft_reset:
+    pyexec_mode_kind = PYEXEC_MODE_FRIENDLY_REPL;
     #if MICROPY_ENABLE_GC
     gc_init(heap, heap + sizeof(heap));
     #endif
