@@ -31,6 +31,7 @@
 #include <assert.h>
 
 #include "py/objtype.h"
+#include "py/objnamedtuple.h"
 #include "py/runtime.h"
 
 #if MICROPY_DEBUG_VERBOSE // print debugging info
@@ -101,8 +102,25 @@ STATIC
 #endif
 mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, const mp_obj_type_t **native_base) {
     size_t num_native_bases = instance_count_native_bases(class, native_base);
+    mp_obj_instance_t *o;
+
+    #if MICROPY_CLASS_SLOTS
+    if (mp_obj_is_instance_slots_type(class)) {
+        if (num_native_bases != 0) {
+            mp_raise_TypeError(NULL);
+        }
+
+        const mp_obj_namedtuple_type_t *type = (const mp_obj_namedtuple_type_t*)class;
+        size_t num_fields = type->n_fields;
+
+        mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(num_fields, NULL));
+        t->base.type = class;
+        return (mp_obj_instance_t*)t;
+    }
+    #endif
+
     assert(num_native_bases < 2);
-    mp_obj_instance_t *o = m_new_obj_var(mp_obj_instance_t, mp_obj_t, num_native_bases);
+    o = m_new_obj_var(mp_obj_instance_t, mp_obj_t, num_native_bases);
     o->base.type = class;
     mp_map_init(&o->members, 0);
     // Initialise the native base-class slot (should be 1 at most) with a valid
@@ -575,6 +593,8 @@ retry:;
     return res;
 }
 
+STATIC void mp_obj_instance_load_class_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest);
+
 STATIC void mp_obj_instance_load_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     // logic: look in instance members then class locals
     assert(mp_obj_is_instance_type(mp_obj_get_type(self_in)));
@@ -602,6 +622,12 @@ STATIC void mp_obj_instance_load_attr(mp_obj_t self_in, qstr attr, mp_obj_t *des
         return;
     }
 #endif
+
+    mp_obj_instance_load_class_attr(self_in, attr, dest);
+}
+
+STATIC void mp_obj_instance_load_class_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+    mp_obj_instance_t *self = MP_OBJ_TO_PTR(self_in);
     struct class_lookup_data lookup = {
         .obj = self,
         .attr = attr,
@@ -806,6 +832,36 @@ STATIC void mp_obj_instance_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
         }
     }
 }
+
+#if MICROPY_CLASS_SLOTS
+STATIC void mp_obj_slotted_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+    mp_obj_namedtuple_t *self = MP_OBJ_TO_PTR(self_in);
+    size_t id = mp_obj_namedtuple_find_field((mp_obj_namedtuple_type_t*)self->tuple.base.type, attr);
+
+    if (id == (size_t)-1) {
+        if (dest[0] == MP_OBJ_NULL) {
+            // load attribute
+            mp_obj_instance_load_class_attr(self_in, attr, dest);
+        }
+
+        // Otherwise, as of CPython 3.6, class-level attributes of slotted
+        // class appear to be read-only:
+        // AttributeError: 'C' object attribute 'clslvl' is read-only
+
+        return;
+    }
+
+    if (dest[0] == MP_OBJ_NULL) {
+        // load attribute
+        dest[0] = self->tuple.items[id];
+    } else {
+        // delete/store attribute
+        // if dest[1] == MP_OBJ_NULL, delete
+        self->tuple.items[id] = dest[1];
+        dest[0] = MP_OBJ_NULL; // indicate success
+    }
+}
+#endif
 
 STATIC mp_obj_t instance_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value) {
     mp_obj_instance_t *self = MP_OBJ_TO_PTR(self_in);
@@ -1107,7 +1163,37 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
         #endif
     }
 
-    mp_obj_type_t *o = m_new0(mp_obj_type_t, 1);
+    mp_map_t *locals_map = &((mp_obj_dict_t*)MP_OBJ_TO_PTR(locals_dict))->map;
+    #if MICROPY_CLASS_SLOTS
+    mp_map_elem_t *slots = mp_map_lookup(locals_map, MP_OBJ_NEW_QSTR(MP_QSTR___slots__), MP_MAP_LOOKUP);
+    if (slots != NULL) {
+        if (bases_len != 0) {
+            mp_warning(MP_WARN_CAT(SyntaxWarning), "__slots__ in class with base classes is ignored");
+            slots = NULL;
+        }
+    }
+    #else
+    // Rely on compiler to optimize always-false branches away
+    const mp_map_elem_t *slots = NULL;
+    #endif
+
+    mp_obj_type_t *o;
+    if (MP_LIKELY(slots == NULL)) {
+        o = m_new0(mp_obj_type_t, 1);
+    } else {
+        #if MICROPY_CLASS_SLOTS
+        size_t n_fields;
+        mp_obj_t *fields;
+        mp_obj_get_array(slots->value, &n_fields, &fields);
+        o = (mp_obj_type_t*)mp_obj_new_namedtuple_base(n_fields, fields);
+        #else
+        // Workaround for Clang which doesn't understand what
+        // "const mp_map_elem_t *slots = NULL" means and thinks that this
+        // branch is reachable in that case.
+        o = NULL;
+        #endif
+    }
+
     o->base.type = &mp_type_type;
     o->flags = base_flags;
     o->name = name;
@@ -1116,7 +1202,13 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
     o->call = mp_obj_instance_call;
     o->unary_op = instance_unary_op;
     o->binary_op = instance_binary_op;
-    o->attr = mp_obj_instance_attr;
+    if (MP_LIKELY(slots == NULL)) {
+        o->attr = mp_obj_instance_attr;
+    } else {
+        #if MICROPY_CLASS_SLOTS
+        o->attr = mp_obj_slotted_attr;
+        #endif
+    }
     o->subscr = instance_subscr;
     o->getiter = instance_getiter;
     //o->iternext = ; not implemented
@@ -1163,7 +1255,6 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
         mp_raise_TypeError("multiple bases have instance lay-out conflict");
     }
 
-    mp_map_t *locals_map = &o->locals_dict->map;
     mp_map_elem_t *elem = mp_map_lookup(locals_map, MP_OBJ_NEW_QSTR(MP_QSTR___new__), MP_MAP_LOOKUP);
     if (elem != NULL) {
         // __new__ slot exists; check if it is a function
