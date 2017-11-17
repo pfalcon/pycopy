@@ -402,6 +402,13 @@
 #define MICROPY_OPT_MPZ_BITWISE (0)
 #endif
 
+// Check whether an interned string (qstr) is already available when allocating
+// strings in most cases. This *can* save heap, but *makes* string allocation
+// noticeably slower.
+#ifndef MICROPY_PREFER_QSTRS
+#define MICROPY_PREFER_QSTRS (0)
+#endif
+
 /*****************************************************************************/
 /* Python internal features                                                  */
 
