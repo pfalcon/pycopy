@@ -40,7 +40,10 @@
 // the algorithm here is modelled on CPython's heapq.py
 
 struct qentry {
-    mp_uint_t time;
+    union {
+        mp_uint_t time;
+        struct qentry *next_free;
+    };
     mp_uint_t id;
     mp_obj_t callback;
     mp_obj_t args;
@@ -50,7 +53,12 @@ typedef struct _mp_obj_utimeq_t {
     mp_obj_base_t base;
     mp_uint_t alloc;
     mp_uint_t len;
-    struct qentry items[];
+    struct qentry **heap;
+    struct qentry *items;
+    struct qentry *free;
+    // Accessed thru pointers above
+    //struct qentry *ptr_arr[];
+    //struct qentry items_arr[];
 } mp_obj_utimeq_t;
 
 STATIC mp_uint_t utimeq_id;
@@ -77,47 +85,59 @@ STATIC bool time_less_than(struct qentry *item, struct qentry *parent) {
 STATIC mp_obj_t utimeq_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 1, 1, false);
     mp_uint_t alloc = mp_obj_get_int(args[0]);
-    mp_obj_utimeq_t *o = m_new_obj_var(mp_obj_utimeq_t, struct qentry, alloc);
+
+    mp_obj_utimeq_t *o = m_new_obj_var(mp_obj_utimeq_t, byte, alloc * (sizeof(struct qentry*) + sizeof(struct qentry)));
+    o->heap = (struct qentry**)((byte*)o + sizeof(mp_obj_utimeq_t));
+    memset(o->heap, 0, alloc * (sizeof(struct qentry*) + sizeof(struct qentry)));
+    o->items = (struct qentry*)((byte*)o->heap + alloc * sizeof(struct qentry*));
+
+    o->free = o->items;
+    struct qentry *p = o->items;
+    for (int i = alloc - 1; i; i--) {
+        p->next_free = p + 1;
+        p++;
+    }
+    p->next_free = NULL;
+
     o->base.type = type;
-    memset(o->items, 0, sizeof(*o->items) * alloc);
     o->alloc = alloc;
     o->len = 0;
     return MP_OBJ_FROM_PTR(o);
 }
 
 STATIC void heap_siftdown(mp_obj_utimeq_t *heap, mp_uint_t start_pos, mp_uint_t pos) {
-    struct qentry item = heap->items[pos];
+    struct qentry *item = heap->heap[pos];
     while (pos > start_pos) {
         mp_uint_t parent_pos = (pos - 1) >> 1;
-        struct qentry *parent = &heap->items[parent_pos];
-        bool lessthan = time_less_than(&item, parent);
+        struct qentry *parent = heap->heap[parent_pos];
+        bool lessthan = time_less_than(item, parent);
         if (lessthan) {
-            heap->items[pos] = *parent;
+            heap->heap[pos] = parent;
             pos = parent_pos;
         } else {
             break;
         }
     }
-    heap->items[pos] = item;
+    heap->heap[pos] = item;
 }
 
 STATIC void heap_siftup(mp_obj_utimeq_t *heap, mp_uint_t pos) {
     mp_uint_t start_pos = pos;
     mp_uint_t end_pos = heap->len;
-    struct qentry item = heap->items[pos];
+    struct qentry *item = heap->heap[pos];
     for (mp_uint_t child_pos = 2 * pos + 1; child_pos < end_pos; child_pos = 2 * pos + 1) {
         // choose right child if it's <= left child
         if (child_pos + 1 < end_pos) {
-            bool lessthan = time_less_than(&heap->items[child_pos], &heap->items[child_pos + 1]);
+            bool lessthan = time_less_than(heap->heap[child_pos], heap->heap[child_pos + 1]);
             if (!lessthan) {
                 child_pos += 1;
             }
         }
         // bubble up the smaller child
-        heap->items[pos] = heap->items[child_pos];
+        heap->heap[pos] = heap->heap[child_pos];
         pos = child_pos;
     }
-    heap->items[pos] = item;
+    heap->heap[pos] = item;
     heap_siftdown(heap, start_pos, pos);
 }
 
@@ -128,11 +148,15 @@ STATIC mp_obj_t mod_utimeq_heappush(size_t n_args, const mp_obj_t *args) {
     if (heap->len == heap->alloc) {
         mp_raise_msg(&mp_type_IndexError, "queue overflow");
     }
-    mp_uint_t l = heap->len;
-    heap->items[l].time = MP_OBJ_SMALL_INT_VALUE(args[1]);
-    heap->items[l].id = utimeq_id++;
-    heap->items[l].callback = args[2];
-    heap->items[l].args = args[3];
+
+    struct qentry *item = heap->free;
+    assert(item != NULL);
+    heap->free = item->next_free;
+    item->time = MP_OBJ_SMALL_INT_VALUE(args[1]);
+    item->id = utimeq_id++;
+    item->callback = args[2];
+    item->args = args[3];
+    heap->heap[heap->len] = item;
     heap_siftdown(heap, 0, heap->len);
     heap->len++;
     return mp_const_none;
@@ -149,15 +173,18 @@ STATIC mp_obj_t mod_utimeq_heappop(mp_obj_t heap_in, mp_obj_t list_ref) {
         mp_raise_TypeError(NULL);
     }
 
-    struct qentry *item = &heap->items[0];
+    struct qentry *item = heap->heap[0];
     ret->items[0] = MP_OBJ_NEW_SMALL_INT(item->time);
     ret->items[1] = item->callback;
     ret->items[2] = item->args;
-    heap->len -= 1;
-    heap->items[0] = heap->items[heap->len];
-    heap->items[heap->len].callback = MP_OBJ_NULL; // so we don't retain a pointer
-    heap->items[heap->len].args = MP_OBJ_NULL;
+    item->callback = item->args = MP_OBJ_NULL; // so we don't retain a pointer
+    item->next_free = heap->free;
+    heap->free = item;
+    heap->len--;
+
     if (heap->len) {
+        heap->heap[0] = heap->heap[heap->len];
+        heap->heap[heap->len] = NULL;
         heap_siftup(heap, 0);
     }
     return mp_const_none;
@@ -170,7 +197,7 @@ STATIC mp_obj_t mod_utimeq_peektime(mp_obj_t heap_in) {
         nlr_raise(mp_obj_new_exception_msg(&mp_type_IndexError, "empty heap"));
     }
 
-    struct qentry *item = &heap->items[0];
+    struct qentry *item = heap->heap[0];
     return MP_OBJ_NEW_SMALL_INT(item->time);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_utimeq_peektime_obj, mod_utimeq_peektime);
@@ -179,8 +206,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_utimeq_peektime_obj, mod_utimeq_peektime);
 STATIC mp_obj_t mod_utimeq_dump(mp_obj_t heap_in) {
     mp_obj_utimeq_t *heap = get_heap(heap_in);
     for (int i = 0; i < heap->len; i++) {
-        printf(UINT_FMT "\t%p\t%p\n", heap->items[i].time,
-            MP_OBJ_TO_PTR(heap->items[i].callback), MP_OBJ_TO_PTR(heap->items[i].args));
+        struct qentry *item = heap->heap[i];
+        printf(UINT_FMT "\t%p\t%p\n", item->time,
+            MP_OBJ_TO_PTR(item->callback), MP_OBJ_TO_PTR(item->args));
     }
     return mp_const_none;
 }
