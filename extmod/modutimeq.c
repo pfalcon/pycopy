@@ -159,7 +159,7 @@ STATIC mp_obj_t mod_utimeq_heappush(size_t n_args, const mp_obj_t *args) {
     heap->heap[heap->len] = item;
     heap_siftdown(heap, 0, heap->len);
     heap->len++;
-    return mp_const_none;
+    return MP_OBJ_NEW_SMALL_INT(item - heap->items);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_utimeq_heappush_obj, 4, 4, mod_utimeq_heappush);
 
