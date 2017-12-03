@@ -62,7 +62,12 @@ STATIC mp_obj_t gen_wrap_call(mp_obj_t self_in, size_t n_args, size_t n_kw, cons
     MP_BC_PRELUDE_SIG_DECODE(ip);
 
     // allocate the generator object, with room for local stack and exception stack
-    mp_obj_gen_instance_t *o = m_new_obj_var(mp_obj_gen_instance_t, byte,
+    #if MICROPY_PY_GENERATOR_NOT_RUN_WARN
+    #define ALLOC_FUNC m_new_obj_var_with_finaliser
+    #else
+    #define ALLOC_FUNC m_new_obj_var
+    #endif
+    mp_obj_gen_instance_t *o = ALLOC_FUNC(mp_obj_gen_instance_t, byte,
         n_state * sizeof(mp_obj_t) + n_exc_stack * sizeof(mp_exc_stack_t));
     o->base.type = &mp_type_gen_instance;
 
@@ -356,12 +361,26 @@ STATIC mp_obj_t gen_instance_pend_throw(mp_obj_t self_in, mp_obj_t exc_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(gen_instance_pend_throw_obj, gen_instance_pend_throw);
 #endif
 
+#if MICROPY_PY_GENERATOR_NOT_RUN_WARN
+STATIC mp_obj_t gen_instance_del(mp_obj_t self_in) {
+    mp_obj_gen_instance_t *self = MP_OBJ_TO_PTR(self_in);
+    if (self->code_state.sp == self->code_state.state - 1) {
+        mp_warning(MP_WARN_CAT(RuntimeWarning), "%r never ran", self);
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(gen_instance_del_obj, gen_instance_del);
+#endif
+
 STATIC const mp_rom_map_elem_t gen_instance_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&gen_instance_close_obj) },
     { MP_ROM_QSTR(MP_QSTR_send), MP_ROM_PTR(&gen_instance_send_obj) },
     { MP_ROM_QSTR(MP_QSTR_throw), MP_ROM_PTR(&gen_instance_throw_obj) },
     #if MICROPY_PY_GENERATOR_PEND_THROW
     { MP_ROM_QSTR(MP_QSTR_pend_throw), MP_ROM_PTR(&gen_instance_pend_throw_obj) },
+    #endif
+    #if MICROPY_PY_GENERATOR_NOT_RUN_WARN
+    { MP_ROM_QSTR(MP_QSTR___del__), MP_ROM_PTR(&gen_instance_del_obj) },
     #endif
 };
 
