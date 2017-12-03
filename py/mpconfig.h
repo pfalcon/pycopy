@@ -884,6 +884,13 @@ typedef double mp_float_t;
 #define MICROPY_PY_GENERATOR_PEND_THROW (1)
 #endif
 
+// Issue a warning at GC time if a generator object was never executed.
+// For coroutines (implemented with generators), this usually means that
+// "yield from" or "await" was omitted by mistake.
+#ifndef MICROPY_PY_GENERATOR_NOT_RUN_WARN
+#define MICROPY_PY_GENERATOR_NOT_RUN_WARN (0)
+#endif
+
 // Issue a warning when comparing str and bytes objects
 #ifndef MICROPY_PY_STR_BYTES_CMP_WARN
 #define MICROPY_PY_STR_BYTES_CMP_WARN (0)
