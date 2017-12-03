@@ -561,8 +561,16 @@ int mp_vprintf(const mp_print_t *print, const char *fmt, va_list args) {
                     break;
                 }
                 assert(!"unsupported fmt char");
+                break;
             }
             #endif
+            case 'o':
+            case 'r': {
+                mp_obj_t o = va_arg(args, mp_obj_t);
+                // TODO: doesn't update length in 'chrs'
+                mp_obj_print_helper(print, o, *fmt == 'o' ? PRINT_STR : PRINT_REPR);
+                break;
+            }
             default:
                 // if it's not %% then it's an unsupported format character
                 assert(*fmt == '%' || !"unsupported fmt char");
