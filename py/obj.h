@@ -611,12 +611,24 @@ extern const mp_obj_type_t mp_type_ZeroDivisionError;
 
 // Constant objects, globally accessible
 // The macros are for convenience only
+#if MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_D
 #define mp_const_none (MP_OBJ_FROM_PTR(&mp_const_none_obj))
 #define mp_const_false (MP_OBJ_FROM_PTR(&mp_const_false_obj))
 #define mp_const_true (MP_OBJ_FROM_PTR(&mp_const_true_obj))
 #define mp_const_empty_bytes (MP_OBJ_FROM_PTR(&mp_const_empty_bytes_obj))
 #define mp_const_empty_tuple (MP_OBJ_FROM_PTR(&mp_const_empty_tuple_obj))
 #define mp_const_notimplemented (MP_OBJ_FROM_PTR(&mp_const_notimplemented_obj))
+#else
+// If not using nanboxing, MP_OBJ_FROM_PTR() can be a runtime function,
+// so to deal with ROM-based objects in constant contexts, we need to use
+// MP_ROM_PTR() on them (short of introducing MP_OBJ_FROM_ROM_PTR()).
+#define mp_const_none ((mp_obj_t)MP_ROM_PTR(&mp_const_none_obj))
+#define mp_const_false ((mp_obj_t)MP_ROM_PTR(&mp_const_false_obj))
+#define mp_const_true ((mp_obj_t)MP_ROM_PTR(&mp_const_true_obj))
+#define mp_const_empty_bytes ((mp_obj_t)MP_ROM_PTR(&mp_const_empty_bytes_obj))
+#define mp_const_empty_tuple ((mp_obj_t)MP_ROM_PTR(&mp_const_empty_tuple_obj))
+#define mp_const_notimplemented ((mp_obj_t)MP_ROM_PTR(&mp_const_notimplemented_obj))
+#endif
 extern const struct _mp_obj_none_t mp_const_none_obj;
 extern const struct _mp_obj_bool_t mp_const_false_obj;
 extern const struct _mp_obj_bool_t mp_const_true_obj;
