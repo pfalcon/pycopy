@@ -65,7 +65,7 @@ For example, ``import json`` will first search for a file ``json.py`` (or packag
 directory ``json``) and load that module if it is found.  If nothing is found,
 it will fallback to loading the built-in ``ujson`` module.
 
-.. only:: port_unix
+.. only:: port_generic or port_unix
 
     .. toctree::
        :maxdepth: 1
