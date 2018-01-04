@@ -23,7 +23,7 @@ In `micropython/docs`, build the docs:
 
     make MICROPY_PORT=<port_name> html
 
-Where `<port_name>` can be `unix`, `pyboard`, `wipy` or `esp8266`.
+Where `<port_name>` can be `generic`, `unix`, `pyboard`, `wipy` or `esp8266`.
 
 You'll find the index page at `micropython/docs/build/<port_name>/html/index.html`.
 
