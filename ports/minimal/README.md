@@ -9,7 +9,9 @@ By default the port will be built for the host machine:
 
     $ make
 
-To run the executable and get a basic working REPL do:
+The binary produced requires the console to work in "raw" mode (the
+"Enter" key should produce "\r" code, etc.). To run it in such a mode,
+use:
 
     $ make run
 
