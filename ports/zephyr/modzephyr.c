@@ -58,6 +58,13 @@ STATIC mp_obj_t mod_shell_net_iface(void) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_shell_net_iface_obj, mod_shell_net_iface);
 
+STATIC mp_obj_t mod_shell_net_dns(void) {
+    const static char *argv[2];
+    net_shell_cmd_dns(0, argv);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_shell_net_dns_obj, mod_shell_net_dns);
+
 #endif // CONFIG_NET_SHELL
 
 STATIC const mp_rom_map_elem_t mp_module_time_globals_table[] = {
@@ -68,6 +75,7 @@ STATIC const mp_rom_map_elem_t mp_module_time_globals_table[] = {
 
     #ifdef CONFIG_NET_SHELL
     { MP_ROM_QSTR(MP_QSTR_shell_net_iface), MP_ROM_PTR(&mod_shell_net_iface_obj) },
+    { MP_ROM_QSTR(MP_QSTR_shell_net_dns), MP_ROM_PTR(&mod_shell_net_dns_obj) },
     #endif
 };
 
