@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+.grid {
+  position: relative;
+}
+.item {
+  display: table;
+  table-layout: fixed;
+
+//  position: absolute;
+  width: 200px;
+  height: 200px;
+  margin: 5px;
+  z-index: 1;
+  border-style: solid;
+  border-color: #e7e7e7;
+}
+.item-content {
+  position: relative;
+  border-color: black;
+
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+</style>
+
+<script src="static/easypiechart.min.js"></script>
+
+<script>
+var source = new EventSource("events");
+
+function clear_errors() {
+    document.getElementById("messages").innerHTML = "";
+}
+
+function log_error(error) {
+    document.getElementById("messages").innerHTML = "EventSource error:" + error + "<br>";
+}
+
+function set_val(widget, field, val) {
+    document.querySelectorAll("." + widget).forEach(function(el) {
+        el.querySelector("[data-bind=" + field + "]").innerHTML = val;
+    });
+}
+
+source.onmessage = function(event) {
+    clear_errors();
+
+    var data = JSON.parse(event.data);
+//    console.log(data);
+
+    set_val(data.widget, data.field, data.value);
+}
+
+source.onerror = function(error) {
+    console.log(error);
+    log_error(error);
+}
+</script>
+</head>
+<body>
+
+<div class="item">
+<div class="item-content">
+
+<div class="w_text">
+    <h1 class="title" data-bind="title">Hello</h1>
+    <h3 data-bind="text">This is your shiny new (MicroPython powered) dashboard.</h3>
+</div>
+
+</div>
+</div>
+
+<div class="item">
+<div class="item-content">
+
+<div class="widget w_value">
+  val1=<span data-bind="value1"></span><br/>
+  val2=<span data-bind="value2"></span>
+</div>
+
+</div>
+</div>
+
+<!-- Gauge -->
+<div class="item">
+<div class="item-content">
+
+<div class="w_piegauge">
+    <span class="chart" data-percent="73"><span class="percent">73%</span></span>
+    <style>
+.chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.chart canvas {
+  position: absolute;
+}
+.percent {
+  position: absolute;
+  z-index: 2;
+}
+
+    </style>
+    <script>
+    var element = document.querySelector('.chart');
+    var chart = new EasyPieChart(element, {
+        scaleColor: false,
+        lineWidth: 10,
+        onStep: function(from, to, percent) {
+            this.el.children[0].innerHTML = Math.round(percent);
+        }
+    });
+
+    source.addEventListener("message", function(event) {
+        var data = JSON.parse(event.data);
+        if (data.field === "value2") {
+            chart.update(data.value);
+        }
+    });
+
+    </script>
+</div>
+
+</div>
+</div>
+
+<div id="messages"></div>
+</div>
+
+</body>
+</html>
