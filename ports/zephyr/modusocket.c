@@ -223,6 +223,7 @@ STATIC mp_uint_t sock_write(mp_obj_t self_in, const void *buf, mp_uint_t size, i
         *errcode = EBADF;
         return MP_STREAM_ERROR;
     }
+    DEBUG_printf("sock_write(%d, %p, %u)\n", socket->ctx, buf, size);
 
     ssize_t len = zsock_send(socket->ctx, buf, size, 0);
     if (len == -1) {
