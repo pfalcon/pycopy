@@ -16,6 +16,7 @@ OUTDIR_PREFIX = $(BOARD)
 # applications, and will need to be increased.
 MICROPY_HEAP_SIZE = 16384
 FROZEN_DIR = scripts
+FROZEN_MPY_DIR = modules
 
 # Default target
 all:

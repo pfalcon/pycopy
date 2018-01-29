@@ -98,6 +98,8 @@
 #endif
 
 #define MICROPY_MODULE_FROZEN_STR   (1)
+#define MICROPY_MODULE_FROZEN_MPY   (1)
+#define MICROPY_QSTR_EXTRA_POOL             mp_qstr_frozen_const_pool
 
 typedef int mp_int_t; // must be pointer size
 typedef unsigned mp_uint_t; // must be pointer size
