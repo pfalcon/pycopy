@@ -29,7 +29,6 @@
 #include <string.h>
 
 #include <zephyr.h>
-#include <misc/reboot.h>
 #ifdef CONFIG_NETWORKING
 #include <net/net_context.h>
 #endif
@@ -121,12 +120,6 @@ soft_reset:
     }
 
     printf("soft reboot\n");
-    #ifdef CONFIG_REBOOT
-    // If possible, reboot on Zephyr side, because otherwise
-    // network stack won't be reinitialized, etc.
-    // Using COLD reboot because WARM doesn't work on qemu_x86.
-    sys_reboot(SYS_REBOOT_COLD);
-    #endif
     goto soft_reset;
 
     return 0;
