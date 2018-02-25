@@ -118,7 +118,7 @@ STATIC mp_obj_t struct_calcsize(mp_obj_t fmt_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(struct_calcsize_obj, struct_calcsize);
 
-STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t struct_unpack_from_internal(size_t n_args, const mp_obj_t *args, bool unpack_one) {
     // unpack requires that the buffer be exactly the right size.
     // unpack_from requires that the buffer be "big enough".
     // Since we implement unpack and unpack_from using the same function
@@ -127,7 +127,14 @@ STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
     size_t total_sz;
     size_t num_items = calc_size_items(fmt, &total_sz);
     char fmt_type = get_fmt_type(&fmt);
-    mp_obj_tuple_t *res = MP_OBJ_TO_PTR(mp_obj_new_tuple(num_items, NULL));
+    mp_obj_tuple_t *res = NULL;
+    if (!unpack_one) {
+        res = MP_OBJ_TO_PTR(mp_obj_new_tuple(num_items, NULL));
+    } else {
+        if (num_items != 1) {
+            mp_raise_ValueError(NULL);
+        }
+    }
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
     byte *p = bufinfo.buf;
@@ -161,10 +168,16 @@ STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
         if (*fmt == 's') {
             item = mp_obj_new_bytes(p, cnt);
             p += cnt;
+            if (unpack_one) {
+                return item;
+            }
             res->items[i++] = item;
         } else {
             while (cnt--) {
                 item = mp_binary_get_val(fmt_type, *fmt, &p);
+                if (unpack_one) {
+                    return item;
+                }
                 res->items[i++] = item;
             }
         }
@@ -172,7 +185,16 @@ STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
     }
     return MP_OBJ_FROM_PTR(res);
 }
+
+STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
+    return struct_unpack_from_internal(n_args, args, false);
+}
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_unpack_from_obj, 2, 3, struct_unpack_from);
+
+STATIC mp_obj_t struct_unpack1(size_t n_args, const mp_obj_t *args) {
+    return struct_unpack_from_internal(n_args, args, true);
+}
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_unpack1_obj, 2, 2, struct_unpack1);
 
 // This function assumes there is enough room in p to store all the values
 STATIC void struct_pack_into_internal(mp_obj_t fmt_in, byte *p, size_t n_args, const mp_obj_t *args) {
@@ -254,6 +276,7 @@ STATIC const mp_rom_map_elem_t mp_module_struct_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_pack), MP_ROM_PTR(&struct_pack_obj) },
     { MP_ROM_QSTR(MP_QSTR_pack_into), MP_ROM_PTR(&struct_pack_into_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack), MP_ROM_PTR(&struct_unpack_from_obj) },
+    { MP_ROM_QSTR(MP_QSTR_unpack1), MP_ROM_PTR(&struct_unpack1_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack_from), MP_ROM_PTR(&struct_unpack_from_obj) },
 };
 
