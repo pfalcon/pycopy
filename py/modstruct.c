@@ -33,6 +33,7 @@
 #include "py/objtuple.h"
 #include "py/binary.h"
 #include "py/parsenum.h"
+#include "py/stream.h"
 
 #if MICROPY_PY_STRUCT
 
@@ -135,28 +136,54 @@ STATIC mp_obj_t struct_unpack_from_internal(size_t n_args, const mp_obj_t *args,
             mp_raise_ValueError(NULL);
         }
     }
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    byte *p = bufinfo.buf;
-    byte *end_p = &p[bufinfo.len];
+
+    byte *p, *end_p;
+    union {
+        mp_buffer_info_t bufinfo;
+        byte readbuf[sizeof(mp_buffer_info_t)];
+    } un;
+
     mp_int_t offset = 0;
 
-    if (n_args > 2) {
-        // offset arg provided
-        offset = mp_obj_get_int(args[2]);
-        if (offset < 0) {
-            // negative offsets are relative to the end of the buffer
-            offset = bufinfo.len + offset;
-            if (offset < 0) {
-                mp_raise_ValueError("buffer too small");
-            }
-        }
-        p += offset;
-    }
+    if (mp_get_buffer(args[1], &un.bufinfo, MP_BUFFER_READ)) {
+        p = un.bufinfo.buf;
+        end_p = &p[un.bufinfo.len];
 
-    // Check that the input buffer is big enough to unpack all the values
-    if (p + total_sz > end_p) {
-        mp_raise_ValueError("buffer too small");
+        if (n_args > 2) {
+            // offset arg provided
+            offset = mp_obj_get_int(args[2]);
+            if (offset < 0) {
+                // negative offsets are relative to the end of the buffer
+                offset = un.bufinfo.len + offset;
+                if (offset < 0) {
+too_small:
+                    mp_raise_ValueError("buffer too small");
+                }
+            }
+            p += offset;
+        }
+
+        // Check that the input buffer is big enough to unpack all the values
+        if (p + total_sz > end_p) {
+            goto too_small;
+        }
+
+    } else {
+        // Not a buffer, assume a stream
+        int error;
+        if (total_sz > sizeof(un.readbuf)) {
+            // Alternatively, could allocate buf on heap
+            goto too_small;
+        }
+
+        p = un.readbuf;
+        mp_uint_t out_sz = mp_stream_read_exactly(args[1], p, total_sz, &error);
+        if (error != 0) {
+            mp_raise_OSError(error);
+        } else if (out_sz != total_sz) {
+            nlr_raise(mp_obj_new_exception(&mp_type_EOFError));
+        }
+        end_p = p + total_sz;
     }
 
     for (size_t i = 0; i < num_items;) {
