@@ -1,0 +1,12 @@
+49
+b'2'
+12849
+909456435
+b''
+(12849, 909456435)
+b''
+EOFError
+b''
+b'12'
+EOFError
+ValueError
