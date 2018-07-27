@@ -97,3 +97,31 @@ Methods
       :class: attention
 
       This function is a MicroPython extension.
+
+Polling stream wrapper objects
+------------------------------
+
+MicroPython supports a concept of "stream wrapper objects", where an
+original stream object (like a file or socket) is wrapped with an object
+which provides stream API, but also some additional functionality. Examples
+include :mod:`ussl` objects, :mod:`websocket` objects, etc. Some
+MicroPython ports may allow to pass such objects to `poll.register`.
+However the overall API contract for them is slightly relaxed: if such
+a wrapper was returned as suitable forreading (``uselect.POLLIN``),
+reading it may still lead to the EAGAIN underlying error (and e.g.
+``None`` returned from .read() method). Similarly for ``uselect.POLLOUT``.
+That's unlike native stream objects, for which it's guaranteed that
+after ``uselect.POLLIN`` is signalled, the ``.read()`` call will return
+some data (but that can be as small as 1 byte). This happens because
+a wrapper object may buffer some input data and/or process it internally
+(e.g. part of TLS/websocket framing and not user data transferred via
+them). Applications which may accept both native and wrapper streams
+should be prepared to deal with that.
+
+Applications which are interested in the highest performance and larger
+portability may instead separate concepts of "polled stream" and "I/O
+stream". A polled stream is always the original stream object, before
+any wrappers applied to it. An I/O stream is a top-level wrapper. An
+application would keep a pair of polled and I/O streams, and use the
+former to pass to ``uselect`` functions, while the latter - to read/write
+(still being ready to receive EAGAIN/None as described above).
