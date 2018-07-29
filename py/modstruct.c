@@ -272,19 +272,39 @@ STATIC mp_obj_t struct_pack(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_pack_obj, 1, MP_OBJ_FUN_ARGS_MAX, struct_pack);
 
 STATIC mp_obj_t struct_pack_into(size_t n_args, const mp_obj_t *args) {
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-    mp_int_t offset = mp_obj_get_int(args[2]);
+    union {
+        mp_buffer_info_t bufinfo;
+        byte readbuf[sizeof(mp_buffer_info_t)];
+    } un;
+
+    mp_int_t offset = 0;
+    if (args[2] != mp_const_none) {
+        offset = mp_obj_get_int(args[2]);
+    }
+
+    byte *p;
+    byte *end_p;
+    bool is_stream = false;
+
+    if (mp_get_buffer(args[1], &un.bufinfo, MP_BUFFER_READ)) {
+
+
     if (offset < 0) {
         // negative offsets are relative to the end of the buffer
-        offset = (mp_int_t)bufinfo.len + offset;
+        offset = (mp_int_t)un.bufinfo.len + offset;
         if (offset < 0) {
             mp_raise_ValueError("buffer too small");
         }
     }
-    byte *p = (byte *)bufinfo.buf;
-    byte *end_p = &p[bufinfo.len];
+    p = (byte *)un.bufinfo.buf;
+    end_p = &p[un.bufinfo.len];
     p += offset;
+
+    } else {
+        is_stream = true;
+        p = un.readbuf;
+        end_p = un.readbuf + sizeof(un.readbuf);
+    }
 
     // Check that the output buffer is big enough to hold all the values
     mp_int_t sz = MP_OBJ_SMALL_INT_VALUE(struct_calcsize(args[0]));
@@ -293,6 +313,17 @@ STATIC mp_obj_t struct_pack_into(size_t n_args, const mp_obj_t *args) {
     }
 
     struct_pack_into_internal(args[0], p, n_args - 3, &args[3]);
+
+    if (is_stream) {
+    int error;
+    mp_uint_t out_sz = mp_stream_write_exactly(args[1], p, sz, &error);
+    if (error != 0) {
+        mp_raise_OSError(error);
+    } else if (out_sz != sz) {
+        nlr_raise(mp_obj_new_exception(&mp_type_EOFError));
+    }
+    }
+
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_pack_into_obj, 3, MP_OBJ_FUN_ARGS_MAX, struct_pack_into);
@@ -325,7 +356,7 @@ STATIC const mp_rom_map_elem_t mp_module_struct_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_calcsize), MP_ROM_PTR(&struct_calcsize_obj) },
     { MP_ROM_QSTR(MP_QSTR_pack), MP_ROM_PTR(&struct_pack_obj) },
     { MP_ROM_QSTR(MP_QSTR_pack_into), MP_ROM_PTR(&struct_pack_into_obj) },
-    { MP_ROM_QSTR(MP_QSTR_pack_s), MP_ROM_PTR(&struct_pack_s_obj) },
+//    { MP_ROM_QSTR(MP_QSTR_pack_s), MP_ROM_PTR(&struct_pack_s_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack), MP_ROM_PTR(&struct_unpack_from_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack1), MP_ROM_PTR(&struct_unpack1_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack_from), MP_ROM_PTR(&struct_unpack_from_obj) },
