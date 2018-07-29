@@ -297,11 +297,35 @@ STATIC mp_obj_t struct_pack_into(size_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_pack_into_obj, 3, MP_OBJ_FUN_ARGS_MAX, struct_pack_into);
 
+STATIC mp_obj_t struct_pack_s(size_t n_args, const mp_obj_t *args) {
+    byte writebuf[8];
+    mp_int_t size = MP_OBJ_SMALL_INT_VALUE(struct_calcsize(args[0]));
+
+    if (size > sizeof(writebuf)) {
+        mp_raise_ValueError("buffer too small");
+    }
+
+    struct_pack_into_internal(args[0], writebuf, n_args - 2, &args[2]);
+
+    int error;
+    mp_uint_t out_sz = mp_stream_write_exactly(args[1], writebuf, size, &error);
+    if (error != 0) {
+        mp_raise_OSError(error);
+    } else if (out_sz != size) {
+        nlr_raise(mp_obj_new_exception(&mp_type_EOFError));
+    }
+
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(struct_pack_s_obj, 3, MP_OBJ_FUN_ARGS_MAX, struct_pack_s);
+
+
 STATIC const mp_rom_map_elem_t mp_module_struct_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_ustruct) },
     { MP_ROM_QSTR(MP_QSTR_calcsize), MP_ROM_PTR(&struct_calcsize_obj) },
     { MP_ROM_QSTR(MP_QSTR_pack), MP_ROM_PTR(&struct_pack_obj) },
     { MP_ROM_QSTR(MP_QSTR_pack_into), MP_ROM_PTR(&struct_pack_into_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pack_s), MP_ROM_PTR(&struct_pack_s_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack), MP_ROM_PTR(&struct_unpack_from_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack1), MP_ROM_PTR(&struct_unpack1_obj) },
     { MP_ROM_QSTR(MP_QSTR_unpack_from), MP_ROM_PTR(&struct_unpack_from_obj) },
