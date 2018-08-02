@@ -88,3 +88,9 @@ try:
     '{:X}'.format('zz')
 except ValueError:
     print('ValueError')
+
+# attempt to apply string format specifier to arbitrary object
+try:
+    '{:1}'.format([1, 2])
+except TypeError:
+    print('TypeError')
