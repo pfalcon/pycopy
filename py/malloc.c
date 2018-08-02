@@ -216,4 +216,10 @@ size_t m_get_current_bytes_allocated(void) {
 size_t m_get_peak_bytes_allocated(void) {
     return MP_STATE_MEM(peak_bytes_allocated);
 }
+
+void m_reset_alloc_counters(void) {
+    MP_STATE_MEM(total_bytes_allocated) = 0;
+    MP_STATE_MEM(current_bytes_allocated) = 0;
+    MP_STATE_MEM(peak_bytes_allocated) = 0;
+}
 #endif
