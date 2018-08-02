@@ -142,13 +142,19 @@ void *m_realloc(void *ptr, size_t new_num_bytes) {
         m_malloc_fail(new_num_bytes);
     }
 #if MICROPY_MEM_STATS
-    // At first thought, "Total bytes allocated" should only grow,
-    // after all, it's *total*. But consider for example 2K block
+    // It's subtle matter how to calculate the "total" in case we
+    // shrink the allocated region. Consider for example 2K block
     // shrunk to 1K and then grown to 2K again. It's still 2K
-    // allocated total. If we process only positive increments,
-    // we'll count 3K.
-    size_t diff = new_num_bytes - old_num_bytes;
-    MP_STATE_MEM(total_bytes_allocated) += diff;
+    // allocated overall. But the "total" counter is measure of
+    // memory "hungriness". So, initially we were hungry for 2K.
+    // Then we were hungry for 1K more than what we had. So, 3K
+    // is the correct number for "total" counter. Then value of
+    // 2K overall allocated can be seen in "current" and/or "peak"
+    // counter.
+    ssize_t diff = new_num_bytes - old_num_bytes;
+    if (diff > 0) {
+        MP_STATE_MEM(total_bytes_allocated) += diff;
+    }
     MP_STATE_MEM(current_bytes_allocated) += diff;
     UPDATE_PEAK();
 #endif
@@ -167,15 +173,14 @@ void *m_realloc_maybe(void *ptr, size_t new_num_bytes, bool allow_move) {
 #endif
     void *new_ptr = realloc_ext(ptr, new_num_bytes, allow_move);
 #if MICROPY_MEM_STATS
-    // At first thought, "Total bytes allocated" should only grow,
-    // after all, it's *total*. But consider for example 2K block
-    // shrunk to 1K and then grown to 2K again. It's still 2K
-    // allocated total. If we process only positive increments,
-    // we'll count 3K.
+    // See comment in m_realloc() above why we count only positive
+    // increments for "total" counter.
     // Also, don't count failed reallocs.
     if (!(new_ptr == NULL && new_num_bytes != 0)) {
-        size_t diff = new_num_bytes - old_num_bytes;
-        MP_STATE_MEM(total_bytes_allocated) += diff;
+        ssize_t diff = new_num_bytes - old_num_bytes;
+        if (diff > 0) {
+            MP_STATE_MEM(total_bytes_allocated) += diff;
+        }
         MP_STATE_MEM(current_bytes_allocated) += diff;
         UPDATE_PEAK();
     }
