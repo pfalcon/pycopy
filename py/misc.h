@@ -103,6 +103,7 @@ NORETURN void m_malloc_fail(size_t num_bytes);
 size_t m_get_total_bytes_allocated(void);
 size_t m_get_current_bytes_allocated(void);
 size_t m_get_peak_bytes_allocated(void);
+void m_reset_alloc_counters(void);
 #endif
 
 /** array helpers ***********************************************/
