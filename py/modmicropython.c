@@ -64,6 +64,12 @@ STATIC mp_obj_t mp_micropython_mem_peak(void) {
     return MP_OBJ_NEW_SMALL_INT(m_get_peak_bytes_allocated());
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mp_micropython_mem_peak_obj, mp_micropython_mem_peak);
+
+STATIC mp_obj_t mp_micropython_mem_reset(void) {
+    m_reset_alloc_counters();
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mp_micropython_mem_reset_obj, mp_micropython_mem_reset);
 #endif
 
 mp_obj_t mp_micropython_mem_info(size_t n_args, const mp_obj_t *args) {
@@ -168,6 +174,7 @@ STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_mem_total), MP_ROM_PTR(&mp_micropython_mem_total_obj) },
     { MP_ROM_QSTR(MP_QSTR_mem_current), MP_ROM_PTR(&mp_micropython_mem_current_obj) },
     { MP_ROM_QSTR(MP_QSTR_mem_peak), MP_ROM_PTR(&mp_micropython_mem_peak_obj) },
+    { MP_ROM_QSTR(MP_QSTR_mem_reset), MP_ROM_PTR(&mp_micropython_mem_reset_obj) },
 #endif
     { MP_ROM_QSTR(MP_QSTR_mem_info), MP_ROM_PTR(&mp_micropython_mem_info_obj) },
     { MP_ROM_QSTR(MP_QSTR_qstr_info), MP_ROM_PTR(&mp_micropython_qstr_info_obj) },
