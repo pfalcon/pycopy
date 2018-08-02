@@ -4,6 +4,7 @@ def test(fmt, *args):
     print('{:8s}'.format(fmt) + '>' +  fmt.format(*args) + '<')
 
 test("}}{{")
+test("{{}}")
 test("{}-{}", 1, [4, 5])
 test("{0}-{1}", 1, [4, 5])
 test("{1}-{0}", 1, [4, 5])
@@ -13,6 +14,13 @@ test("{:x}", 0x10)
 test("{!r}", "foo")
 test("{!s}", "foo")
 test("{0!r:>10s} {0!s:>10s}", "foo")
+
+test("{}", True)
+test("{}", False)
+test("{:d}", True)
+test("{:d}", False)
+test("{:1}", True)
+test("{:1}", False)
 
 test("{:4b}", 10)
 test("{:4c}", 48)
