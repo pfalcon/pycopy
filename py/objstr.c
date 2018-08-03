@@ -1545,15 +1545,27 @@ not_enough_args:
             case 'r':
             case 's':
             {
+                mp_print_kind_t print_kind = (*str == 'r' ? PRINT_REPR : PRINT_STR);
+
+                // Fast path for formatting str into str or bytes into bytes -
+                // in this case skip recursively formatting argument as a str/bytes
+                // via vstr_t.
+                bool arg_is_bytes = mp_obj_is_type(arg, &mp_type_bytes);
+                if (print_kind == PRINT_STR && mp_obj_is_str_or_bytes(arg) && is_bytes == arg_is_bytes) {
+                    GET_STR_DATA_LEN(arg, str_data, str_len);
+                    if (prec < 0) {
+                        prec = str_len;
+                    }
+                    if (str_len > (uint)prec) {
+                        str_len = prec;
+                    }
+                    mp_print_strn(&print, (const char*)str_data, str_len, flags, ' ', width);
+                    break;
+                }
+
                 vstr_t arg_vstr;
                 mp_print_t arg_print;
                 vstr_init_print(&arg_vstr, 16, &arg_print);
-                mp_print_kind_t print_kind = (*str == 'r' ? PRINT_REPR : PRINT_STR);
-                if (print_kind == PRINT_STR && is_bytes && mp_obj_is_type(arg, &mp_type_bytes)) {
-                    // If we have something like b"%s" % b"1", bytes arg should be
-                    // printed undecorated.
-                    print_kind = PRINT_RAW;
-                }
                 mp_obj_print_helper(&arg_print, arg, print_kind);
                 uint vlen = arg_vstr.len;
                 if (prec < 0) {
