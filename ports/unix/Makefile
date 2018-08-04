@@ -291,3 +291,6 @@ axtls: $(TOP)/lib/axtls/README
 $(TOP)/lib/axtls/README:
 	@echo "You cloned without --recursive, fetching submodules for you."
 	(cd $(TOP); git submodule update --init --recursive)
+
+disasm:
+	objdump -S -M intel $(PROG) >$(PROG).disasm
