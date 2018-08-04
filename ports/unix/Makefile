@@ -56,6 +56,16 @@ COPT = -Os -fdata-sections -ffunction-sections -DNDEBUG
 #
 # Turning off _FORTIFY_SOURCE is only required when compiling with -O1 or greater
 CFLAGS += -U _FORTIFY_SOURCE
+
+# Likewise, recent OSes may have stack protector enabled by default, which was
+# see to add 15K+ (x86_32) to the code size. We have our own stack protection
+# scheme and in general optimize for size, so turn it off.
+CFLAGS += -fno-stack-protector
+
+# Codebase is not written in language which supports native exceptions, and
+# we produce top-level executable, so there're no users for exception's unwind
+# tables (take a *huge* chunk of executable file).
+CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
 endif
 
 # On OSX, 'gcc' is a symlink to clang unless a real gcc is installed.
