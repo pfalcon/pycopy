@@ -34,6 +34,11 @@ CFLAGS += -O0 -ggdb
 else
 CFLAGS += -Os -DNDEBUG
 CFLAGS += -fdata-sections -ffunction-sections
+CFLAGS += -fno-stack-protector
+CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
+ifneq ($(CROSS), 1)
+CFLAGS += -mpreferred-stack-boundary=2
+endif
 endif
 
 LIBS =
