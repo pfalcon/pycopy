@@ -766,6 +766,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_BUILTINS_STR_CENTER (0)
 #endif
 
+// Whether str.count() method provided
+#ifndef MICROPY_PY_BUILTINS_STR_COUNT
+#define MICROPY_PY_BUILTINS_STR_COUNT (0)
+#endif
+
 // Whether str.partition()/str.rpartition() method provided
 #ifndef MICROPY_PY_BUILTINS_STR_PARTITION
 #define MICROPY_PY_BUILTINS_STR_PARTITION (0)
