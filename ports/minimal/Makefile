@@ -39,6 +39,7 @@ CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
 ifneq ($(CROSS), 1)
 CFLAGS += -mpreferred-stack-boundary=2
 endif
+LDFLAGS += -s
 endif
 
 LIBS =
