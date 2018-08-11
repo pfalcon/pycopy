@@ -1094,9 +1094,7 @@ STATIC vstr_t mp_obj_str_format_helper(const char *str, const char *top, int *ar
             arg = args[(*arg_i) + 1];
             (*arg_i)++;
         }
-        if (!format_spec && !conversion) {
-            conversion = 's';
-        }
+
         if (conversion) {
             mp_print_kind_t print_kind;
             if (conversion == 's') {
@@ -1119,7 +1117,16 @@ STATIC vstr_t mp_obj_str_format_helper(const char *str, const char *top, int *ar
         char type = '\0';
         int flags = 0;
 
-        if (format_spec) {
+        if (!format_spec) {
+            // https://docs.python.org/3/library/functions.html#format
+            // "The default format_spec is an empty string which usually
+            // gives the same effect as calling str(value)."
+            // https://docs.python.org/3/reference/datamodel.html#object.__format__
+            // "object.__format__(x, '') is now equivalent to str(x) rather
+            // than format(str(self), '')."
+            mp_obj_print_helper(&print, arg, PRINT_STR);
+            continue;
+        } else {
             // The format specifier (from http://docs.python.org/2/library/string.html#formatspec)
             //
             // [[fill]align][sign][#][0][width][,][.precision][type]
