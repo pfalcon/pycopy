@@ -1130,11 +1130,20 @@ STATIC vstr_t mp_obj_str_format_helper(const char *str, const char *top, int *ar
             // precision   ::=  integer
             // type        ::=  "b" | "c" | "d" | "e" | "E" | "f" | "F" | "g" | "G" | "n" | "o" | "s" | "x" | "X" | "%"
 
-            // recursively call the formatter to format any nested specifiers
-            MP_STACK_CHECK();
-            vstr_t format_spec_vstr = mp_obj_str_format_helper(format_spec, str, arg_i, n_args, args, kwargs);
-            const char *s = vstr_null_terminated_str(&format_spec_vstr);
-            const char *stop = s + format_spec_vstr.len;
+            const char *s = format_spec, *stop = str;
+
+            // If needed, recursively call the formatter to format any nested specifiers.
+            if (MP_UNLIKELY(memchr(format_spec, '{', str - format_spec) != NULL)) {
+                MP_STACK_CHECK();
+                vstr_t format_spec_vstr = mp_obj_str_format_helper(format_spec, str, arg_i, n_args, args, kwargs);
+                // We need to have this vstr null-terminated, to avoid adding "&& s != stop"
+                // checks to each "if" below. Note that if there're no nested specifiers,
+                // stop will point at '}', which is distinct from any specifiers, and
+                // thus serves as a terminating char well too.
+                s = vstr_null_terminated_str(&format_spec_vstr);
+                stop = s + format_spec_vstr.len;
+            }
+
             if (isalignment(*s)) {
                 align = *s++;
             } else if (*s && isalignment(s[1])) {
@@ -1173,14 +1182,19 @@ STATIC vstr_t mp_obj_str_format_helper(const char *str, const char *top, int *ar
             if (istype(*s)) {
                 type = *s++;
             }
-            if (*s) {
+            if (s != stop) {
                 if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
                     terse_str_format_value_error();
                 } else {
                     mp_raise_ValueError("invalid format specifier");
                 }
             }
-            vstr_clear(&format_spec_vstr);
+
+            // Punish users of nested format specifiers by not freeing such memory immediately,
+            // leaving it to GC. It could have been different if only mp_obj_str_format_helper()
+            // did not return structure vstr_t *by value*. But as it does, we can't easily have
+            // format_spec_vstr initialized to "empty" state to clear conditionally.
+            //vstr_clear(&format_spec_vstr);
         }
         if (!align) {
             if (arg_looks_numeric(arg)) {
