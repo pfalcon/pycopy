@@ -996,6 +996,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_BUILTINS_MIN_MAX (1)
 #endif
 
+// Whether to support oct() function
+#ifndef MICROPY_PY_BUILTINS_OCT
+#define MICROPY_PY_BUILTINS_OCT (1)
+#endif
+
 // Support for calls to pow() with 3 integer arguments
 #ifndef MICROPY_PY_BUILTINS_POW3
 #define MICROPY_PY_BUILTINS_POW3 (0)
