@@ -66,6 +66,15 @@ typedef struct _mp_obj_poll_t {
 } mp_obj_poll_t;
 
 STATIC int get_fd(mp_obj_t fdlike) {
+    // Shortcut for fdfile compatible types
+    if (mp_obj_is_type(fdlike, &mp_type_fileio)
+        #if MICROPY_PY_SOCKET
+        || mp_obj_is_type(fdlike, &mp_type_socket)
+        #endif
+        ) {
+        mp_obj_fdfile_t *fdfile = MP_OBJ_TO_PTR(fdlike);
+        return fdfile->fd;
+    }
     if (mp_obj_is_obj(fdlike)) {
         const mp_stream_p_t *stream_p = mp_get_stream_raise(fdlike, MP_STREAM_OP_IOCTL);
         int err;
