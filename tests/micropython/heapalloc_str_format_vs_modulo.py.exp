@@ -1,0 +1,15 @@
+"%s" % "a"
+"{}".format("a")
+True
+"%d" % 1
+"{}".format(1)
+True
+"{:d}".format(1)
+True
+"%s" % 1
+True
+"%s %d" % ("a", 1)
+"{} {}".format("a", 1)
+True
+"%s %d" % ("a", 1)  #2
+True
