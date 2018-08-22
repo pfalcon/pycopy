@@ -252,15 +252,15 @@ Thus, the ``resource_stream()`` emulates interface of the standard
 `open()` function.
 
 Implementation-wise, ``resource_stream()`` uses file operations
-underlyingly, if distribution package is install in the filesystem.
+underlyingly, if distribution package is installed in the filesystem.
 However, it also supports functioning without the underlying filesystem,
 e.g. if the package is frozen as the bytecode. This however requires
 an extra intermediate step when packaging application - creation of
 "Python resource module".
 
-The idea of this module is to convert binary data to a Python bytes
-object, and put it into the dictionary, indexed by the resource name.
-This conversion is done automatically using overridden ``sdist`` command
+The idea of this module is to convert binary data to a Python ``bytes``
+objects, and put them into the dictionary, indexed by the resource name.
+This conversion is done automatically using the overridden ``sdist`` command
 described in the previous section.
 
 Let's trace the complete process using the following example. Suppose
@@ -298,8 +298,8 @@ If you would like to debug ``R.py`` creation, you can run::
 
     python3 setup.py sdist --manifest-only
 
-Alternatively, you can use tools/mpy_bin2res.py script from the
-MicroPython distribution, in which can you will need to pass paths
+Alternatively, you can use ``tools/mpy_bin2res.py`` script from the
+MicroPython distribution, in which case you will need to pass paths
 to all resource files::
 
     mpy_bin2res.py data/page.html data/image.png
