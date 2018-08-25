@@ -137,7 +137,11 @@ STATIC void uctypes_struct_print(const mp_print_t *print, mp_obj_t self_in, mp_p
     (void)kind;
     mp_obj_uctypes_struct_t *self = MP_OBJ_TO_PTR(self_in);
     const char *typen = "unk";
-    if (MP_OBJ_IS_TYPE(self->desc, &mp_type_dict)) {
+    if (MP_OBJ_IS_TYPE(self->desc, &mp_type_dict)
+      #if MICROPY_PY_COLLECTIONS_ORDEREDDICT
+        || MP_OBJ_IS_TYPE(self->desc, &mp_type_ordereddict)
+      #endif
+      ) {
         typen = "STRUCT";
     } else if (MP_OBJ_IS_TYPE(self->desc, &mp_type_tuple)) {
         mp_obj_tuple_t *t = MP_OBJ_TO_PTR(self->desc);
@@ -206,7 +210,11 @@ STATIC mp_uint_t uctypes_struct_agg_size(mp_obj_tuple_t *t, int layout_type, mp_
 }
 
 STATIC mp_uint_t uctypes_struct_size(mp_obj_t desc_in, int layout_type, mp_uint_t *max_field_size) {
-    if (!MP_OBJ_IS_TYPE(desc_in, &mp_type_dict)) {
+    if (!MP_OBJ_IS_TYPE(desc_in, &mp_type_dict)
+      #if MICROPY_PY_COLLECTIONS_ORDEREDDICT
+        && !MP_OBJ_IS_TYPE(desc_in, &mp_type_ordereddict)
+      #endif
+      ) {
         if (MP_OBJ_IS_TYPE(desc_in, &mp_type_tuple)) {
             return uctypes_struct_agg_size((mp_obj_tuple_t*)MP_OBJ_TO_PTR(desc_in), layout_type, max_field_size);
         } else if (MP_OBJ_IS_SMALL_INT(desc_in)) {
@@ -391,7 +399,11 @@ STATIC mp_obj_t uctypes_struct_attr_op(mp_obj_t self_in, qstr attr, mp_obj_t set
     mp_obj_uctypes_struct_t *self = MP_OBJ_TO_PTR(self_in);
 
     // TODO: Support at least OrderedDict in addition
-    if (!MP_OBJ_IS_TYPE(self->desc, &mp_type_dict)) {
+    if (!MP_OBJ_IS_TYPE(self->desc, &mp_type_dict)
+      #if MICROPY_PY_COLLECTIONS_ORDEREDDICT
+        && !MP_OBJ_IS_TYPE(self->desc, &mp_type_ordereddict)
+      #endif
+      ) {
             mp_raise_TypeError("struct: no fields");
     }
 
