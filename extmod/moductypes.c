@@ -645,15 +645,37 @@ STATIC mp_int_t uctypes_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufinfo, 
     return 0;
 }
 
-/// \function addressof()
-/// Return address of object's data (applies to object providing buffer
-/// interface).
-STATIC mp_obj_t uctypes_struct_addressof(mp_obj_t buf) {
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(buf, &bufinfo, MP_BUFFER_READ);
-    return mp_obj_new_int((mp_int_t)(uintptr_t)bufinfo.buf);
+STATIC mp_obj_t uctypes_struct_addressof(size_t n_args, const mp_obj_t *args) {
+    // If one argument, should be a buffer object
+    if (n_args == 1) {
+        mp_buffer_info_t bufinfo;
+        mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_READ);
+        return mp_obj_new_int((mp_int_t)(uintptr_t)bufinfo.buf);
+    }
+
+    // If two arguments, should be a structure object and its field (as string)
+    if (!MP_OBJ_IS_TYPE(args[0], &uctypes_struct_type)) {
+        mp_raise_TypeError(NULL);
+    }
+
+    mp_obj_uctypes_struct_t *strct = MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t field = mp_obj_dict_get(strct->desc, args[1]);
+    mp_uint_t offset = 0;
+
+    if (MP_OBJ_IS_SMALL_INT(field)) {
+        offset = MP_OBJ_SMALL_INT_VALUE(field);
+        offset &= VALUE_MASK(VAL_TYPE_BITS);
+    } else if (MP_OBJ_IS_TYPE(field, &mp_type_tuple)) {
+        mp_obj_tuple_t *t = MP_OBJ_TO_PTR(field);
+        offset = MP_OBJ_SMALL_INT_VALUE(t->items[0]);
+        offset &= VALUE_MASK(AGG_TYPE_BITS);
+    } else {
+        syntax_error();
+    }
+
+    return mp_obj_new_int((mp_int_t)(uintptr_t)(strct->addr + offset));
 }
-MP_DEFINE_CONST_FUN_OBJ_1(uctypes_struct_addressof_obj, uctypes_struct_addressof);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(uctypes_struct_addressof_obj, 1, 2, uctypes_struct_addressof);
 
 /// \function bytearray_at()
 /// Capture memory at given address of given size as bytearray. Memory is
