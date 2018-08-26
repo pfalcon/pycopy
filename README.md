@@ -179,3 +179,39 @@ with its paradigm and work process. To be productive, please be sure to follow t
 and the [Code Conventions](https://github.com/pfalcon/pycopy/blob/master/CODECONVENTIONS.md).
 Note that Pycopy is licenced under the MIT license, and all contributions
 should follow this license.
+
+Fork FAQ
+========
+
+Q: Why fork?
+
+A: I was a co-maintainer of MicroPython from 2013-12-29 till 2017-12-27,
+and authored 2779 commits during that time, that's more than 30% of commits
+at that timeframe
+([prooflink](https://github.com/pfalcon/pycopy/graphs/contributors?from=2013-12-29&to=2017-12-27)).
+Many MicroPython's modules and subsystems were designed and implemented by
+me. After I lost commit access to the main repository, I continue my work
+here.
+
+Q: Relation to the upstream?
+
+A: I rebase on the upstream regularly. However, I revert/skip commits which
+are going in wrong direction wrt to Pycopy's goals, or not implemented
+thoroughly enough. Some things from this repo got pulled into upstream,
+some I submit as pull requests myself (with pull request processing in
+the upstream being slow and number of my patches since even co-mainainership
+time aren't processed for years, I don't really have incentive to submit
+too much/too often).
+
+Q: Focus of the fork?
+
+A:
+* Code optimizations.
+* Continue to develop inplace, buffer and stream operations allowing
+  to write highly memory effiicient applications.
+* Garbage collection experiments.
+* Reflection features (ultimately allowing to develop optimizing compilers,
+  etc. in Python).
+* More CPython features implemented (configurable).
+* "Development/Testing" version with improved program analysis features.
+* etc.
