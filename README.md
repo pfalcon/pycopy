@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.org/pfalcon/micropython.png?branch=pfalcon)](https://travis-ci.org/pfalcon/micropython) [![Coverage Status](https://coveralls.io/repos/pfalcon/micropython/badge.png?branch=pfalcon)](https://coveralls.io/github/pfalcon/micropython?branch=pfalcon)
 
+Fork FAQ [below](#fork-faq).
+
+
 The Pycopy/MicroPython project
 ==============================
 <p align="center">
@@ -174,3 +177,51 @@ productive, please be sure to follow the
 and the [Code Conventions](https://github.com/micropython/micropython/blob/master/CODECONVENTIONS.md).
 Note that MicroPython is licenced under the MIT license, and all contributions
 should follow this license.
+
+Fork FAQ
+========
+
+Q: Why fork?
+
+A: I was a co-maintainer of MicroPython from 2013-12-29 till 2017-12-27,
+and authored 2779 commits during that time, that's more than 30% of commits
+during that timeframe
+([prooflink](https://github.com/micropython/micropython/graphs/contributors?from=2013-12-29&to=2017-12-27)).
+Many MicroPython's modules and subsystems were designed and implemented by
+me. After I lost commit access to the main repository, I continue my work
+here.
+
+Q: Why wasn't it renamed?
+
+A: My fork is just one of 1900+ forks of MicroPython (prooflink:
+[fork stats](https://github.com/micropython/micropython)). I mostly
+do everything like they do, and it's just a convenience to continue
+calling it MicroPython, so everyone understands what the talk is about,
+especially given that during 4 years, I spent a lot of effort to promote
+MicroPython and designed/implemented many things in it, without which
+MicroPython wouldn't be what it is today. But if you want to look at
+the renamed project, you can: https://github.com/pfalcon/pycopy .
+Update: It's effectively renamed now. Up to people which name to use.
+
+Q: Relation to the upstream?
+
+A: I rebase on the upstream regularly (and branch `master` in this
+repository is still upstream). I revert commits I consider going in
+wrong direction or not implemented thoroughly enough. Some things
+from this repo got pulled into upstream, some I submit as pull requests
+myself (with pull request processing in the upstream being slow and
+number of my patches since even co-mainainership time aren't processed
+for years, I don't really have incentive to submit too much/too often).
+
+Q: Focus of the fork?
+
+A:
+* Code optimizations.
+* Continue to develop inplace, buffer and stream operations allowing
+  to write highly memory effiicient applications.
+* Garbage collection experiments.
+* Reflection features (ultimately allowing to develop optimizing compilers,
+  etc. in Python).
+* More CPython features implemented (configurable).
+* "Development/Testing" version with improved program analysis features.
+* etc.
