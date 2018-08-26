@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/micropython/micropython.png?branch=master)](https://travis-ci.org/micropython/micropython) [![Coverage Status](https://coveralls.io/repos/micropython/micropython/badge.png?branch=master)](https://coveralls.io/r/micropython/micropython?branch=master)
+[![Build Status](https://travis-ci.org/pfalcon/micropython.png?branch=pfalcon)](https://travis-ci.org/pfalcon/micropython) [![Coverage Status](https://coveralls.io/repos/pfalcon/micropython/badge.png?branch=pfalcon)](https://coveralls.io/github/pfalcon/micropython?branch=pfalcon)
 
-The MicroPython project
-=======================
+The Pycopy/MicroPython project
+==============================
 <p align="center">
-  <img src="https://raw.githubusercontent.com/micropython/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
+  <img src="https://raw.githubusercontent.com/pfalcon/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
 </p>
 
 This is the MicroPython project, which aims to put an implementation
@@ -41,7 +41,7 @@ Major components in this repository:
   to port MicroPython to another microcontroller.
 - tests/ -- test framework and test scripts.
 - docs/ -- user documentation in Sphinx reStructuredText format. Rendered
-  HTML documentation is available at http://docs.micropython.org.
+  HTML documentation is available at http://pycopy.readthedocs.io/ .
 
 Additional components:
 - ports/bare-arm/ -- a bare minimum version of MicroPython for ARM MCUs. Used
@@ -102,7 +102,7 @@ Unix version comes with a builtin package manager called upip, e.g.:
 Browse available modules on
 [PyPI](https://pypi.python.org/pypi?%3Aaction=search&term=micropython).
 Standard library modules come from
-[micropython-lib](https://github.com/micropython/micropython-lib) project.
+[micropython-lib](https://github.com/pfalcon/micropython-lib) project.
 
 External dependencies
 ---------------------
