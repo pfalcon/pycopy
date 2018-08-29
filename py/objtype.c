@@ -381,6 +381,7 @@ const byte mp_unary_op_method_name[MP_UNARY_OP_NUM_RUNTIME] = {
     [MP_UNARY_OP_NEGATIVE] = MP_QSTR___neg__,
     [MP_UNARY_OP_INVERT] = MP_QSTR___invert__,
     [MP_UNARY_OP_ABS] = MP_QSTR___abs__,
+    [MP_UNARY_OP_INT] = MP_QSTR___int__,
     #endif
     #if MICROPY_PY_SYS_GETSIZEOF
     [MP_UNARY_OP_SIZEOF] = MP_QSTR___sizeof__,
