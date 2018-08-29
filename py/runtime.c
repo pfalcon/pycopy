@@ -228,6 +228,7 @@ mp_obj_t mp_unary_op(mp_unary_op_t op, mp_obj_t arg) {
             case MP_UNARY_OP_HASH:
                 return arg;
             case MP_UNARY_OP_POSITIVE:
+            case MP_UNARY_OP_INT:
                 return arg;
             case MP_UNARY_OP_NEGATIVE:
                 // check for overflow

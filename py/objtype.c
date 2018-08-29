@@ -381,6 +381,7 @@ const byte mp_unary_op_method_name[MP_UNARY_OP_NUM_RUNTIME] = {
     [MP_UNARY_OP_NEGATIVE] = MP_QSTR___neg__,
     [MP_UNARY_OP_INVERT] = MP_QSTR___invert__,
     [MP_UNARY_OP_ABS] = MP_QSTR___abs__,
+    [MP_UNARY_OP_INT] = MP_QSTR___int__,
     #endif
     #if MICROPY_PY_SYS_GETSIZEOF
     [MP_UNARY_OP_SIZEOF] = MP_QSTR___sizeof__,
@@ -421,10 +422,25 @@ STATIC mp_obj_t instance_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
         return mp_unary_op(op, self->subobj[0]);
     } else if (member[0] != MP_OBJ_NULL) {
         mp_obj_t val = mp_call_function_1(member[0], self_in);
-        // __hash__ must return a small int
-        if (op == MP_UNARY_OP_HASH) {
-            val = MP_OBJ_NEW_SMALL_INT(mp_obj_get_int_truncated(val));
+
+        switch (op) {
+            case MP_UNARY_OP_HASH:
+                // __hash__ must return a small int
+                val = MP_OBJ_NEW_SMALL_INT(mp_obj_get_int_truncated(val));
+                break;
+            #if MICROPY_PY_ALL_SPECIAL_METHODS
+            case MP_UNARY_OP_INT:
+                // Must return int
+                if (!MP_OBJ_IS_INT(val)) {
+                    mp_raise_TypeError(NULL);
+                }
+                break;
+            #endif
+            default:
+                // No need to do anything
+                ;
         }
+
         return val;
     } else {
         if (op == MP_UNARY_OP_HASH) {
