@@ -15,9 +15,9 @@ desc = {
     "ptr2": (uctypes.PTR | 0, {"b": uctypes.UINT8 | 0}),
 }
 
-bytes = b"01"
+bts = b"01"
 
-addr = uctypes.addressof(bytes)
+addr = uctypes.addressof(bts)
 buf = addr.to_bytes(uctypes.sizeof(desc, uctypes.LITTLE_ENDIAN), "little")
 
 S = uctypes.struct(uctypes.addressof(buf), desc, uctypes.LITTLE_ENDIAN)
@@ -48,3 +48,4 @@ buf2 = bytearray(uctypes.sizeof(desc, uctypes.LITTLE_ENDIAN))
 S2 = uctypes.struct(uctypes.addressof(buf2), desc, uctypes.LITTLE_ENDIAN)
 S2.ptr = S.ptr
 print(hex(S2.ptr16[0]))
+print(bytes(S2.ptr))
