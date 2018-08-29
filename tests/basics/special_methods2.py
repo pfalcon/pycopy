@@ -29,6 +29,10 @@ class Cud():
     def __abs__(self):
         print("__abs__ called")
 
+    def __int__(self):
+        print("__int__ called")
+        return -100
+
     def __add__(self, other):
         print("__add__ called")
 
@@ -110,6 +114,7 @@ except TypeError:
 +cud1
 -cud1
 ~cud1
+int(cud1)
 cud1 * cud2
 cud1 / cud2
 cud2 // cud1
