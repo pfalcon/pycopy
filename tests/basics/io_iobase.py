@@ -1,7 +1,11 @@
 try:
     import uio as io
 except:
-    import io
+    try:
+        import io
+    except ImportError:
+        print('SKIP')
+        raise SystemExit
 
 try:
     io.IOBase
