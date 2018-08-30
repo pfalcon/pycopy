@@ -1,7 +1,11 @@
 try:
     import uio as io
 except ImportError:
-    import io
+    try:
+        import io
+    except ImportError:
+        print('SKIP')
+        raise SystemExit
 
 a = io.StringIO()
 print('io.StringIO' in repr(a))
