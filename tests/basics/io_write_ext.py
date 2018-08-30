@@ -1,6 +1,10 @@
 # This tests extended (MicroPython-specific) form of write:
 # write(buf, len) and write(buf, offset, len)
-import uio
+try:
+    import uio
+except ImportError:
+    print('SKIP')
+    raise SystemExit
 
 try:
     uio.BytesIO
