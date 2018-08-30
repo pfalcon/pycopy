@@ -1,5 +1,9 @@
 # This tests extended (MicroPython-specific) methods .readbin(), .writebin()
-import uio
+try:
+    import uio
+except ImportError:
+    print('SKIP')
+    raise SystemExit
 
 try:
     uio.BytesIO
