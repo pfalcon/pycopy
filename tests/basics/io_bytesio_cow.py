@@ -3,7 +3,11 @@
 try:
     import uio as io
 except ImportError:
-    import io
+    try:
+        import io
+    except ImportError:
+        print('SKIP')
+        raise SystemExit
 
 b = b"foobar"
 
