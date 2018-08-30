@@ -1,7 +1,11 @@
 try:
     import uio as io
 except ImportError:
-    import io
+    try:
+        import io
+    except ImportError:
+        print('SKIP')
+        raise SystemExit
 
 a = io.BytesIO(b"foobar")
 try:
