@@ -1,4 +1,8 @@
-import uio as io
+try:
+    import uio as io
+except ImportError:
+    print('SKIP')
+    raise SystemExit
 
 try:
     io.BytesIO
