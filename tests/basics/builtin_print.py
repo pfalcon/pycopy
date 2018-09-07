@@ -18,3 +18,7 @@ print(1, 2, end='')
 print(1, 2, sep='', end='')
 
 print([{1:2}])
+
+# file=None is equivalent to sys.stdout
+# Not supported on qemu-arm, etc., revisit
+#print(1234, file=None)
