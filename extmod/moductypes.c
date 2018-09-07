@@ -79,6 +79,10 @@
 #error Invalid encoding field length
 #endif
 
+// Special value for offset, as recognized by .calc_offsets(), meaning
+// "use offset of previous field" (to implement unions).
+#define PREV_OFFSET ((1 << OFFSET_BITS) - 1)
+
 #ifndef alignof
 #define alignof(type) offsetof(struct { char c; type t; }, t)
 #endif
@@ -269,6 +273,7 @@ STATIC mp_uint_t uctypes_struct_size(mp_obj_t desc_in, int layout_type, mp_uint_
 
     mp_obj_dict_t *d = MP_OBJ_TO_PTR(desc_in);
     mp_uint_t total_size = 0;
+    mp_uint_t prev_offset = 0;
 
     for (mp_uint_t i = 0; i < d->map.alloc; i++) {
         if (mp_map_slot_is_filled(&d->map, i)) {
@@ -284,9 +289,17 @@ STATIC mp_uint_t uctypes_struct_size(mp_obj_t desc_in, int layout_type, mp_uint_
                     if (layout_type == LAYOUT_NATIVE) {
                         off = UINT_ALIGN(off, align);
                     }
+
+                    mp_uint_t old_off = offset & ((1 << OFFSET_BITS) - 1);
+                    if (old_off == PREV_OFFSET) {
+                        off = prev_offset;
+                    }
+
                     offset &= ~((1 << OFFSET_BITS) - 1);
                     offset |= off;
                     d->map.table[i].value = MP_OBJ_NEW_SMALL_INT(offset);
+                    // Remember current field's offset for union support
+                    prev_offset = off;
                     off += s;
                     *offset_to_set = off;
                 }
@@ -893,6 +906,8 @@ STATIC const mp_rom_map_elem_t mp_module_uctypes_globals_table[] = {
 
     { MP_ROM_QSTR(MP_QSTR_PTR), MP_ROM_INT(TYPE2SMALLINT(PTR, AGG_TYPE_BITS)) },
     { MP_ROM_QSTR(MP_QSTR_ARRAY), MP_ROM_INT(TYPE2SMALLINT(ARRAY, AGG_TYPE_BITS)) },
+
+    { MP_ROM_QSTR(MP_QSTR_PREV_OFFSET), MP_ROM_INT(PREV_OFFSET) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_uctypes_globals, mp_module_uctypes_globals_table);
