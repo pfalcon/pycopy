@@ -84,7 +84,7 @@ const char *cur_test_name = NULL;
 static char commandname[MAX_PATH+1];
 #endif
 
-static void usage(struct testgroup_t *groups, int list_groups)
+static void tinytest_usage(struct testgroup_t *groups, int list_groups)
   __attribute__((noreturn));
 static int process_test_option(struct testgroup_t *groups, const char *test);
 
@@ -313,7 +313,7 @@ tinytest_set_flag_(struct testgroup_t *groups, const char *arg, int set, unsigne
 }
 
 static void
-usage(struct testgroup_t *groups, int list_groups)
+tinytest_usage(struct testgroup_t *groups, int list_groups)
 {
 	puts("Options are: [--verbose|--quiet|--terse] [--no-fork]");
 	puts("  Specify tests by name, or using a prefix ending with '..'");
@@ -409,9 +409,9 @@ tinytest_main(int c, const char **v, struct testgroup_t *groups)
 				opt_verbosity = 0;
 				verbosity_flag = "--terse";
 			} else if (!strcmp(v[i], "--help")) {
-				usage(groups, 0);
+				tinytest_usage(groups, 0);
 			} else if (!strcmp(v[i], "--list-tests")) {
-				usage(groups, 1);
+				tinytest_usage(groups, 1);
 			} else {
 				printf("Unknown option %s.  Try --help\n",v[i]);
 				return -1;
