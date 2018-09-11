@@ -52,6 +52,13 @@
 #include "genhdr/mpversion.h"
 #include "input.h"
 
+#ifdef MP_FROZEN_TESTSUITE
+#include "lib/upytesthelper/upytesthelper.h"
+#include "lib/tinytest/tinytest.c"
+#include "lib/upytesthelper/upytesthelper.c"
+#include MP_FROZEN_TESTSUITE
+#endif
+
 // Command line options, with their defaults
 STATIC bool compile_only = false;
 STATIC uint emit_opt = MP_EMIT_OPT_NONE;
@@ -446,6 +453,13 @@ MP_NOINLINE int main_(int argc, char **argv) {
     #if MICROPY_ENABLE_PYSTACK
     static mp_obj_t pystack[1024];
     mp_pystack_init(pystack, &pystack[MP_ARRAY_SIZE(pystack)]);
+    #endif
+
+    #ifdef MP_FROZEN_TESTSUITE
+    static const char *test_argv[] = {"test"};
+    upytest_set_heap(heap, heap + heap_size);
+    int r = tinytest_main(1, test_argv, groups);
+    printf("Testsuite status: %d\n", r);
     #endif
 
     mp_init();
