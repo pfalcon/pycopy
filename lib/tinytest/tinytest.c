@@ -235,6 +235,8 @@ testcase_run_one(const struct testgroup_t *group,
 	}
 
 	printf("# starting %s%s\n", group->prefix, testcase->name);
+	cur_test_prefix = group->prefix;
+	cur_test_name = testcase->name;
 	if (opt_verbosity>0 && !opt_forked) {
 		//printf("%s%s: ", group->prefix, testcase->name);
 	} else {
