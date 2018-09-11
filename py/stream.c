@@ -244,6 +244,17 @@ mp_obj_t mp_stream_write(mp_obj_t self_in, const void *buf, size_t len, byte fla
 
 // This is used to adapt a stream object to an mp_print_t interface
 void mp_stream_write_adaptor(void *self, const char *buf, size_t len) {
+    #ifdef MP_FROZEN_TESTSUITE
+    // Hack to support running of frozen testsuite: if the output is to
+    // stdout, we redirect it to plat_print, where it will be captured
+    // to compare with the expected output.
+    extern struct _mp_dummy_t mp_sys_stdout_obj;
+    if (self == &mp_sys_stdout_obj) {
+        mp_print_strn(&mp_plat_print, buf, len, 0, 0, 0);
+        return;
+    }
+    #endif
+
     mp_stream_write(MP_OBJ_FROM_PTR(self), buf, len, MP_STREAM_RW_WRITE);
 }
 
