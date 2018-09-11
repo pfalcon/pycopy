@@ -61,7 +61,7 @@ bool upytest_is_failed(void) {
 
 // MP_PLAT_PRINT_STRN() should be redirected to this function.
 // It will pass-thru any content to mp_hal_stdout_tx_strn_cooked()
-// (the dfault value of MP_PLAT_PRINT_STRN), but will also match
+// (the default value of MP_PLAT_PRINT_STRN), but will also match
 // it to the expected output as set by upytest_set_expected_output().
 // If mismatch happens, upytest_is_failed() returns true.
 void upytest_output(const char *str, mp_uint_t len) {
@@ -88,6 +88,8 @@ void upytest_output(const char *str, mp_uint_t len) {
     mp_hal_stdout_tx_strn_cooked(str, len);
 }
 
+extern const char *cur_test_name;
+
 void upytest_execute_test(const char *src) {
     // To provide clean room for each test, interpreter and heap are
     // reinitialized before running each.
@@ -95,6 +97,7 @@ void upytest_execute_test(const char *src) {
     mp_init();
     mp_obj_list_init(mp_sys_path, 0);
     mp_obj_list_init(mp_sys_argv, 0);
+    mp_obj_list_append(mp_sys_argv, MP_OBJ_NEW_QSTR(qstr_from_str(cur_test_name)));
 
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
