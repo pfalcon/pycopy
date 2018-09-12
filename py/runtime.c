@@ -269,9 +269,21 @@ mp_obj_t mp_unary_op(mp_unary_op_t op, mp_obj_t arg) {
         if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
             mp_raise_TypeError("unsupported type for operator");
         } else {
-            nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
-                "unsupported type for %q: '%s'",
-                mp_unary_op_method_name[op], mp_obj_get_type_str(arg)));
+            #if MICROPY_PY_ALL_SPECIAL_METHODS
+            // mp_unary_op() becomes a fallback for mp_obj_get_int() in this
+            // case. Provide a more focused error message to not confuse
+            // novices e.g. on chr(1.0)
+            if (op == MP_UNARY_OP_INT) {
+                nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+                    "can't convert %s to int", mp_obj_get_type_str(arg)));
+
+            } else
+            #endif
+            {
+                nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+                    "unsupported type for %q: '%s'",
+                    mp_unary_op_method_name[op], mp_obj_get_type_str(arg)));
+            }
         }
     }
 }
