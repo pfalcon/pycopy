@@ -159,6 +159,21 @@ STATIC mp_obj_t mp_sys_settrace(mp_obj_t obj) {
 MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_settrace_obj, mp_sys_settrace);
 #endif // MICROPY_PY_SYS_SETTRACE
 
+#if MICROPY_PY_SYS_INTERN
+STATIC mp_obj_t mp_sys_intern(mp_obj_t str_in) {
+    if (MP_OBJ_IS_QSTR(str_in)) {
+        return str_in;
+    }
+    if (!MP_OBJ_IS_TYPE(str_in, &mp_type_str)) {
+        mp_raise_TypeError(NULL);
+    }
+
+    GET_STR_DATA_LEN(str_in, str_data, str_len);
+    return mp_obj_new_str_via_qstr((const char*)str_data, str_len);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_intern_obj, mp_sys_intern);
+#endif
+
 STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_sys) },
 
@@ -211,6 +226,9 @@ STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     #endif
     #if MICROPY_PY_SYS_GETSIZEOF
     { MP_ROM_QSTR(MP_QSTR_getsizeof), MP_ROM_PTR(&mp_sys_getsizeof_obj) },
+    #endif
+    #if MICROPY_PY_SYS_INTERN
+    { MP_ROM_QSTR(MP_QSTR_intern), MP_ROM_PTR(&mp_sys_intern_obj) },
     #endif
 
     /*
