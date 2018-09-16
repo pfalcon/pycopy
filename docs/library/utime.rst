@@ -39,8 +39,11 @@ Functions
 .. function:: localtime([secs])
 
    Convert a time expressed in seconds since the Epoch (see above) into an 8-tuple which
-   contains: (year, month, mday, hour, minute, second, weekday, yearday)
-   If secs is not provided or None, then the current time from the RTC is used.
+   contains: (*year*, *month*, *mday*, *hour*, *minute*, *second*, *weekday*, *yearday*).
+   If *secs* argument is not provided or ``None``, then the current time
+   from the RTC is used.
+
+   Ranges of the values returned are as follows:
 
    * year includes the century (for example 2014).
    * month   is 1-12
