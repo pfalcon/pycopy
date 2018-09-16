@@ -9,8 +9,8 @@ from machine import I2C
 import time
 
 # Accelerometer needs to be powered on first. Even
-# though signal is called "AVDD", and there's separate
-# "DVDD", without AVDD, it won't event talk on I2C bus.
+# though the signal is called "AVDD", and there's a separate
+# "DVDD", without AVDD, it won't even talk on I2C bus.
 accel_pwr = Pin("MMA_AVDD")
 accel_pwr.value(1)
 
