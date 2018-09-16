@@ -45,6 +45,12 @@ typedef struct _mp_obj_array_t {
     // union-of-bitfields with different toolchains). See comments in
     // objarray.c.
     size_t free : (8 * sizeof(size_t) - 8);
+    // But for memoryview, 'free' is reused as offset (in elements) into the
+    // parent object, so provide a convinience alias for that. (Union is not
+    // used to not go into a complication od union-of-bitfields.)
+    // See comments in objarray.c for more info about memoryview
+    // representation.
+    #define memview_offset free
     size_t len; // in elements
     void *items;
 } mp_obj_array_t;
