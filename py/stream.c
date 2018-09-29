@@ -406,6 +406,13 @@ STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) 
         max_size = MP_OBJ_SMALL_INT_VALUE(args[1]);
     }
 
+    char eol = '\n';
+    if (n_args > 2) {
+        size_t len;
+        const char *end_data = mp_obj_str_get_data(args[2], &len);
+        eol = *end_data;
+    }
+
     vstr_t vstr;
     if (max_size != -1) {
         vstr_init(&vstr, max_size);
@@ -442,14 +449,14 @@ done:
             vstr_cut_tail_bytes(&vstr, 1);
             break;
         }
-        if (*p == '\n') {
+        if (*p == eol) {
             break;
         }
     }
 
     return mp_obj_new_str_from_vstr(STREAM_CONTENT_TYPE(stream_p), &vstr);
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_unbuffered_readline_obj, 1, 2, stream_unbuffered_readline);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_unbuffered_readline_obj, 1, 3, stream_unbuffered_readline);
 
 // TODO take an optional extra argument (what does it do exactly?)
 STATIC mp_obj_t stream_unbuffered_readlines(mp_obj_t self) {
