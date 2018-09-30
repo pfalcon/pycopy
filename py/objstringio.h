@@ -37,4 +37,17 @@ typedef struct _mp_obj_stringio_t {
     mp_obj_t ref_obj;
 } mp_obj_stringio_t;
 
+// This is "finalizer" function for a case when mp_get_buffer() is called on
+// BytesIO object. If mp_get_buffer() returns bufinfo->typecode == BYTESIO_TYPECODE,
+// this function should be called with the number of bytes actually written into
+// BytesIO's buffer.
+static inline void mp_objstringio_update_len(mp_obj_t o_in, size_t increment) {
+    mp_obj_stringio_t *o = MP_OBJ_TO_PTR(o_in);
+    size_t new_len = increment + o->pos;
+    if (new_len > o->vstr->len) {
+        o->vstr->len = new_len;
+    }
+    o->pos += increment;
+}
+
 #endif // MICROPY_INCLUDED_PY_OBJSTRINGIO_H
