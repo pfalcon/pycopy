@@ -33,9 +33,11 @@
 #include "py/objtype.h"
 #include "py/objint.h"
 #include "py/objstr.h"
+#include "py/objstringio.h"
 #include "py/runtime.h"
 #include "py/stackctrl.h"
 #include "py/stream.h" // for mp_obj_print
+#include "py/binary.h"
 
 mp_obj_type_t *mp_obj_get_type(mp_const_obj_t o_in) {
     if (mp_obj_is_small_int(o_in)) {
@@ -508,6 +510,37 @@ mp_obj_t mp_identity_getiter(mp_obj_t self, mp_obj_iter_buf_t *iter_buf) {
 bool mp_get_buffer(mp_obj_t obj, mp_buffer_info_t *bufinfo, mp_uint_t flags) {
     mp_obj_type_t *type = mp_obj_get_type(obj);
     if (type->buffer_p.get_buffer == NULL) {
+        #if MICROPY_PY_IO_BYTESIO
+        // An alternative to this solution would be to make BytesIO implement
+        // buffer protocol. This would be more generic solution, and would
+        // avoid patching here. But CPython doesn't support buffer protocol
+        // for BytesIO (instead, it provides explicit method .getbuffer()),
+        // and making it supporting that might lead to surprising effects in
+        // some places. And while this code won't be needed, all clients
+        // would still need to check for special value of bufinfo->typecode
+        // and call mp_objstringio_update_len(). But if we generalize things,
+        // mp_objstringio_update_len() would need to be genaralized into
+        // mp_buffer_update_len() too, which would lead to cascade if renamings
+        // (e.g. mp_get_buffer -> mp_buffer_get). But this functionality is
+        // not expected to be needed for other kinds of objects. BytesIO is
+        // expected to be the only kind of generic I/O buffer needed in
+        // MicroPython. Specializing on it will allow also change its
+        // underlying implementation, e.g. switch to circular buffer.
+        if (MP_OBJ_IS_TYPE(obj, &mp_type_bytesio)) {
+            mp_obj_stringio_t *bytesio = MP_OBJ_TO_PTR(obj);
+            // For simplicity, support this functionality only for purely
+            // write-only buffers, not based on a reference object to read
+            // from.
+            if (bytesio->ref_obj == MP_OBJ_NULL) {
+                vstr_t *vstr = bytesio->vstr;
+                bufinfo->buf = vstr->buf + bytesio->pos;
+                bufinfo->len = vstr->alloc - bytesio->pos;
+                bufinfo->typecode = BYTESIO_TYPECODE;
+                return true;
+            }
+        }
+        #endif
+
         return false;
     }
     int ret = type->buffer_p.get_buffer(obj, bufinfo, flags);
