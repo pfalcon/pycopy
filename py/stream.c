@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include "py/objstr.h"
+#include "py/objstringio.h"
 #include "py/stream.h"
 #include "py/runtime.h"
 #include "py/binary.h"
@@ -324,6 +325,10 @@ STATIC mp_obj_t stream_readinto(size_t n_args, const mp_obj_t *args) {
         }
         mp_raise_OSError(error);
     } else {
+        if (bufinfo.typecode == BYTESIO_TYPECODE) {
+            mp_objstringio_update_len(args[1], out_sz);
+        }
+
         return MP_OBJ_NEW_SMALL_INT(out_sz);
     }
 }

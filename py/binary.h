@@ -34,6 +34,9 @@
 // type-specification errors due to end-of-string.
 #define BYTEARRAY_TYPECODE 1
 
+// Special typecode for BytesIO's internal buffer.
+#define BYTESIO_TYPECODE 2
+
 size_t mp_binary_get_size(char struct_type, char val_type, mp_uint_t *palign);
 mp_obj_t mp_binary_get_val_array(char typecode, void *p, mp_uint_t index);
 void mp_binary_set_val_array(char typecode, void *p, mp_uint_t index, mp_obj_t val_in);
