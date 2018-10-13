@@ -167,6 +167,10 @@ STATIC mp_obj_t float_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
                 return o_in;
             }
         }
+        #if MICROPY_PY_SYS_GETSIZEOF
+        case MP_UNARY_OP_SIZEOF:
+            return MP_OBJ_NEW_SMALL_INT(sizeof(mp_obj_float_t));
+        #endif
         default: return MP_OBJ_NULL; // op not supported
     }
 }
