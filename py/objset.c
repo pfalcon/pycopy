@@ -1,9 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013-2017 Damien P. George
+ * Copyright (c) 2014-2018 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -428,6 +430,12 @@ STATIC mp_obj_t set_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
     switch (op) {
         case MP_UNARY_OP_BOOL: return mp_obj_new_bool(self->set.used != 0);
         case MP_UNARY_OP_LEN: return MP_OBJ_NEW_SMALL_INT(self->set.used);
+        #if MICROPY_PY_SYS_GETSIZEOF
+        case MP_UNARY_OP_SIZEOF: {
+            size_t sz = sizeof(*self) + sizeof(mp_obj_t) * self->set.alloc;
+            return MP_OBJ_NEW_SMALL_INT(sz);
+        }
+        #endif
 #if MICROPY_PY_BUILTINS_FROZENSET
         case MP_UNARY_OP_HASH:
             if (mp_obj_is_type(self_in, &mp_type_frozenset)) {

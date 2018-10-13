@@ -1,9 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2014-2018 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -167,6 +169,10 @@ STATIC mp_obj_t float_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
                 return o_in;
             }
         }
+        #if MICROPY_PY_SYS_GETSIZEOF
+        case MP_UNARY_OP_SIZEOF:
+            return MP_OBJ_NEW_SMALL_INT(sizeof(mp_obj_float_t));
+        #endif
         default: return MP_OBJ_NULL; // op not supported
     }
 }
