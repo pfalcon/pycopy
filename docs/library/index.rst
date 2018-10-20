@@ -115,6 +115,16 @@ the following libraries.
    uctypes.rst
 
 
+Libraries specific to the Unix port
+-----------------------------------
+
+The following libraries are specific to the `MicroPython Unix port`.
+
+.. toctree::
+  :maxdepth: 2
+
+  ffi.rst
+
 Libraries specific to the pyboard
 ---------------------------------
 
