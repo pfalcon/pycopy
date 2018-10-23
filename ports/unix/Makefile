@@ -218,6 +218,10 @@ minimal:
 	    MICROPY_PY_TERMIOS=0 MICROPY_PY_USSL=0 \
 	    MICROPY_USE_READLINE=0
 
+dev:
+	$(MAKE) BUILD=build-dev PROG=micropython-dev \
+	    CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_dev.h>" -UNDEBUG'
+
 # build interpreter with nan-boxing as object model
 nanbox:
 	$(MAKE) \
