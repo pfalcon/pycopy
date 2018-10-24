@@ -37,6 +37,10 @@ CFLAGS_MOD += $(CFLAGS_USERMOD)
 LDFLAGS_MOD += $(LDFLAGS_USERMOD)
 endif
 
+# Name of the source file (without extension) which contains GC implementation.
+# Can be used to experiment with alternative implementations.
+GC_IMPL = gc
+
 # py object files
 PY_CORE_O_BASENAME = $(addprefix py/,\
 	mpstate.o \
@@ -47,7 +51,7 @@ PY_CORE_O_BASENAME = $(addprefix py/,\
 	nlrxtensa.o \
 	nlrsetjmp.o \
 	malloc.o \
-	gc.o \
+	$(GC_IMPL).o \
 	pystack.o \
 	qstr.o \
 	vstr.o \
