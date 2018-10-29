@@ -37,7 +37,14 @@ Glossary
         lists - the reason for that is that lists are mutable from user
         application side too, so a user could do things to a callee-owned
         list which the callee doesn't expect and could lead to problems;
-        a tuple is protected from this.)
+        a tuple is protected from this.) There is another way to summarize
+        the situation: a callee-owned tuple is a special subtype of the
+        normal `tuple` type, with the semantics described above, namely:
+        a user application cannot change its contents, but some special
+        functions can. In the current implementation, this special subtype
+        actually coincides with the main tuple type for efficiency reasons
+        (and this is an implementation detail with which users should not
+        be concerned).
 
     CPython
         CPython is the reference implementation of Python programming
