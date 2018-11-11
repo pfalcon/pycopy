@@ -87,6 +87,7 @@ it will fallback to loading the built-in ``ujson`` module.
    uio.rst
    ujson.rst
    uos.rst
+   urandom.rst
    ure.rst
    uselect.rst
    usocket.rst
