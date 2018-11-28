@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014-2016 Paul Sokolovsky
+ * Copyright (c) 2014-2018 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,7 @@ STATIC int read_src_stream(TINF_DATA *data) {
 }
 
 STATIC mp_obj_t decompio_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    mp_arg_check_num(n_args, n_kw, 1, 2, false);
+    mp_arg_check_num(n_args, n_kw, 1, 3, false);
     mp_get_stream_raise(args[0], MP_STREAM_OP_READ);
     mp_obj_decompio_t *o = m_new_obj(mp_obj_decompio_t);
     o->base.type = type;
@@ -77,7 +77,7 @@ STATIC mp_obj_t decompio_make_new(const mp_obj_type_t *type, size_t n_args, size
     o->eof = false;
 
     mp_int_t dict_opt = 0;
-    int dict_sz;
+    unsigned dict_sz;
     if (n_args > 1) {
         dict_opt = mp_obj_get_int(args[1]);
     }
@@ -102,7 +102,19 @@ header_error:
         dict_sz = 1 << -dict_opt;
     }
 
-    uzlib_uncompress_init(&o->decomp, m_new(byte, dict_sz), dict_sz);
+    void *dict;
+    if (n_args > 2) {
+        mp_buffer_info_t bufinfo;
+        mp_get_buffer_raise(args[2], &bufinfo, MP_BUFFER_WRITE);
+        if (bufinfo.len < dict_sz) {
+            mp_raise_ValueError(NULL);
+        }
+        dict = bufinfo.buf;
+    } else {
+        dict = m_new(byte, dict_sz);
+    }
+
+    uzlib_uncompress_init(&o->decomp, dict, dict_sz);
     return MP_OBJ_FROM_PTR(o);
 }
 
