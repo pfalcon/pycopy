@@ -23,13 +23,20 @@ Functions
    to be raw DEFLATE stream. *bufsize* parameter is for compatibility with
    CPython and is ignored.
 
-.. class:: DecompIO(stream, wbits=0)
+.. class:: DecompIO(stream, wbits=0, dictbuf=None)
 
    Create a `stream` wrapper which allows transparent decompression of
    compressed data in another *stream*. This allows to process compressed
    streams with data larger than available heap size. In addition to
    values described in :func:`decompress`, *wbits* may take values
    24..31 (16 + 8..15), meaning that input stream has gzip header.
+
+   If `buffer` *dictbuf* is passed, it's used to store decompression
+   dictionary (the size of *dictbuf* should be consistent with *wbits*
+   parameter). Otherwise, decompression dictionary is allocated by the
+   constructor. Using *dictbuf* is useful to preallocate large chunk of
+   memory for dictionary at the start of program, and avoid memory
+   `fragmentation`.
 
    .. admonition:: Difference to CPython
       :class: attention
