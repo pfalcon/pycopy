@@ -46,6 +46,7 @@ typedef struct _mp_obj_decompio_t {
     mp_obj_t src_stream;
     TINF_DATA decomp;
     bool eof;
+    int8_t dict_opt;
 } mp_obj_decompio_t;
 
 STATIC int read_src_stream(TINF_DATA *data) {
@@ -66,6 +67,33 @@ STATIC int read_src_stream(TINF_DATA *data) {
     return c;
 }
 
+STATIC unsigned handle_dict_opt(mp_obj_decompio_t *o)
+{
+    unsigned dict_sz;
+
+    if (o->dict_opt >= 16) {
+        int st = uzlib_gzip_parse_header(&o->decomp);
+        if (st != TINF_OK) {
+            goto header_error;
+        }
+        dict_sz = 1 << (o->dict_opt - 16);
+    } else if (o->dict_opt >= 0) {
+        int dict_code = uzlib_zlib_parse_header(&o->decomp);
+        if (dict_code < 0) {
+header_error:
+            mp_raise_ValueError("compression header");
+        }
+        if (o->dict_opt == 0) {
+            o->dict_opt = dict_code + 8;
+        }
+        dict_sz = 1 << o->dict_opt;
+    } else {
+        dict_sz = 1 << -o->dict_opt;
+    }
+
+    return dict_sz;
+}
+
 STATIC mp_obj_t decompio_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 1, 3, false);
     mp_get_stream_raise(args[0], MP_STREAM_OP_READ);
@@ -76,31 +104,12 @@ STATIC mp_obj_t decompio_make_new(const mp_obj_type_t *type, size_t n_args, size
     o->src_stream = args[0];
     o->eof = false;
 
-    mp_int_t dict_opt = 0;
-    unsigned dict_sz;
+    o->dict_opt = 0;
     if (n_args > 1) {
-        dict_opt = mp_obj_get_int(args[1]);
+        o->dict_opt = mp_obj_get_int(args[1]);
     }
 
-    if (dict_opt >= 16) {
-        int st = uzlib_gzip_parse_header(&o->decomp);
-        if (st != TINF_OK) {
-            goto header_error;
-        }
-        dict_sz = 1 << (dict_opt - 16);
-    } else if (dict_opt >= 0) {
-        int dict_code = uzlib_zlib_parse_header(&o->decomp);
-        if (dict_code < 0) {
-header_error:
-            mp_raise_ValueError("compression header");
-        }
-        if (dict_opt == 0) {
-            dict_opt = dict_code + 8;
-        }
-        dict_sz = 1 << dict_opt;
-    } else {
-        dict_sz = 1 << -dict_opt;
-    }
+    unsigned dict_sz = handle_dict_opt(o);
 
     void *dict;
     if (n_args > 2) {
@@ -137,7 +146,19 @@ STATIC mp_uint_t decompio_read(mp_obj_t o_in, void *buf, mp_uint_t size, int *er
     return o->decomp.dest - (byte*)buf;
 }
 
+STATIC mp_obj_t decompio_init(mp_obj_t self_in, mp_obj_t stream) {
+    mp_obj_decompio_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_get_stream_raise(stream, MP_STREAM_OP_READ);
+    self->src_stream = stream;
+    self->eof = false;
+    handle_dict_opt(self);
+    uzlib_uncompress_init(&self->decomp, self->decomp.dict_ring, self->decomp.dict_size);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(decompio_init_obj, decompio_init);
+
 STATIC const mp_rom_map_elem_t decompio_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&decompio_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mp_stream_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_readinto), MP_ROM_PTR(&mp_stream_readinto_obj) },
     { MP_ROM_QSTR(MP_QSTR_readline), MP_ROM_PTR(&mp_stream_unbuffered_readline_obj) },
