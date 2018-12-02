@@ -10,6 +10,29 @@ cache:
 env:
   global:
     - MAKEOPTS="-j4"
+    - XTENSA_CROSS_ROOT="${HOME}/persist/toolchain-xtensa"
+    - XTENSA_CROSS_BINDIR="${XTENSA_CROSS_ROOT}/bin"
+
+addons:
+  apt:
+    packages:
+    - make
+    - unrar
+    - autoconf
+    - automake
+    - libtool
+    - gcc
+    - g++
+    - gperf
+    - flex
+    - bison
+    - texinfo
+    - gawk
+    - libncurses5-dev
+    - libexpat1-dev
+    - python
+    - sed
+    - help2man
 
 # define the successive stages
 stages:
@@ -19,6 +42,21 @@ stages:
 # order of the jobs has longest running first to optimise total time
 jobs:
   include:
+    # esp8266 port
+    - stage: test
+      env: NAME="esp8266 port build"
+      install:
+        - export HAS_XTENSA="test -d ${XTENSA_CROSS_BINDIR}"
+        - unset CC # Travis sets this due to "language: c", but it confuses autotools configure when cross-building
+        - ${HAS_XTENSA} || git clone --recursive https://github.com/pfalcon/esp-open-sdk.git
+        - ${HAS_XTENSA} || cd esp-open-sdk
+        - ${HAS_XTENSA} || sed -r -i 's%TOOLCHAIN ?=.*%TOOLCHAIN=${XTENSA_CROSS_ROOT}%' Makefile
+        - ${HAS_XTENSA} || make
+      script:
+        - cd ${TRAVIS_BUILD_DIR}
+        - make ${MAKEOPTS} -C mpy-cross
+        - PATH=${XTENSA_CROSS_BINDIR}:${PATH} make -C ports/esp8266
+
     # stm32 port
     - stage: test
       env: NAME="stm32 port build"
