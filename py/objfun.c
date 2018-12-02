@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014 Paul Sokolovsky
+ * Copyright (c) 2014-2018 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -235,6 +235,10 @@ mp_code_state_t *mp_obj_fun_bc_prepare_codestate(mp_obj_t self_in, size_t n_args
     }
     #endif
 
+    #if MICROPY_ACCESS_CODE_STATE
+    MP_STATE_THREAD(code_state) = code_state;
+    #endif
+
     INIT_CODESTATE(code_state, self, n_args, n_kw, args);
 
     // execute the byte code with the correct globals context
@@ -278,6 +282,10 @@ STATIC mp_obj_t fun_bc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const 
         #endif
         state_size = 0; // indicate that we allocated using alloca
     }
+    #endif
+
+    #if MICROPY_ACCESS_CODE_STATE
+    MP_STATE_THREAD(code_state) = code_state;
     #endif
 
     INIT_CODESTATE(code_state, self, n_args, n_kw, args);
