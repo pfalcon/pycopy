@@ -106,7 +106,7 @@ Glossary
         time (proportional to the number of existing interned strings,
         i.e. becoming slower and slower over time) and that the space
         used for interned strings is not reclaimable. String interning
-        is done automatically by MicroPython compiler and runtimer when
+        is done automatically by MicroPython compiler and runtime when
         it's either required by the implementation (e.g. function keyword
         arguments are represented by interned string id's) or deemed
         beneficial (e.g. for short enough strings, which have a chance
