@@ -120,6 +120,52 @@ Glossary
         require much less power. MicroPython is designed to be small and
         optimized enough to run on an average modern microcontroller.
 
+    memory allocation
+        Computers store data in memory, and memory allocation is a process
+        they perform to store *new* data in memory. This process has its
+        cost (in terms of time required), as usually involves scanning
+        thru memory to find a suitable free chunk. It may also fail if
+        suitable free chunk is not found. Computers also have "registers",
+        which allow to store limited amount of data without special memory
+        allocation. While MicroPython is a high-level language, these basic
+        traits of computers still apply to some aspects of its functioning,
+        and worth to keep in mind when e.g. optimizing an application, or
+        trying to achieve real-time/failure-free operation.
+
+        MicroPython stores majority of objects in memory, thus when creating
+        a new object it needs to perform memory allocation. However, there
+        are exceptions. Some special objects may be created without
+        allocation. One notable example is :term:`small integer`'s. There may
+        be also other objects like, e.g. short repeated strings which are
+        automatically :term:`interned <interned string>`, etc. These are
+        however considered an implementation detail, and often differ
+        by a :term:`MicroPython port`.
+
+        Besides using allocation-free objects (set of which is very limited,
+        as explained above), there's another way to avoid, or at least limit
+        memory allocation: avoid creating new objects during operations (and
+        growing object size, as that leads to the need to allocate more memory
+        too). These are known as inplace operations.
+
+        An advanced MicroPython programmer should know about the memory
+        allocation aspects because:
+
+        * MicroPython features automatic memory management. Allocation
+          operations are usually performed fast, until available memory
+          is exhausted, then garbage collection (GC) needs to be performed.
+          The GC is a relatively long operation, which can lead to delays
+          in application response.
+        * Allocation leads to :term:`fragmentation`.
+        * If GC didn't reclaim free block of memory of suitable size (which
+          can be due to :term:`fragmentation`), allocation will simply fail,
+          aborting an application unless special care is taken.
+        * Even without effects of GC, memory allocation takes non-zero
+          time, and this time may vary. This may both slow down tight
+          processing loops, and make them non real-time (processing time
+          may vary noticeably).
+        * Memory allocation may be disallowed in special execution contexts,
+          e.g. in interrupt handlers.
+
     micropython-lib
         MicroPython is (usually) distributed as a single executable/binary
         file with just few builtin modules. There is no extensive standard
@@ -169,6 +215,21 @@ Glossary
         Either :term:`MicroPython port` or :term:`GPIO port`. If not clear
         from context, it's recommended to use full specification like one
         of the above.
+
+    small integer
+        An integer value of limited range which can be produced and operated
+        on without memory allocation. See :term:`memory allocation` for why this
+        is useful. A small integer fits within a machine word, and as it
+        needs to be distinguished from values of other types, which is done
+        by means of a special tag bit(s) in a machine word, it has necessarily
+        small range than the machine word. To reinstate that, a small int cannot
+        hold an entire value of a machine word, which is useful fact to keep in
+        mind for developers interested in optimization, e.g. for real-time
+        operations. Also keep in mind that Python integers are signed, so
+        small integer is signed too. As an example, with minimum 1 bit required
+        for a tag, and 1 bit for a sign, on a typical 32-bit system, a small
+        integer can hold a value in range ``-2**30 .. 2**30-1``, or roughly
+        +/- one billion.
 
     stream
         Also known as a "file-like object". An object which provides sequential
