@@ -78,7 +78,8 @@ Functions
 .. function:: ticks_ms()
 
     Returns an increasing millisecond counter with an arbitrary reference point, that
-    wraps around after some value.
+    wraps around after some value. The returned value is guaranteed to be a `small integer`,
+    i.e. this function works without memory allocation.
 
     The wrap-around value is not explicitly exposed, but we will
     refer to it as *TICKS_MAX* to simplify discussion. Period of the values is
@@ -99,7 +100,8 @@ Functions
 
 .. function:: ticks_us()
 
-   Just like `ticks_ms()` above, but in microseconds.
+   Just like `ticks_ms()` above, but in microseconds. The returned value is
+   guaranteed to be a `small integer`.
 
 .. function:: ticks_cpu()
 
@@ -111,6 +113,8 @@ Functions
    documentation for a specific port may provide more specific information. This
    function is intended for very fine benchmarking or very tight real-time loops.
    Avoid using it in portable code.
+
+   The returned value is guaranteed to be a `small integer`.
 
    Availability: Not every port implements this function.
 
