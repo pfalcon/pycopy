@@ -43,3 +43,11 @@ Functions
 
       This class is MicroPython extension. It's included on provisional
       basis and may be changed considerably or removed in later versions.
+
+   .. method:: init(stream)
+
+        Reinitialize DecompIO object to handle a new *stream*. This allows
+        to reuse the same DecompIO instance to handle multiple decompression
+        streams, instead of allocating a new instance each time, which helps
+        to avoid `fragmentation`. After reinitialization, the same values
+        for *wbits* and *dictbuf* are used, as were passed to the constructor.
