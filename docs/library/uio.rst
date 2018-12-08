@@ -74,6 +74,118 @@ Note that for efficiency, MicroPython doesn't provide abstract base
 classes corresponding to the hierarchy above, and it's not possible
 to implement, or subclass, a stream class in pure Python.
 
+Abstract stream interface
+-------------------------
+
+Warning: AbstractStream is an implied abstract class, described here
+for illustrative purposes. There is no actual class with this name,
+but all other stream classes implement subset of the functionality
+described here.
+
+.. class:: AbstractStream
+
+    .. method:: read(size=-1)
+
+        Read *size* bytes or characters from the stream, or until EOF if
+        size is -1 or not specified. Return `str` or `bytes` with
+        contents read. Return ``None`` if stream is in non-blocking mode
+        and no data is available.
+
+    .. method:: readline(maxsize=-1)
+
+        Read a line (sequence of bytes or characters) from the stream
+        until ``'\n'`` character is seen (or until EOF, or until no more
+        data is available in non-blocking mode). The line, with ``'\n'``
+        included, is returned. If positional *maxsize* argument is provided,
+        at most *maxsize* bytes are read (in which case the returned
+        string might not end with ``'\n'``). If stream is in non-blocking
+        mode and no data available, ``None`` is returned.
+
+    .. method:: readinto(buf, [maxsize])
+
+        Read bytes into a *buf* `buffer`. The size of data read is equal
+        to the size of buffer (unless EOF/lack of non-blocking data occurs
+        first), unless *maxsize* is specified, which allows to read less
+        data. Returns number of bytes actually read. This method is
+        available only for binary streams.
+
+        MicroPython extension: *buf* can be a `BytesIO` object. Data
+        will be written at the current offset of the BytesIO object, and
+        up to remaining allocation size of data will be written, in other
+        words, this operation will not grow the internal buffer of BytesIO
+        object.
+
+    .. method:: write(data)
+
+        Writes to the stream *data*, which should be `str` for text streams,
+        or arbitrary `buffer` for binary streams. Returns number of items
+        (bytes or characters) actually written, or None if non-blocking
+        stream could not accept any data.
+
+    .. method:: write(data, size)
+                write(data, offset, size)
+
+        MicroPython extension: write a substring of *data*, starting at *offset*
+        (or 0), and with the given *size*. For example,
+        ``write(b'12345', 1, 2)`` will write ``b'23'`` to the stream. These
+        methods are useful as an optimization when working with short-write
+        streams (e.g., non-blocking streams), to avoid slicing or creating
+        `memoryview` object to write the remaining chunk of data.
+
+    .. method:: flush()
+
+        Flush any data or metadata, cached internally (in MicroPython
+        components) or externally (e.g. in OS) to the underlying medium.
+        For example, for files, all data will be written to disk, for
+        network streams - data will be sent over network, etc.
+
+    .. method:: close()
+
+        Close the stream. No other operations on stream are possible after
+        the closure (will lead to error or underfines behavior). However,
+        the close() operation itself should be idempotent, i.e. it should
+        be possible to call in multiple times without an error (2nd and
+        following calls should not lead to any effect).
+
+    .. method:: seek(offset, [whence])
+
+        Move internal stream offset pointer for random-access streams.
+        Read/write operations are performed from the position specified
+        by this pointer. *whence* parameter can be:
+
+        * 0 - *offset* is against the start of stream (known as SEEK_SET)
+        * 1 - *offset* is against the current positions (known as SEEK_CUR)
+        * 2 - *offset* is against the end of stream (known as SEEK_END)
+
+        Note that the symbolic names (SEEK_SET/SEEK_CUR/SEEK_END) are **NOT**
+        provided by the ``uio`` module, to minimize the code size. Instead,
+        well-known values 0, 1, 2 can be used. Your application may define
+        these symbolic names itself, or use ``io`` module from
+        `micropython-lib` which provides them.
+
+        This method is available only for random-access streams.
+
+    .. method:: truncate(size=None)
+
+        Resize the stream to the given *size*, or the current stream
+        position if *size* is not provided. Note that this operation
+        can both grow and shrink stream with respect to its current size.
+        This method is available only for random-access streams.
+
+    .. method:: setblocking(val)
+
+        If *val* is ``False``, the stream is swtiched to non-blocking mode.
+        Otherwise, if ``True``, it is switched to blocking mode.
+
+    .. method:: settimeout(val)
+
+        Set timeout for stream operations. This is generalization of
+        `setblocking()` method. If *val* is 0, the stream is switched to
+        non-blocking mode. if *val* is ``None``, the stream is switched
+        to blocking mode. Otherwise, *val* represents a timeout in seconds
+        for stream operations. If an operation is not completed in the time
+        alloted, ``OSError(ETIMEDOUT)`` is raised.
+
 Functions
 ---------
 
