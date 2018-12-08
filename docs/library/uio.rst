@@ -28,14 +28,14 @@ MicroPython, all streams are currently unbuffered. This is because all
 modern OSes, and even many RTOSes and filesystem drivers already perform
 buffering on their side. Adding another layer of buffering is counter-
 productive (an issue known as "bufferbloat") and takes precious memory.
-Note that there still cases where buffering may be useful, so we may
+Note that there are still cases where buffering may be useful, so we may
 introduce optional buffering support at a later time.
 
 But in CPython, another important dichotomy is tied with "bufferedness" -
 it's whether a stream may incur short read/writes or not. A short read
 is when a user asks e.g. 10 bytes from a stream, but gets less, similarly
 for writes. In CPython, unbuffered streams are automatically short
-operation susceptible, while buffered are guarantee against them. The
+operation susceptible, while buffered are guaranteed against them. The
 no short read/writes is an important trait, as it allows to develop
 more concise and efficient programs - something which is highly desirable
 for MicroPython. So, while MicroPython doesn't support buffered streams,
@@ -54,14 +54,14 @@ fully supported by MicroPython. Non-blocking streams never wait for
 data either to arrive or be written - they read/write whatever possible,
 or signal lack of data (or ability to write data). Clearly, this conflicts
 with "no-short-operations" policy, and indeed, a case of non-blocking
-buffered (and this no-short-ops) streams is convoluted in CPython - in
+buffered (and thus no-short-ops) streams is convoluted in CPython - in
 some places, such combination is prohibited, in some it's undefined or
 just not documented, in some cases it raises verbose exceptions. The
 matter is much simpler in MicroPython: non-blocking stream are important
-for efficient asynchronous operations, so this property prevails on
+for efficient asynchronous operations, so this property prevails
 the "no-short-ops" one. So, while blocking streams will avoid short
 reads/writes whenever possible (the only case to get a short read is
-if end of file is reached, or in case of error (but errors don't
+if the end of file is reached, or in a case of error (but errors don't
 return short data, but raise exceptions)), non-blocking streams may
 produce short data to avoid blocking the operation.
 
