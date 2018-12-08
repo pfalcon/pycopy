@@ -1,10 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013-2019 Damien P. George
- * Copyright (c) 2014-2015 Paul Sokolovsky
+ * Copyright (c) 2014-2018 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1452,6 +1453,7 @@ unwind_loop:
             if (nlr.ret_val != &mp_const_GeneratorExit_obj
                 && *code_state->ip != MP_BC_END_FINALLY
                 && !(*code_state->ip == MP_BC_RAISE_VARARGS && code_state->ip[1] == 0)) {
+                #if 0 // Moved to mp_decode_cur_lineno(), commented but left inplace to ease integration of possible upstream changes
                 const byte *ip = code_state->fun_bc->bytecode;
                 ip = mp_decode_uint_skip(ip); // skip n_state
                 ip = mp_decode_uint_skip(ip); // skip n_exc_stack
@@ -1475,6 +1477,12 @@ unwind_loop:
                 #endif
                 size_t source_line = mp_bytecode_get_source_line(ip, bc);
                 mp_obj_exception_add_traceback(MP_OBJ_FROM_PTR(nlr.ret_val), source_file, source_line, block_name);
+                #endif
+
+                mp_source_loc_t loc;
+                mp_decode_cur_lineno(code_state, &loc);
+                mp_obj_exception_add_traceback(MP_OBJ_FROM_PTR(nlr.ret_val),
+                    loc.source_file, loc.source_line, loc.block_name);
             }
 
             while (exc_sp >= exc_stack && exc_sp->handler <= code_state->ip) {
