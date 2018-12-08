@@ -30,6 +30,7 @@
 
 #include "py/emit.h"
 #include "py/runtime.h"
+#include "py/bc.h"
 
 #if MICROPY_WARNINGS
 
@@ -37,6 +38,14 @@ void mp_warning(const char *category, const char *msg, ...) {
     if (category == NULL) {
         category = "Warning";
     }
+
+    #if MICROPY_WARNINGS_LOC
+    mp_source_loc_t loc;
+    mp_decode_cur_lineno(MP_STATE_THREAD(code_state), &loc);
+    // CPython doesn't print function name, so we don't so far either.
+    mp_printf(MICROPY_ERROR_PRINTER, "%q:%d: ", loc.source_file, loc.source_line);
+    #endif
+
     mp_print_str(MICROPY_ERROR_PRINTER, category);
     mp_print_str(MICROPY_ERROR_PRINTER, ": ");
 
