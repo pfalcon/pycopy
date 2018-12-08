@@ -627,6 +627,15 @@ typedef long long mp_longint_impl_t;
 #define MICROPY_WARNINGS_CATEGORY (0)
 #endif
 
+// Whether to print source code location for warning
+#ifndef MICROPY_WARNINGS_LOC
+#define MICROPY_WARNINGS_LOC (0)
+#endif
+#if MICROPY_WARNINGS_LOC
+#undef MICROPY_ACCESS_CODE_STATE
+#define MICROPY_ACCESS_CODE_STATE (1)
+#endif
+
 // This macro is used when printing runtime warnings and errors
 #ifndef MICROPY_ERROR_PRINTER
 #define MICROPY_ERROR_PRINTER (&mp_plat_print)
