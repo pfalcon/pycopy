@@ -35,6 +35,7 @@
 #define MICROPY_ENABLE_DOC_STRING      (1)
 #define MICROPY_ENABLE_SCHEDULER       (1)
 #define MICROPY_READER_VFS             (1)
+#define MICROPY_WARNINGS_LOC           (1)
 #define MICROPY_MODULE_GETATTR         (1)
 #define MICROPY_PY_DELATTR_SETATTR     (1)
 #define MICROPY_PY_REVERSE_SPECIAL_METHODS (1)
