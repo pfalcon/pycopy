@@ -1364,6 +1364,7 @@ unwind_loop:
             // TODO: don't set traceback for exceptions re-raised by END_FINALLY.
             // But consider how to handle nested exceptions.
             if (nlr.ret_val != &mp_const_GeneratorExit_obj) {
+                #if 0 // Moved to mp_decode_cur_lineno(), commented but left inplace to ease integration of possible upstream changes
                 const byte *ip = code_state->fun_bc->bytecode;
                 ip = mp_decode_uint_skip(ip); // skip n_state
                 ip = mp_decode_uint_skip(ip); // skip n_exc_stack
@@ -1408,7 +1409,12 @@ unwind_loop:
                         break;
                     }
                 }
-                mp_obj_exception_add_traceback(MP_OBJ_FROM_PTR(nlr.ret_val), source_file, source_line, block_name);
+                #endif
+
+                mp_source_loc_t loc;
+                mp_decode_cur_lineno(code_state, &loc);
+                mp_obj_exception_add_traceback(MP_OBJ_FROM_PTR(nlr.ret_val),
+                    loc.source_file, loc.source_line, loc.block_name);
             }
 
             while (exc_sp >= exc_stack && exc_sp->handler <= code_state->ip) {
