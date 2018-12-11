@@ -823,7 +823,7 @@ skip_special_accessors:
     }
 }
 
-STATIC void mp_obj_instance_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+void mp_obj_instance_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     if (dest[0] == MP_OBJ_NULL) {
         mp_obj_instance_load_attr(self_in, attr, dest);
     } else {
