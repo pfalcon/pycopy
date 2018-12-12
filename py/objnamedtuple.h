@@ -41,4 +41,8 @@ typedef struct _mp_obj_namedtuple_t {
 size_t mp_obj_namedtuple_find_field(const mp_obj_namedtuple_type_t *type, qstr name);
 mp_obj_namedtuple_type_t *mp_obj_new_namedtuple_base(size_t n_fields, mp_obj_t *fields);
 
+static inline bool mp_obj_namedtuple_check_field_name(const mp_obj_namedtuple_type_t *type, unsigned idx, qstr name) {
+    return idx < type->n_fields && type->fields[idx] == name;
+}
+
 #endif // MICROPY_INCLUDED_PY_OBJNAMEDTUPLE_H
