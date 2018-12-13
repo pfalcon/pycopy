@@ -1,0 +1,8 @@
+b'foo'
+foo
+True
+b''
+''
+True
+b''
+AttributeError
