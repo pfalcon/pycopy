@@ -1955,6 +1955,21 @@ mp_int_t mp_obj_str_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufinfo, mp_u
     }
 }
 
+STATIC void bytes_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+    // Check against mp_const_empty_bytes to avoid crash. Actually, should
+    // have a generic function to check if object is in RO memory section.
+    if (dest[0] != MP_OBJ_NULL && self_in != mp_const_empty_bytes) {
+        // Store attr
+        mp_obj_t val = dest[1];
+        // Allow to change type inplace to str or bytes
+        if (attr == MP_QSTR___class__ && MP_OBJ_TO_PTR(val) == &mp_type_str) {
+            mp_obj_str_t *self = MP_OBJ_TO_PTR(self_in);
+            self->base.type = MP_OBJ_TO_PTR(val);
+            dest[0] = MP_OBJ_NULL; // indicate success
+        }
+    }
+}
+
 STATIC const mp_rom_map_elem_t str8_locals_dict_table[] = {
 #if MICROPY_CPYTHON_COMPAT
     { MP_ROM_QSTR(MP_QSTR_decode), MP_ROM_PTR(&bytes_decode_obj) },
@@ -2029,6 +2044,7 @@ const mp_obj_type_t mp_type_bytes = {
     .make_new = bytes_make_new,
     .binary_op = mp_obj_str_binary_op,
     .subscr = bytes_subscr,
+    .attr = bytes_attr,
     .getiter = mp_obj_new_bytes_iterator,
     .buffer_p = { .get_buffer = mp_obj_str_get_buffer },
     .locals_dict = (mp_obj_dict_t*)&str8_locals_dict,
