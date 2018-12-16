@@ -34,6 +34,7 @@ addons:
     - python
     - sed
     - help2man
+    - libmbedtls-dev
 
 # define the successive stages
 stages:
@@ -122,6 +123,14 @@ jobs:
         - make ${MAKEOPTS} -C ports/unix deplibs
         - make ${MAKEOPTS} -C ports/unix
         - make ${MAKEOPTS} -C ports/unix test
+
+    # unix port with mbedTLS
+    - stage: test
+      env: NAME="unix port with mbedTLS build and tests"
+      script:
+        - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0
+        - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0 test RUN_TESTS_EXTRA="-e ussl_basic"
 
     # unix nanbox
     - stage: test
