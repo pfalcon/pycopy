@@ -21,6 +21,7 @@ addons:
     - autoconf
     - automake
     - libtool
+    - libtool-bin
     - gcc
     - g++
     - gperf
