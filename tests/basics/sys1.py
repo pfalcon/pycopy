@@ -33,3 +33,8 @@ try:
     sys.exit(42)
 except SystemExit as e:
     print("SystemExit", e.args)
+
+try:
+    sys.exit(0)
+finally:
+    print("finally")
