@@ -1125,7 +1125,7 @@ unwind_return:
                     mp_uint_t unum = *ip;
                     mp_obj_t obj;
                     if (unum == 2) {
-                        mp_warning("exception chaining not supported");
+                        mp_warning(NULL, "exception chaining not supported");
                         // ignore (pop) "from" argument
                         sp--;
                     }
