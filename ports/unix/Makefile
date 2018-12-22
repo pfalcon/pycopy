@@ -66,6 +66,11 @@ CFLAGS += -fno-stack-protector
 # we produce top-level executable, so there're no users for exception's unwind
 # tables (take a *huge* chunk of executable file).
 CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
+
+# The latest fad is to build "position independent executables" by default,
+# that adds ~+20% to the executable size. Disable. (Should be coupled with
+# corresponding LDFLAGS).
+CFLAGS += -fno-pie
 endif
 
 # On OSX, 'gcc' is a symlink to clang unless a real gcc is installed.
@@ -83,6 +88,8 @@ LDFLAGS_ARCH = -Wl,-map,$@.map -Wl,-dead_strip
 else
 # Use gcc syntax for map file
 LDFLAGS_ARCH = -Wl,-Map=$@.map,--cref -Wl,--gc-sections
+# Disable PIE, see CFLAGS comments above
+LDFLAGS_ARCH += -no-pie
 endif
 LDFLAGS = $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 
