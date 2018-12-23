@@ -45,6 +45,7 @@ struct qentry {
         struct qentry *next_free;
     };
     mp_uint_t id;
+    mp_uint_t pos;
     mp_obj_t callback;
     mp_obj_t args;
 };
@@ -113,12 +114,14 @@ STATIC void heap_siftdown(mp_obj_utimeq_t *heap, mp_uint_t start_pos, mp_uint_t 
         bool lessthan = time_less_than(item, parent);
         if (lessthan) {
             heap->heap[pos] = parent;
+            parent->pos = pos;
             pos = parent_pos;
         } else {
             break;
         }
     }
     heap->heap[pos] = item;
+    item->pos = pos;
 }
 
 STATIC void heap_siftup(mp_obj_utimeq_t *heap, mp_uint_t pos) {
@@ -135,9 +138,11 @@ STATIC void heap_siftup(mp_obj_utimeq_t *heap, mp_uint_t pos) {
         }
         // bubble up the smaller child
         heap->heap[pos] = heap->heap[child_pos];
+        heap->heap[pos]->pos = pos;
         pos = child_pos;
     }
     heap->heap[pos] = item;
+    item->pos = pos;
     heap_siftdown(heap, start_pos, pos);
 }
 
@@ -191,6 +196,39 @@ STATIC mp_obj_t mod_utimeq_heappop(mp_obj_t heap_in, mp_obj_t list_ref) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_utimeq_heappop_obj, mod_utimeq_heappop);
 
+STATIC mp_obj_t mod_utimeq_remove(mp_obj_t heap_in, mp_obj_t el_handle) {
+    mp_obj_utimeq_t *heap = get_heap(heap_in);
+    if (heap->len == 0) {
+        mp_raise_IndexError("empty heap");
+    }
+
+    mp_int_t idx = MP_OBJ_SMALL_INT_VALUE(el_handle);
+    if (idx < 0 || (mp_uint_t)idx >= heap->alloc) {
+index_err:
+        mp_raise_IndexError(NULL);
+    }
+
+    struct qentry *item = heap->items + idx;
+
+    mp_uint_t pos = item->pos;
+    if (pos >= heap->len || item->callback == MP_OBJ_NULL) {
+        goto index_err;
+    }
+
+    item->callback = item->args = MP_OBJ_NULL; // so we don't retain pointers
+    item->next_free = heap->free;
+    heap->free = item;
+    heap->len--;
+
+    if (pos != heap->len) {
+        heap->heap[pos] = heap->heap[heap->len];
+        heap_siftup(heap, pos);
+    }
+    heap->heap[heap->len] = NULL;
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_utimeq_remove_obj, mod_utimeq_remove);
+
 STATIC mp_obj_t mod_utimeq_peektime(mp_obj_t heap_in) {
     mp_obj_utimeq_t *heap = get_heap(heap_in);
     if (heap->len == 0) {
@@ -228,6 +266,7 @@ STATIC const mp_rom_map_elem_t utimeq_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_push), MP_ROM_PTR(&mod_utimeq_heappush_obj) },
     { MP_ROM_QSTR(MP_QSTR_pop), MP_ROM_PTR(&mod_utimeq_heappop_obj) },
     { MP_ROM_QSTR(MP_QSTR_peektime), MP_ROM_PTR(&mod_utimeq_peektime_obj) },
+    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&mod_utimeq_remove_obj) },
     #if DEBUG
     { MP_ROM_QSTR(MP_QSTR_dump), MP_ROM_PTR(&mod_utimeq_dump_obj) },
     #endif
