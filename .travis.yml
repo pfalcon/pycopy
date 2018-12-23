@@ -132,6 +132,14 @@ jobs:
         - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0
         - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0 test RUN_TESTS_EXTRA="-e ussl_basic"
 
+    # micropython-dev unix port
+    - stage: test
+      env: NAME="unix port micropython-dev"
+      script:
+        - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix dev
+        - make ${MAKEOPTS} -C ports/unix dev_test
+
     # unix nanbox
     - stage: test
       env: NAME="unix nanbox port build and tests"
