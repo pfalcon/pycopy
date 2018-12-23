@@ -52,7 +52,8 @@ def convert_regex_escapes(line):
 def run_micropython(pyb, args, test_file, is_special=False):
     special_tests = (
         'micropython/meminfo.py', 'basics/bytes_compare3.py',
-        'basics/builtin_help.py', 'thread/thread_exc2.py',
+        'basics/builtin_help.py', 'basics/exception_chain.py',
+        'thread/thread_exc2.py',
     )
     had_crash = False
     if pyb is None:
