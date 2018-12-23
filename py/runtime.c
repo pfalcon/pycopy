@@ -1478,6 +1478,10 @@ NORETURN void mp_raise_msg(const mp_obj_type_t *exc_type, const char *msg) {
     }
 }
 
+NORETURN void mp_raise_IndexError(const char *msg) {
+    mp_raise_msg(&mp_type_IndexError, msg);
+}
+
 NORETURN void mp_raise_ValueError(const char *msg) {
     mp_raise_msg(&mp_type_ValueError, msg);
 }
