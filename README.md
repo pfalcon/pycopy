@@ -9,9 +9,10 @@ The Pycopy/MicroPython project
   <img src="https://raw.githubusercontent.com/pfalcon/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
 </p>
 
-This is the MicroPython project, which aims to put an implementation
-of Python 3.x on microcontrollers and small embedded systems.
-You can find the official website at [micropython.org](http://www.micropython.org).
+This is the Pycopy project, which aims to devel a lightweight implementation
+of Python 3.x, scaling down to small embedded systems, and all the way down to
+microcontrollers. Pycopy is based on [MicroPython](http://www.micropython.org).
+Name "Pycopy" and "MicroPython" is used interchangeably below.
 
 WARNING: this project is in beta stage and is subject to changes of the
 code-base, including project-wide name changes and API changes.
