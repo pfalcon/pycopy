@@ -3,20 +3,18 @@
 Fork FAQ [below](#fork-faq).
 
 
-The Pycopy/MicroPython project
-==============================
-<p align="center">
-  <img src="https://raw.githubusercontent.com/pfalcon/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
-</p>
+The Pycopy project
+==================
 
-This is the MicroPython project, which aims to put an implementation
-of Python 3.x on microcontrollers and small embedded systems.
-You can find the official website at [micropython.org](http://www.micropython.org).
+This is the Pycopy project, which aims to devel a lightweight implementation
+of Python 3.x, scaling down to small embedded systems, and all the way down to
+microcontrollers. Pycopy is based on [MicroPython](http://www.micropython.org).
+Name "Pycopy" and "MicroPython" is used interchangeably below.
 
 WARNING: this project is in beta stage and is subject to changes of the
 code-base, including project-wide name changes and API changes.
 
-MicroPython implements the entire Python 3.4 syntax (including exceptions,
+Pycopy implements the entire Python 3.4 syntax (including exceptions,
 `with`, `yield from`, etc., and additionally `async`/`await` keywords from
 Python 3.5). The following core datatypes are provided: `str` (including
 basic Unicode support), `bytes`, `bytearray`, `tuple`, `list`, `dict`, `set`,
@@ -25,12 +23,9 @@ Builtin modules include `sys`, `time`, and `struct`, etc. Select ports have
 support for `_thread` module (multithreading). Note that only a subset of
 Python 3 functionality is implemented for the data types and modules.
 
-MicroPython can execute scripts in textual source form or from precompiled
+Pycopy can execute scripts in textual source form or from precompiled
 bytecode, in both cases either from an on-device filesystem or "frozen" into
-the MicroPython executable.
-
-See the repository http://github.com/micropython/pyboard for the MicroPython
-board (PyBoard), the officially supported reference electronic circuit board.
+the executable.
 
 Major components in this repository:
 - py/ -- the core Python implementation, including compiler, runtime, and
@@ -67,10 +62,10 @@ You will also need bash, gcc, and Python 3.3+ available as the command `python3`
 (if your system only has Python 2.7 then invoke make with the additional option
 `PYTHON=python2`).
 
-The MicroPython cross-compiler, mpy-cross
------------------------------------------
+The cross-compiler, mpy-cross
+-----------------------------
 
-Most ports require the MicroPython cross-compiler to be built first.  This
+Most ports require the Pycopy cross-compiler to be built first.  This
 program, called mpy-cross, is used to pre-compile Python scripts to .mpy
 files which can then be included (frozen) into the firmware/executable for
 a port.  To build mpy-cross use:
@@ -108,28 +103,27 @@ Run complete testsuite:
 
     $ make test
 
-Unix version comes with a builtin package manager called upip, e.g.:
+Unix version comes with a builtin package manager called `upip`, e.g.:
 
-    $ ./micropython -m upip install micropython-pystone
+    $ ./micropython -m upip install pycopy-pystone
     $ ./micropython -m pystone
 
-Browse available modules on
-[PyPI](https://pypi.python.org/pypi?%3Aaction=search&term=micropython).
+Browse available modules on [PyPI](https://pypi.org/search/?q=pycopy-).
 Standard library modules come from
-[micropython-lib](https://github.com/pfalcon/micropython-lib) project.
+[pycopy-lib](https://github.com/pfalcon/pycopy-lib) project.
 
 External dependencies
 ---------------------
 
-Building MicroPython ports may require some dependencies installed.
+Building Pycopy ports may require some dependencies installed.
 
 For Unix port, `libffi` library and `pkg-config` tool are required. On
 Debian/Ubuntu/Mint derivative Linux distros, install `build-essential`
 (includes toolchain and make), `libffi-dev`, and `pkg-config` packages.
 
-Other dependencies can be built together with MicroPython. This may
+Other dependencies can be built together with Pycopy. This may
 be required to enable extra features or capabilities, and in recent
-versions of MicroPython, these may be enabled by default. To build
+versions, these may be enabled by default. To build
 these additional dependencies, first fetch git submodules for them:
 
     $ git submodule update --init
@@ -141,7 +135,7 @@ they are updated from time to time. After that, in the port directory
     $ make deplibs
 
 This will build all available dependencies (regardless whether they
-are used or not). If you intend to build MicroPython with additional
+are used or not). If you intend to build Pycopy with additional
 options (like cross-compiling), the same set of options should be passed
 to `make deplibs`. To actually enable/disable use of dependencies, edit
 `ports/unix/mpconfigport.mk` file, which has inline descriptions of the options.
@@ -182,11 +176,11 @@ See the README.md file in the ports/stm32/ directory for further details.
 Contributing
 ------------
 
-MicroPython is an open-source project and welcomes contributions. To be
-productive, please be sure to follow the
-[Contributors' Guidelines](https://github.com/micropython/micropython/wiki/ContributorGuidelines)
-and the [Code Conventions](https://github.com/micropython/micropython/blob/master/CODECONVENTIONS.md).
-Note that MicroPython is licenced under the MIT license, and all contributions
+Pycopy is an open-source project and welcomes contributions which are aligned
+with its paradigm and work process. To be productive, please be sure to follow the
+[Contributors' Guidelines](https://github.com/pfalcon/pycopy/wiki/ContributorGuidelines)
+and the [Code Conventions](https://github.com/pfalcon/pycopy/blob/master/CODECONVENTIONS.md).
+Note that Pycopy is licenced under the MIT license, and all contributions
 should follow this license.
 
 Fork FAQ
