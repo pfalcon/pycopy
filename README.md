@@ -3,20 +3,18 @@
 Fork FAQ [below](#fork-faq).
 
 
-The Pycopy/MicroPython project
-==============================
-<p align="center">
-  <img src="https://raw.githubusercontent.com/pfalcon/micropython/master/logo/upython-with-micro.jpg" alt="MicroPython Logo"/>
-</p>
+The Pycopy project
+==================
 
-This is the MicroPython project, which aims to put an implementation
-of Python 3.x on microcontrollers and small embedded systems.
-You can find the official website at [micropython.org](http://www.micropython.org).
+This is the Pycopy project, which aims to devel a lightweight implementation
+of Python 3.x, scaling down to small embedded systems, and all the way down to
+microcontrollers. Pycopy is based on [MicroPython](http://www.micropython.org).
+Name "Pycopy" and "MicroPython" is used interchangeably below.
 
 WARNING: this project is in beta stage and is subject to changes of the
 code-base, including project-wide name changes and API changes.
 
-MicroPython implements the entire Python 3.4 syntax (including exceptions,
+Pycopy implements the entire Python 3.4 syntax (including exceptions,
 `with`, `yield from`, etc., and additionally `async`/`await` keywords from
 Python 3.5). The following core datatypes are provided: `str` (including
 basic Unicode support), `bytes`, `bytearray`, `tuple`, `list`, `dict`, `set`,
@@ -25,12 +23,9 @@ Builtin modules include `sys`, `time`, and `struct`, etc. Select ports have
 support for `_thread` module (multithreading). Note that only a subset of
 Python 3 functionality is implemented for the data types and modules.
 
-MicroPython can execute scripts in textual source form or from precompiled
+Pycopy can execute scripts in textual source form or from precompiled
 bytecode, in both cases either from an on-device filesystem or "frozen" into
-the MicroPython executable.
-
-See the repository http://github.com/micropython/pyboard for the MicroPython
-board (PyBoard), the officially supported reference electronic circuit board.
+the executable.
 
 Major components in this repository:
 - py/ -- the core Python implementation, including compiler, runtime, and
@@ -67,8 +62,8 @@ You will also need bash, gcc, and Python 3.3+ available as the command `python3`
 (if your system only has Python 2.7 then invoke make with the additional option
 `PYTHON=python2`).
 
-The MicroPython cross-compiler, mpy-cross
------------------------------------------
+The cross-compiler, mpy-cross
+-----------------------------
 
 Most ports require the MicroPython cross-compiler to be built first.  This
 program, called mpy-cross, is used to pre-compile Python scripts to .mpy
@@ -108,15 +103,14 @@ Run complete testsuite:
 
     $ make test
 
-Unix version comes with a builtin package manager called upip, e.g.:
+Unix version comes with a builtin package manager called `upip`, e.g.:
 
-    $ ./micropython -m upip install micropython-pystone
+    $ ./micropython -m upip install pycopy-pystone
     $ ./micropython -m pystone
 
-Browse available modules on
-[PyPI](https://pypi.python.org/pypi?%3Aaction=search&term=micropython).
+Browse available modules on [PyPI](https://pypi.org/search/?q=pycopy-).
 Standard library modules come from
-[micropython-lib](https://github.com/pfalcon/micropython-lib) project.
+[pycopy-lib](https://github.com/pfalcon/pycopy-lib) project.
 
 External dependencies
 ---------------------
