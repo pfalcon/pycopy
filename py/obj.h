@@ -570,6 +570,7 @@ extern const mp_obj_type_t mp_type_stringio;
 extern const mp_obj_type_t mp_type_bytesio;
 extern const mp_obj_type_t mp_type_reversed;
 extern const mp_obj_type_t mp_type_polymorph_iter;
+extern const mp_obj_type_t mp_type_roproxy;
 
 // Exceptions
 extern const mp_obj_type_t mp_type_BaseException;
