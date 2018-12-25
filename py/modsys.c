@@ -219,6 +219,7 @@ STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
      */
 
     { MP_ROM_QSTR(MP_QSTR_print_exception), MP_ROM_PTR(&mp_sys_print_exception_obj) },
+    { MP_ROM_QSTR(MP_QSTR_roproxy), MP_ROM_PTR(&mp_type_roproxy) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_sys_globals, mp_module_sys_globals_table);
