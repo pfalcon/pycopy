@@ -1219,6 +1219,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_SYS_INTERN (0)
 #endif
 
+// Whether to provide "sys.roproxy" type (Pycopy extension)
+#ifndef MICROPY_PY_SYS_ROPROXY
+#define MICROPY_PY_SYS_ROPROXY (0)
+#endif
+
 // Whether to provide sys.{stdin,stdout,stderr} objects
 #ifndef MICROPY_PY_SYS_STDFILES
 #define MICROPY_PY_SYS_STDFILES (0)
