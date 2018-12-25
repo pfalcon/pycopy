@@ -277,6 +277,9 @@ STATIC mp_obj_t load_obj(mp_reader_t *reader) {
             return mp_obj_new_str_from_vstr(obj_type == 's' ? &mp_type_str : &mp_type_bytes, &vstr);
         } else if (obj_type == 'i') {
             return mp_parse_num_integer(vstr.buf, vstr.len, 10, NULL);
+        } else if (obj_type == 'g') {
+            qstr qst = qstr_from_strn(vstr.buf, vstr.len);
+            return mp_load_global(qst);
         } else {
             assert(obj_type == 'f' || obj_type == 'c');
             return mp_parse_num_decimal(vstr.buf, vstr.len, obj_type == 'c', false, NULL);
