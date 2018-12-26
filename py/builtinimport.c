@@ -472,7 +472,15 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
         return module_obj;
     }
     // Otherwise, we need to return top-level package
+    #ifdef REFETCH_MODULE_OBJ_FROM_SYS_MODULE
+    // Don't return the original module that we created, return what's now
+    // stored in sys.modules. This allows the module itself influence it,
+    // say wrap itself in some proxy object, e.g. to provide read-only
+    // access to its attributes. TODO: needs to be done for return above too.
+    return mp_module_get(MP_OBJ_QSTR_VALUE(mp_load_attr(top_module_obj, MP_QSTR___name__)));
+    #else
     return top_module_obj;
+    #endif
 }
 
 #else // MICROPY_ENABLE_EXTERNAL_IMPORT
