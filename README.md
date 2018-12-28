@@ -80,6 +80,7 @@ Alternatively, fallback implementation based on setjmp/longjmp can be used.
 To build (see section below for required dependencies):
 
     $ git submodule update --init
+    $ make -C mpy-cross
     $ cd ports/unix
     $ make
 
