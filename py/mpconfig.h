@@ -1053,6 +1053,13 @@ typedef double mp_float_t;
 #define MICROPY_PY___FILE__ (1)
 #endif
 
+// Whether to implement constructor for function type, to allow construct
+// function objects from raw bytecode. (Signature is not compliant with
+// CPython, that's why it's exported from 'micropython' submodule).
+#ifndef MICROPY_PY_MICROPYTHON_FUNCTION
+#define MICROPY_PY_MICROPYTHON_FUNCTION (0)
+#endif
+
 // Whether to provide mem-info related functions in micropython module
 #ifndef MICROPY_PY_MICROPYTHON_MEM_INFO
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (0)

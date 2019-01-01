@@ -1,10 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014-2018 Paul Sokolovsky
+ * Copyright (c) 2014-2019 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -366,6 +367,28 @@ void mp_obj_fun_bc_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 }
 #endif
+
+mp_obj_t mp_obj_fun_bc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    (void)type;
+    // code, const_table, globals, argdefs
+    mp_arg_check_num(n_args, n_kw, 3, 4, false);
+
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_READ);
+    const byte *bytecode = bufinfo.buf;
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+
+    mp_obj_t argdefs = MP_OBJ_NULL;
+    if (n_args > 3) {
+        argdefs = args[3];
+    }
+
+    mp_obj_t fun = mp_obj_new_fun_bc(argdefs, MP_OBJ_NULL, bytecode, bufinfo.buf);
+    mp_obj_fun_bc_t *o = MP_OBJ_TO_PTR(fun);
+    o->globals = MP_OBJ_TO_PTR(args[2]);
+
+    return fun;
+}
 
 const mp_obj_type_t mp_type_fun_bc = {
     { &mp_type_type },
