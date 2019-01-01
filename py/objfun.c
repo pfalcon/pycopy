@@ -363,9 +363,35 @@ void mp_obj_fun_bc_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
 }
 #endif
 
+#if MICROPY_PY_FUNCTION_CONSTRUCTOR
+STATIC mp_obj_t fun_bc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    // code, const_table, globals, argdefs
+    mp_arg_check_num(n_args, n_kw, 3, 4, false);
+
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_READ);
+    const byte *bytecode = bufinfo.buf;
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+
+    mp_obj_t argdefs = MP_OBJ_NULL;
+    if (n_args > 3) {
+        argdefs = args[3];
+    }
+
+    mp_obj_t fun = mp_obj_new_fun_bc(argdefs, MP_OBJ_NULL, bytecode, bufinfo.buf);
+    mp_obj_fun_bc_t *o = MP_OBJ_TO_PTR(fun);
+    o->globals = args[2];
+
+    return fun;
+}
+#endif
+
 const mp_obj_type_t mp_type_fun_bc = {
     { &mp_type_type },
     .name = MP_QSTR_function,
+    #if MICROPY_PY_FUNCTION_CONSTRUCTOR
+    .make_new = fun_bc_make_new,
+    #endif
 #if MICROPY_CPYTHON_COMPAT
     .print = fun_bc_print,
 #endif

@@ -801,6 +801,13 @@ typedef double mp_float_t;
 #define MICROPY_PY_FUNCTION_ATTRS (0)
 #endif
 
+// Whether to implement constructor for function type, to allow construct
+// function objects from raw bytecode. (Signature is not compliant with
+// CPython).
+#ifndef MICROPY_PY_FUNCTION_CONSTRUCTOR
+#define MICROPY_PY_FUNCTION_CONSTRUCTOR (0)
+#endif
+
 // Whether to support the descriptors __get__, __set__, __delete__
 // This costs some code size and makes load/store/delete of instance
 // attributes slower for the classes that use this feature
