@@ -31,6 +31,7 @@
 #include "py/runtime.h"
 #include "py/gc.h"
 #include "py/mphal.h"
+#include "py/objfun.h"
 
 // Various builtins specific to MicroPython runtime,
 // living in micropython module
@@ -163,6 +164,13 @@ STATIC mp_obj_t mp_micropython_schedule(mp_obj_t function, mp_obj_t arg) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_micropython_schedule_obj, mp_micropython_schedule);
 #endif
 
+#if MICROPY_PY_MICROPYTHON_FUNCTION
+STATIC mp_obj_t mp_micropython_function(size_t n_args, const mp_obj_t *args) {
+    return mp_obj_fun_bc_make_new(NULL, n_args, 0, args);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_micropython_function_obj, 3, 4, mp_micropython_function);
+#endif
+
 STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_micropython) },
     { MP_ROM_QSTR(MP_QSTR_const), MP_ROM_PTR(&mp_identity_obj) },
@@ -197,6 +205,9 @@ STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     #endif
     #if MICROPY_ENABLE_SCHEDULER
     { MP_ROM_QSTR(MP_QSTR_schedule), MP_ROM_PTR(&mp_micropython_schedule_obj) },
+    #endif
+    #if MICROPY_PY_MICROPYTHON_FUNCTION
+    { MP_ROM_QSTR(MP_QSTR_function), MP_ROM_PTR(&mp_micropython_function_obj) },
     #endif
 };
 
