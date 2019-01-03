@@ -174,6 +174,15 @@ jobs:
         - make ${MAKEOPTS} -C ports/unix CC=clang CFLAGS_EXTRA="-DMICROPY_STACKLESS=1 -DMICROPY_STACKLESS_STRICT=1"
         - make ${MAKEOPTS} -C ports/unix CC=clang test
 
+    # unix port with clang
+    - stage: test
+      env: NAME="unix port with clang"
+      script:
+        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
+        - make ${MAKEOPTS} CC=clang -C mpy-cross
+        - make ${MAKEOPTS} CC=clang -C ports/unix
+        - make ${MAKEOPTS} CC=clang -C ports/unix test
+
     # windows port via mingw
     - stage: test
       env: NAME="windows port build via mingw"
