@@ -1146,8 +1146,11 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
             mp_raise_TypeError(NULL);
         }
         mp_obj_type_t *t = MP_OBJ_TO_PTR(bases_items[i]);
-        // TODO: Verify with CPy, tested on function type
-        if (t->make_new == NULL) {
+        // CPython raises this exception if a base type lacks special "suitable
+        // as base" flag. We approximate that but availability of constructor,
+        // but rule out function type specifically, which may have a constructor
+        // (depending on the options).
+        if (t->make_new == NULL || t == &mp_type_fun_bc) {
             if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
                 mp_raise_TypeError("type isn't an acceptable base type");
             } else {
