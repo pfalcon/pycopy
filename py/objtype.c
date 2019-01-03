@@ -1177,7 +1177,7 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
     const mp_map_elem_t *slots = NULL;
     #endif
 
-    mp_obj_type_t *o;
+    mp_obj_type_t *o = NULL;
     if (MP_LIKELY(slots == NULL)) {
         o = m_new0(mp_obj_type_t, 1);
     } else {
