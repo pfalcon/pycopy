@@ -14,7 +14,7 @@ except:
 try:
     # large stack/heap, eg unix
     [0] * 80000
-    N = 2400
+    N = 2500
 except:
     try:
         # medium, eg pyboard
@@ -30,7 +30,7 @@ try:
         x = enumerate(x)
     tuple(x)
 except RuntimeError:
-    print("RuntimeError")
+    print("RuntimeError1")
 
 try:
     x = (1, 2)
@@ -38,7 +38,7 @@ try:
         x = filter(None, x)
     tuple(x)
 except RuntimeError:
-    print("RuntimeError")
+    print("RuntimeError2")
 
 try:
     x = (1, 2)
@@ -46,7 +46,7 @@ try:
         x = map(max, x, ())
     tuple(x)
 except RuntimeError:
-    print("RuntimeError")
+    print("RuntimeError3")
 
 try:
     x = (1, 2)
@@ -54,4 +54,6 @@ try:
         x = zip(x)
     tuple(x)
 except RuntimeError:
-    print("RuntimeError")
+    print("RuntimeError4")
+
+print("OK")
