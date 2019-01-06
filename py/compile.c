@@ -1658,8 +1658,16 @@ STATIC void compile_try_except(compiler_t *comp, mp_parse_node_t pn_body, int n_
         if (qstr_exception_local != 0) {
             EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE);
             EMIT_ARG(label_assign, l3);
+            #if MICROPY_CPYTHON_COMPAT
+            // This follows CPython, and the only reason for this store is
+            // to allow code like:
+            // except Exc as foo:
+            //     del foo
+            // That's quite a rare case, so save 2 bytecode bytes unless
+            // full CPython compatibility is requested.
             EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE);
             compile_store_id(comp, qstr_exception_local);
+            #endif
             compile_delete_id(comp, qstr_exception_local);
             compile_decrease_except_level(comp);
         }
