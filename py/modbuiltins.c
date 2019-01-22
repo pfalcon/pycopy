@@ -141,6 +141,8 @@ STATIC mp_obj_t mp_builtin_chr(mp_obj_t o_in) {
     int len = 0;
     if (c < 0x80) {
         *str = c; len = 1;
+        // Intern only ASCII chars, which have good probability of being reused.
+        return mp_obj_new_str_via_qstr((char*)str, len);
     } else if (c < 0x800) {
         str[0] = (c >> 6) | 0xC0;
         str[1] = (c & 0x3F) | 0x80;
@@ -159,7 +161,8 @@ STATIC mp_obj_t mp_builtin_chr(mp_obj_t o_in) {
     } else {
         mp_raise_ValueError("chr() arg not in range(0x110000)");
     }
-    return mp_obj_new_str_via_qstr((char*)str, len);
+    // Don't intern non-ASCII chars, as they may take a lot of qstr storage uselessly
+    return mp_obj_new_str((char*)str, len);
     #else
     mp_int_t ord = mp_obj_get_int(o_in);
     if (0 <= ord && ord <= 0xff) {
