@@ -80,6 +80,7 @@ void *memcpy(void *dest, const void *src, size_t n) {return NULL;}
 int memcmp(const void *s1, const void *s2, size_t n) {return 0;}
 void *memmove(void *dest, const void *src, size_t n) {return NULL;}
 void *memset(void *s, int c, size_t n) {return NULL;}
+void *memchr(const void *s, int c, size_t n) {return NULL;}
 int strcmp(const char *s1, const char* s2) {return 0;}
 int strncmp(const char *s1, const char* s2, size_t n) {return 0;}
 size_t strlen(const char *s) {return 0;}
