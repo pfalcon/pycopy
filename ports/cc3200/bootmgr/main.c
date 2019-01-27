@@ -417,3 +417,6 @@ const byte *qstr_data(qstr q, size_t *len) {
     *len = 0;
     return NULL;
 }
+
+void mp_obj_print_helper(void) {
+}
