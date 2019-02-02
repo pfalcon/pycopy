@@ -205,13 +205,24 @@ STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_register_obj, 2, 3, poll_register);
 
 /// \method unregister(obj)
-STATIC mp_obj_t poll_unregister(mp_obj_t self_in, mp_obj_t obj_in) {
+STATIC mp_obj_t poll_unregister(size_t n_args, const mp_obj_t *args) {
+    mp_obj_t self_in = args[0];
+    mp_obj_t obj_in = args[1];
+
     mp_obj_poll_t *self = MP_OBJ_TO_PTR(self_in);
-    mp_map_lookup(&self->poll_map, mp_obj_id(obj_in), MP_MAP_LOOKUP_REMOVE_IF_FOUND);
-    // TODO raise KeyError if obj didn't exist in map
-    return mp_const_none;
+    mp_map_elem_t *item = mp_map_lookup(&self->poll_map, mp_obj_id(obj_in), MP_MAP_LOOKUP_REMOVE_IF_FOUND);
+    if (item != NULL) {
+        return mp_const_true;
+    }
+
+    // If "throw" arg if False, don't raise exception.
+    if (n_args > 2 && args[2] == mp_const_false) {
+        return mp_const_false;
+    }
+
+    mp_raise_msg(&mp_type_KeyError, NULL);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(poll_unregister_obj, poll_unregister);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_unregister_obj, 2, 3, poll_unregister);
 
 /// \method modify(obj, eventmask)
 STATIC mp_obj_t poll_modify(mp_obj_t self_in, mp_obj_t obj_in, mp_obj_t eventmask_in) {
