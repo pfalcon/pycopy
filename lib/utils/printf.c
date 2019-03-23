@@ -49,7 +49,13 @@ int DEBUG_printf(const char *fmt, ...) {
 
 #if MICROPY_USE_INTERNAL_PRINTF
 
-#undef putchar  // Some stdlibs have a #define for putchar
+// Some stdlibs have #define's for various stdio funcs
+#undef printf
+#undef vprintf
+#undef putchar
+#undef puts
+#undef vsnprintf
+#undef snprintf
 int printf(const char *fmt, ...);
 int vprintf(const char *fmt, va_list ap);
 int putchar(int c);
