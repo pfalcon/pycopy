@@ -25,6 +25,7 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <assert.h>
 
 #include "py/bc0.h"
@@ -79,6 +80,19 @@
 
 const byte *mp_showbc_code_start;
 const mp_uint_t *mp_showbc_const_table;
+char opcode_buf[40], *opcode_buf_ptr;
+
+static void dump_bytes(const byte *ip, mp_uint_t len) {
+    mp_uint_t i;
+
+    for (i = 0; i < len; i++) {
+        printf("%02x ", ip[i]);
+    }
+
+    while (i++ < 4) {
+        printf("   ");
+    }
+}
 
 void mp_bytecode_print(const void *descr, const byte *ip, mp_uint_t len, const mp_uint_t *const_table) {
     mp_showbc_code_start = ip;
@@ -161,9 +175,26 @@ void mp_bytecode_print(const void *descr, const byte *ip, mp_uint_t len, const m
     mp_bytecode_print2(ip, len - 0, const_table);
 }
 
+static void printf_opcode(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    size_t remaining = opcode_buf + sizeof(opcode_buf) - opcode_buf_ptr;
+    size_t ret = vsnprintf(opcode_buf_ptr, remaining, fmt, ap);
+    if (ret > remaining) {
+        ret = remaining;
+    }
+    opcode_buf_ptr += ret;
+    va_end(ap);
+}
+
+#undef printf
+#define printf(...) printf_opcode(__VA_ARGS__)
+
 const byte *mp_bytecode_print_str(const byte *ip) {
     mp_uint_t unum;
     qstr qst;
+
+    opcode_buf_ptr = opcode_buf;
 
     switch (*ip++) {
         case MP_BC_LOAD_CONST_FALSE:
@@ -199,7 +230,11 @@ const byte *mp_bytecode_print_str(const byte *ip) {
         case MP_BC_LOAD_CONST_OBJ:
             DECODE_OBJ;
             printf("LOAD_CONST_OBJ %p=", MP_OBJ_TO_PTR(unum));
-            mp_obj_print_helper(&mp_plat_print, (mp_obj_t)unum, PRINT_REPR);
+            vstr_t vstr;
+            mp_print_t pr;
+            vstr_init_print(&vstr, 10, &pr);
+            mp_obj_print_helper(&pr, (mp_obj_t)unum, PRINT_REPR);
+            printf(vstr_null_terminated_str(&vstr));
             break;
 
         case MP_BC_LOAD_NULL:
@@ -549,13 +584,20 @@ const byte *mp_bytecode_print_str(const byte *ip) {
 
     return ip;
 }
+#undef printf
+#define printf(...) mp_printf(&mp_plat_print, __VA_ARGS__)
 
 void mp_bytecode_print2(const byte *ip, size_t len, const mp_uint_t *const_table) {
     mp_showbc_code_start = ip;
     mp_showbc_const_table = const_table;
     while (ip < len + mp_showbc_code_start) {
+        const byte *org_ip = ip;
         printf("%02u ", (uint)(ip - mp_showbc_code_start));
         ip = mp_bytecode_print_str(ip);
+        if (mp_verbose_flag >= 4) {
+            dump_bytes(org_ip, ip - org_ip);
+        }
+        printf(opcode_buf);
         printf("\n");
     }
 }
