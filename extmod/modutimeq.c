@@ -35,6 +35,8 @@
 
 #define MODULO MICROPY_PY_UTIME_TICKS_PERIOD
 
+#define MICROPY_PY_UTIMEQ_STABLE_ORDER 0
+
 #define DEBUG 0
 
 // the algorithm here is modelled on CPython's heapq.py
@@ -44,7 +46,9 @@ struct qentry {
         mp_uint_t time;
         struct qentry *next_free;
     };
+    #if MICROPY_PY_UTIMEQ_STABLE_ORDER
     mp_uint_t id;
+    #endif
     mp_uint_t pos;
     mp_obj_t callback;
     mp_obj_t args;
@@ -62,7 +66,9 @@ typedef struct _mp_obj_utimeq_t {
     //struct qentry items_arr[];
 } mp_obj_utimeq_t;
 
+#if MICROPY_PY_UTIMEQ_STABLE_ORDER
 STATIC mp_uint_t utimeq_id;
+#endif
 
 STATIC mp_obj_utimeq_t *get_heap(mp_obj_t heap_in) {
     return MP_OBJ_TO_PTR(heap_in);
@@ -72,11 +78,13 @@ STATIC bool time_less_than(struct qentry *item, struct qentry *parent) {
     mp_uint_t item_tm = item->time;
     mp_uint_t parent_tm = parent->time;
     mp_uint_t res = parent_tm - item_tm;
+    #if MICROPY_PY_UTIMEQ_STABLE_ORDER
     if (res == 0) {
         // TODO: This actually should use the same "ring" logic
         // as for time, to avoid artifacts when id's overflow.
         return item->id < parent->id;
     }
+    #endif
     if ((mp_int_t)res < 0) {
         res += MODULO;
     }
@@ -158,7 +166,9 @@ STATIC mp_obj_t mod_utimeq_heappush(size_t n_args, const mp_obj_t *args) {
     assert(item != NULL);
     heap->free = item->next_free;
     item->time = MP_OBJ_SMALL_INT_VALUE(args[1]);
+    #if MICROPY_PY_UTIMEQ_STABLE_ORDER
     item->id = utimeq_id++;
+    #endif
     item->callback = args[2];
     item->args = args[3];
     heap->heap[heap->len] = item;
