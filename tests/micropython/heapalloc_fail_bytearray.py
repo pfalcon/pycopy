@@ -79,12 +79,4 @@ except MemoryError:
     print('MemoryError: bytearray subscr get')
 micropython.heap_unlock()
 
-# extend bytearray using slice subscr
-b = bytearray(4)
-micropython.heap_lock()
-try:
-    b[sl] = b'01234567'
-except MemoryError:
-    print('MemoryError: bytearray subscr grow')
-micropython.heap_unlock()
-print(b)
+# continued in heapalloc_fail_bytearray2.py
