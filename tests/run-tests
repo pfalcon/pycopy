@@ -337,8 +337,13 @@ def run_tests(pyb, tests, args, base_path="."):
             skip_tests.add('misc/rge_sm.py')                # too large
         elif args.target == 'minimal':
             skip_tests.add('basics/class_inplace_op.py')    # all special methods not supported
+            skip_tests.add('basics/class1_slots_negative.py')      # class slots support not enabled
             skip_tests.add('basics/subclass_native_init.py')# native subclassing corner cases not support
             skip_tests.add('misc/rge_sm.py')                # too large
+            skip_tests.add('micropython/heapalloc_fail_bytearray2.py') # no array slice assignment enabled
+            skip_tests.add('micropython/heapalloc_fail_memoryview.py') # no memoryview
+            skip_tests.add('micropython/heapalloc_str_format_vs_modulo.py') # no micropython.mem_total
+            skip_tests.add('micropython/heapalloc_str_modulo.py') # no micropython.mem_total
             skip_tests.add('micropython/opt_level.py')      # don't assume line numbers are stored
         elif args.target == 'nrf':
             skip_tests.add('basics/memoryview1.py')         # no item assignment for memoryview
@@ -395,7 +400,8 @@ def run_tests(pyb, tests, args, base_path="."):
         is_native = test_name.startswith("native_") or test_name.startswith("viper_")
         is_endian = test_name.endswith("_endian")
         is_int_big = test_name.startswith("int_big") or test_name.endswith("_intbig")
-        is_set_type = test_name.startswith("set_") or test_name.startswith("frozenset")
+        is_set_type = test_name.startswith("set_") or test_name.startswith("frozenset") \
+            or test_name.endswith("_set")
         is_async = test_name.startswith("async_")
         is_const = test_name.startswith("const")
 
