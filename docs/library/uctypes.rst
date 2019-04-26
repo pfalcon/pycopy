@@ -243,6 +243,19 @@ Module contents
 
    Floating-point types for structure descriptors.
 
+.. data:: SHORT
+          USHORT
+          INT
+          UINT
+          LONG
+          ULONG
+          LONGLONG
+          ULONGLONG
+
+   Native C data types (implemented as aliases to corresponding exact-size types).
+
+   Availability: Some ports may lack these constants.
+
 .. data:: VOID
 
    ``VOID`` is an alias for ``UINT8``, and is provided to conviniently define
