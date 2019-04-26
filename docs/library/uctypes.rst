@@ -60,8 +60,18 @@ Usage examples::
     struct1 = uctypes.struct(addr, STRUCT1, uctypes.NATIVE)
     print("x:", struct1.ptr[0].x)
 
+    # Example 3: Can also calculate field offsets automatically
+    from ucollections import OrderedDict
 
-    # Example 3: Access to CPU registers. Subset of STM32F4xx WWDG block
+    COORD = OrderedDict({
+        "x": uctypes.FLOAT32,
+        "y": uctypes.FLOAT32,
+    })
+
+    # Note that COORD is updated inplace!
+    uctypes.calc_offsets(COORD, uctypes.NATIVE)
+
+    # Example 4: Access to CPU registers. Subset of STM32F4xx WWDG block
     WWDG_LAYOUT = {
         "WWDG_CR": (0, {
             # BFUINT32 here means size of the WWDG_CR register
@@ -94,10 +104,14 @@ associated values::
         ...
     }
 
-Currently, ``uctypes`` requires explicit specification of offsets for each
-field. Offset are given in bytes from the structure start.
+Properties are basicly offset and type, where types can be scalar (like
+integers of different sizes, bitfields, floats), or aggregate (arrays,
+structures, pointers, containing references to other types recursively).
+Offsets can be either specified explicitly, or there's a helper function
+(`calc_offsets()`) which can calculate offsets automatically in an ordered
+dictionary of fields. Offsets are given in bytes from the structure start.
 
-Following are encoding examples for various field types:
+Following are encoding specification for various field types:
 
 * Scalar types::
 
@@ -206,6 +220,42 @@ Module contents
    either a structure class or a specific instantiated structure object
    (or its aggregate field).
 
+.. function:: calc_offsets(ordered_desc, layout_type=NATIVE)
+
+   Automatically calculate (and update inplace) offsets of structure
+   fields represented by *ordered_desc*, which should be an `OrderedDict`
+   object. The fields of descriptor should contain only type information,
+   but not offsets, except for a special value of `PREV_OFFSET`, which
+   specifies that currently defined field should have the same offset as
+   the previous defined field. This can be used to encode C unions. E.g.
+   a union::
+
+    union my_union {
+       uint8_t byte;
+       uint16_t word;
+       uint32_t dword;
+    };
+
+   should be represented as::
+
+    my_union = OrderedDict({
+       "byte": uctypes.UINT8,
+       "word": uctypes.PREV_OFFSET | uctypes.UINT16,
+       "dword": uctypes.PREV_OFFSET | uctypes.UINT32,
+    })
+
+   (Note: first field of a union should not contain ``PREV_OFFSET``, only
+   second and following should.)
+
+   .. warning::
+
+    The *ordered_desc* structure is updated inplace with offsets, this also
+    includes fields for aggregate types which use tuple for encoding. (In
+    other words, while `tuple` is immutable type in Python, `calc_offsets()`
+    is a special function which changes tuple structures passed to it). Due
+    to this, *ordered_dict* in almost all cases should be an OrderedDict
+    literal (as shown above).
+
 .. function:: addressof(obj)
 
    Return address of an object. Argument should be bytes, bytearray or
@@ -267,6 +317,12 @@ Module contents
    Type constants for pointers and arrays. Note that there is no explicit
    constant for structures, it's implicit: an aggregate type without ``PTR``
    or ``ARRAY`` flags is a structure.
+
+.. data:: PREV_OFFSET
+
+   Value which should be used for struct descriptor passed to `calc_offsets()`
+   to indicate that current field shuld have the same offset as previous (i.e.
+   effectively to define a C union).
 
 Structure descriptors and instantiating structure objects
 ---------------------------------------------------------
