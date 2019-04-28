@@ -51,8 +51,11 @@ Supported operators and special sequences are:
    this operator.
 
 ``(...)``
-   Grouping. Each group is capturing (a substring it captures can be accessed
-   with `match.group()` method).
+   Capturing group. A substring captured by a group can be accessed with
+   `match.group()` method.
+
+``(?:...)``
+   Non-capturing group.
 
 ``\d``
    Matches digit. Equivalent to ``[0-9]``.
@@ -73,22 +76,23 @@ Supported operators and special sequences are:
    Matches non "word characters" (ASCII only). Equivalent to ``[^A-Za-z0-9_]``.
 
 ``\``
-   Escape character. Any other character following the backslash, except
-   for those listed above, is taken literally. For example, ``\*`` is
-   equivalent to literal ``*`` (not treated as the ``*`` operator).
-   Note that ``\r``, ``\n``, etc. are not handled specially, and will be
-   equivalent to literal letters ``r``, ``n``, etc. Due to this, it's
-   not recommended to use raw Python strings (``r""``) for regular
-   expressions. For example, ``r"\r\n"`` when used as the regular
-   expression is equivalent to ``"rn"``. To match CR character followed
-   by LF, use ``"\r\n"``.
+   Escape character. Allows to quote characters which have special meaning
+   in regex syntax (``.*+?[](){}|^$``). For example, ``\*`` is
+   equivalent to literal ``*`` (not treated as the ``*`` operator). It's an
+   error to escape any other character besides the operators above and
+   special sequences listed above (``\d``, etc.). In particular, sequences
+   like ``\r``, ``\n``, etc. should not appear as regular expression syntax.
+   Instead, they can (should be handled) as normal escapes in Python strings.
+   Due to this, it's not recommended to use raw Python strings (``r""``) for
+   mod:`ure` regular expressions. For example, ``r"\r\n"`` when used as
+   a regular expression will lead to error (unsupported escape sequence in
+   regex). To match CR character followed by LF, use ``"\r\n"``.
 
 **NOT SUPPORTED**:
 
 * counted repetitions (``{m,n}``)
 * named groups (``(?P<name>...)``)
-* non-capturing groups (``(?:...)``)
-* more advanced assertions (``\b``, ``\B``)
+* more advanced assertions (``\A``, ``\Z``, ``\b``, ``\B``)
 * special character escapes like ``\r``, ``\n`` - use Python's own escaping
   instead
 * etc.
