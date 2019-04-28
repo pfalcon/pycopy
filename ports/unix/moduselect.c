@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2014 Damien P. George
- * Copyright (c) 2015-2017 Paul Sokolovsky
+ * Copyright (c) 2015-2019 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,12 +52,19 @@ extern const mp_obj_type_t mp_type_socket;
 
 /// \class Poll - poll class
 
+struct objmap_entry {
+    mp_obj_t stream;
+    #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+    mp_obj_t userdata;
+    #endif
+};
+
 typedef struct _mp_obj_poll_t {
     mp_obj_base_t base;
     unsigned short alloc;
     unsigned short len;
     struct pollfd *entries;
-    mp_obj_t *obj_map;
+    struct objmap_entry *obj_map;
     short iter_cnt;
     short iter_idx;
     int flags;
@@ -86,14 +93,14 @@ STATIC int get_fd(mp_obj_t fdlike) {
     return mp_obj_get_int(fdlike);
 }
 
-/// \method register(obj[, eventmask])
+/// \method register(obj[, eventmask[, userdata]])
 STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
     mp_obj_poll_t *self = MP_OBJ_TO_PTR(args[0]);
     bool is_fd = mp_obj_is_int(args[1]);
     int fd = get_fd(args[1]);
 
     mp_uint_t flags;
-    if (n_args == 3) {
+    if (n_args >= 3) {
         flags = mp_obj_get_int(args[2]);
     } else {
         flags = POLLIN | POLLOUT;
@@ -106,6 +113,11 @@ STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
         int entry_fd = entry->fd;
         if (entry_fd == fd) {
             entry->events = flags;
+            #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+            if (n_args == 4) {
+                self->obj_map[i].userdata = args[3];
+            }
+            #endif
             return mp_const_false;
         }
         if (entry_fd == -1) {
@@ -117,18 +129,25 @@ STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
         if (self->len >= self->alloc) {
             self->entries = m_renew(struct pollfd, self->entries, self->alloc, self->alloc + 4);
             if (self->obj_map) {
-                self->obj_map = m_renew(mp_obj_t, self->obj_map, self->alloc, self->alloc + 4);
+                self->obj_map = m_renew(struct objmap_entry, self->obj_map, self->alloc, self->alloc + 4);
             }
             self->alloc += 4;
         }
         free_slot = &self->entries[self->len++];
     }
 
-    if (!is_fd) {
+    if (!is_fd || n_args == 4) {
         if (self->obj_map == NULL) {
-            self->obj_map = m_new0(mp_obj_t, self->alloc);
+            self->obj_map = m_new0(struct objmap_entry, self->alloc);
         }
-        self->obj_map[free_slot - self->entries] = args[1];
+        self->obj_map[free_slot - self->entries].stream = args[1];
+        #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+        mp_obj_t userdata = mp_const_none;
+        if (n_args == 4) {
+            userdata = args[3];
+        }
+        self->obj_map[free_slot - self->entries].userdata = userdata;
+        #endif
     }
 
     free_slot->fd = fd;
@@ -136,7 +155,11 @@ STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
     free_slot->revents = 0;
     return mp_const_true;
 }
+#if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_register_obj, 2, 4, poll_register);
+#else
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_register_obj, 2, 3, poll_register);
+#endif
 
 /// \method unregister(obj)
 STATIC mp_obj_t poll_unregister(size_t n_args, const mp_obj_t *args) {
@@ -150,7 +173,10 @@ STATIC mp_obj_t poll_unregister(size_t n_args, const mp_obj_t *args) {
         if (entries->fd == fd) {
             entries->fd = -1;
             if (self->obj_map) {
-                self->obj_map[entries - self->entries] = MP_OBJ_NULL;
+                self->obj_map[entries - self->entries].stream = MP_OBJ_NULL;
+                #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+                self->obj_map[entries - self->entries].userdata = MP_OBJ_NULL;
+                #endif
             }
             return mp_const_true;
         }
@@ -227,8 +253,8 @@ STATIC mp_obj_t poll_poll(size_t n_args, const mp_obj_t *args) {
         if (entries->revents != 0) {
             mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(2, NULL));
             // If there's an object stored, return it, otherwise raw fd
-            if (self->obj_map && self->obj_map[i] != MP_OBJ_NULL) {
-                t->items[0] = self->obj_map[i];
+            if (self->obj_map && self->obj_map[i].stream != MP_OBJ_NULL) {
+                t->items[0] = self->obj_map[i].stream;
             } else {
                 t->items[0] = MP_OBJ_NEW_SMALL_INT(entries->fd);
             }
@@ -248,7 +274,11 @@ STATIC mp_obj_t poll_ipoll(size_t n_args, const mp_obj_t *args) {
     mp_obj_poll_t *self = MP_OBJ_TO_PTR(args[0]);
 
     if (self->ret_tuple == MP_OBJ_NULL) {
+        #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+        self->ret_tuple = mp_obj_new_tuple(3, NULL);
+        #else
         self->ret_tuple = mp_obj_new_tuple(2, NULL);
+        #endif
     }
 
     int n_ready = poll_poll_internal(n_args, args);
@@ -274,12 +304,15 @@ STATIC mp_obj_t poll_iternext(mp_obj_t self_in) {
         if (entries->revents != 0) {
             mp_obj_tuple_t *t = MP_OBJ_TO_PTR(self->ret_tuple);
             // If there's an object stored, return it, otherwise raw fd
-            if (self->obj_map && self->obj_map[i] != MP_OBJ_NULL) {
-                t->items[0] = self->obj_map[i];
+            if (self->obj_map && self->obj_map[i].stream != MP_OBJ_NULL) {
+                t->items[0] = self->obj_map[i].stream;
             } else {
                 t->items[0] = MP_OBJ_NEW_SMALL_INT(entries->fd);
             }
             t->items[1] = MP_OBJ_NEW_SMALL_INT(entries->revents);
+            #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+            t->items[2] = self->obj_map[i].userdata;
+            #endif
             if (self->flags & FLAG_ONESHOT) {
                 entries->events = 0;
             }
