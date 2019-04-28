@@ -31,7 +31,7 @@ class ``Poll``
 Methods
 ~~~~~~~
 
-.. method:: poll.register(obj[, eventmask])
+.. method:: poll.register(obj[, eventmask[, userdata]])
 
    Register `stream` *obj* for polling. *eventmask* is logical OR of:
 
@@ -45,13 +45,22 @@ Methods
 
    *eventmask* defaults to ``uselect.POLLIN | uselect.POLLOUT``.
 
+   As a MicroPython extension, an arbitrary *userdata* can be passed,
+   which will be associated with the added stream and which will be
+   returned from `ipoll()` method (but NOT from `poll()` method).
+
    It is OK to call this function multiple times for the same *obj*.
    Successive calls will update *obj*'s eventmask to the value of
-   *eventmask* (i.e. will behave as `modify()`).
+   *eventmask* (i.e. will behave as `modify()`), and, if *userdata*
+   is specified, it will be updated too.
 
-.. method:: poll.unregister(obj)
+.. method:: poll.unregister(obj, throw=True)
 
-   Unregister *obj* from polling.
+   Unregister *obj* from polling. If *obj* was not previously registered,
+   `KeyError` exception will be raised.
+
+   As a MicroPython extension, if second parameter is False, exception
+   will not be raised.
 
 .. method:: poll.modify(obj, eventmask)
 
