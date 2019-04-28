@@ -1242,6 +1242,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_USELECT (0)
 #endif
 
+// Whether to support "userdata" param to uselect.poll.register()/ipoll()
+#ifndef MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+#define MICROPY_PY_USELECT_POLL_REGISTER_USERDATA (1)
+#endif
+
 // Whether to provide "utime" module functions implementation
 // in terms of mp_hal_* functions.
 #ifndef MICROPY_PY_UTIME_MP_HAL
