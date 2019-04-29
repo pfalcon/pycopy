@@ -1,5 +1,5 @@
 // Copyright 2007-2009 Russ Cox.  All Rights Reserved.
-// Copyright 2014 Paul Sokolovsky.
+// Copyright 2014-2019 Paul Sokolovsky.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -143,6 +143,14 @@ int re1_5_pikevm(ByteProg*, Subject*, const char**, int, int);
 int re1_5_recursiveloopprog(ByteProg*, Subject*, const char**, int, int);
 int re1_5_recursiveprog(ByteProg*, Subject*, const char**, int, int);
 int re1_5_thompsonvm(ByteProg*, Subject*, const char**, int, int);
+
+// Return codes for re1_5_sizecode() and re1_5_compilecode()
+enum {
+    RE1_5_SUCCESS = 0,
+    RE1_5_SYNTAX_ERROR = -2,
+    RE1_5_UNSUPPORTED_ESCAPE = -3,
+    RE1_5_UNSUPPORTED_SYNTAX = -4,
+};
 
 int re1_5_sizecode(const char *re);
 int re1_5_compilecode(ByteProg *prog, const char *re);
