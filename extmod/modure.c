@@ -385,7 +385,7 @@ STATIC mp_obj_t mod_re_compile(size_t n_args, const mp_obj_t *args) {
     (void)n_args;
     const char *re_str = mp_obj_str_get_str(args[0]);
     int size = re1_5_sizecode(re_str);
-    if (size == -1) {
+    if (size < 0) {
         goto error;
     }
     mp_obj_re_t *o = m_new_obj_var(mp_obj_re_t, char, size);
