@@ -46,8 +46,9 @@
 typedef struct _poll_obj_t {
     mp_obj_t obj;
     mp_uint_t (*ioctl)(mp_obj_t obj, mp_uint_t request, uintptr_t arg, int *errcode);
-    mp_uint_t flags;
-    mp_uint_t flags_ret;
+    mp_obj_t userdata;
+    uint16_t flags;
+    uint16_t flags_ret;
 } poll_obj_t;
 
 STATIC void poll_map_add(mp_map_t *poll_map, const mp_obj_t *obj, mp_uint_t obj_len, mp_uint_t flags, bool or_flags) {
