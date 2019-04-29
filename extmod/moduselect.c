@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2014 Damien P. George
- * Copyright (c) 2015-2017 Paul Sokolovsky
+ * Copyright (c) 2015-2019 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,11 +47,15 @@
 typedef struct _poll_obj_t {
     mp_obj_t obj;
     mp_uint_t (*ioctl)(mp_obj_t obj, mp_uint_t request, uintptr_t arg, int *errcode);
-    mp_uint_t flags;
-    mp_uint_t flags_ret;
+    #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+    mp_obj_t userdata;
+    #endif
+    uint16_t flags;
+    uint16_t flags_ret;
 } poll_obj_t;
 
-STATIC void poll_map_add(mp_map_t *poll_map, const mp_obj_t *obj, mp_uint_t obj_len, mp_uint_t flags, bool or_flags) {
+STATIC void poll_map_add(mp_map_t *poll_map, const mp_obj_t *obj, mp_uint_t obj_len,
+                         mp_obj_t userdata, mp_uint_t flags, bool or_flags) {
     for (mp_uint_t i = 0; i < obj_len; i++) {
         mp_map_elem_t *elem = mp_map_lookup(poll_map, mp_obj_id(obj[i]), MP_MAP_LOOKUP_ADD_IF_NOT_FOUND);
         if (elem->value == MP_OBJ_NULL) {
@@ -60,6 +64,12 @@ STATIC void poll_map_add(mp_map_t *poll_map, const mp_obj_t *obj, mp_uint_t obj_
             poll_obj_t *poll_obj = m_new_obj(poll_obj_t);
             poll_obj->obj = obj[i];
             poll_obj->ioctl = stream_p->ioctl;
+            #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+            if (userdata == MP_OBJ_NULL) {
+                userdata = mp_const_none;
+            }
+            poll_obj->userdata = userdata;
+            #endif
             poll_obj->flags = flags;
             poll_obj->flags_ret = 0;
             elem->value = MP_OBJ_FROM_PTR(poll_obj);
@@ -70,6 +80,12 @@ STATIC void poll_map_add(mp_map_t *poll_map, const mp_obj_t *obj, mp_uint_t obj_
             } else {
                 ((poll_obj_t*)MP_OBJ_TO_PTR(elem->value))->flags = flags;
             }
+            #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+            poll_obj_t *poll_obj = MP_OBJ_TO_PTR(elem->value);
+            if (userdata != MP_OBJ_NULL) {
+                poll_obj->userdata = userdata;
+            }
+            #endif
         }
     }
 }
@@ -138,9 +154,9 @@ STATIC mp_obj_t select_select(size_t n_args, const mp_obj_t *args) {
     // merge separate lists and get the ioctl function for each object
     mp_map_t poll_map;
     mp_map_init(&poll_map, rwx_len[0] + rwx_len[1] + rwx_len[2]);
-    poll_map_add(&poll_map, r_array, rwx_len[0], MP_STREAM_POLL_RD, true);
-    poll_map_add(&poll_map, w_array, rwx_len[1], MP_STREAM_POLL_WR, true);
-    poll_map_add(&poll_map, x_array, rwx_len[2], MP_STREAM_POLL_ERR | MP_STREAM_POLL_HUP, true);
+    poll_map_add(&poll_map, r_array, rwx_len[0], MP_OBJ_NULL, MP_STREAM_POLL_RD, true);
+    poll_map_add(&poll_map, w_array, rwx_len[1], MP_OBJ_NULL, MP_STREAM_POLL_WR, true);
+    poll_map_add(&poll_map, x_array, rwx_len[2], MP_OBJ_NULL, MP_STREAM_POLL_ERR | MP_STREAM_POLL_HUP, true);
 
     mp_uint_t start_tick = mp_hal_ticks_ms();
     rwx_len[0] = rwx_len[1] = rwx_len[2] = 0;
@@ -190,7 +206,7 @@ typedef struct _mp_obj_poll_t {
     mp_obj_t ret_tuple;
 } mp_obj_poll_t;
 
-/// \method register(obj[, eventmask])
+/// \method register(obj[, eventmask[, userdata]])
 STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
     mp_obj_poll_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_uint_t flags;
@@ -199,10 +215,20 @@ STATIC mp_obj_t poll_register(size_t n_args, const mp_obj_t *args) {
     } else {
         flags = MP_STREAM_POLL_RD | MP_STREAM_POLL_WR;
     }
-    poll_map_add(&self->poll_map, &args[1], 1, flags, false);
+    mp_obj_t userdata = MP_OBJ_NULL;
+    #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+    if (n_args == 4) {
+        userdata = args[3];
+    }
+    #endif
+    poll_map_add(&self->poll_map, &args[1], 1, userdata, flags, false);
     return mp_const_none;
 }
+#if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_register_obj, 2, 4, poll_register);
+#else
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(poll_register_obj, 2, 3, poll_register);
+#endif
 
 /// \method unregister(obj)
 STATIC mp_obj_t poll_unregister(size_t n_args, const mp_obj_t *args) {
@@ -299,7 +325,11 @@ STATIC mp_obj_t poll_ipoll(size_t n_args, const mp_obj_t *args) {
     mp_obj_poll_t *self = MP_OBJ_TO_PTR(args[0]);
 
     if (self->ret_tuple == MP_OBJ_NULL) {
+        #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+        self->ret_tuple = mp_obj_new_tuple(3, NULL);
+        #else
         self->ret_tuple = mp_obj_new_tuple(2, NULL);
+        #endif
     }
 
     int n_ready = poll_poll_internal(n_args, args);
@@ -329,6 +359,9 @@ STATIC mp_obj_t poll_iternext(mp_obj_t self_in) {
             mp_obj_tuple_t *t = MP_OBJ_TO_PTR(self->ret_tuple);
             t->items[0] = poll_obj->obj;
             t->items[1] = MP_OBJ_NEW_SMALL_INT(poll_obj->flags_ret);
+            #if MICROPY_PY_USELECT_POLL_REGISTER_USERDATA
+            t->items[2] = poll_obj->userdata;
+            #endif
             if (self->flags & FLAG_ONESHOT) {
                 // Don't poll next time, until new event flags will be set explicitly
                 poll_obj->flags = 0;
