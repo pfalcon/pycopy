@@ -37,6 +37,9 @@
 // This file defines generic Python stream read/write methods which
 // dispatch to the underlying stream interface of an object.
 
+#define MP_STREAM_WANT_READ -2
+#define MP_STREAM_WANT_WRITE -3
+
 // TODO: should be in mpconfig.h
 #define DEFAULT_BUFFER_SIZE 256
 
@@ -202,6 +205,9 @@ STATIC mp_obj_t stream_read_generic(size_t n_args, const mp_obj_t *args, byte fl
     mp_uint_t out_sz = mp_stream_rw(args[0], vstr.buf, sz, &error, flags);
     if (error != 0) {
         vstr_clear(&vstr);
+        if (error == MP_EAGAIN_WR) {
+            return MP_OBJ_NEW_SMALL_INT(MP_STREAM_WANT_WRITE);
+        }
         if (mp_is_nonblocking_error(error)) {
             // https://docs.python.org/3.4/library/io.html#io.RawIOBase.read
             // "If the object is in non-blocking mode and no bytes are available,
@@ -231,6 +237,9 @@ mp_obj_t mp_stream_write(mp_obj_t self_in, const void *buf, size_t len, byte fla
     int error;
     mp_uint_t out_sz = mp_stream_rw(self_in, (void*)buf, len, &error, flags);
     if (error != 0) {
+        if (error == MP_EAGAIN_RD) {
+            return MP_OBJ_NEW_SMALL_INT(MP_STREAM_WANT_READ);
+        }
         if (mp_is_nonblocking_error(error)) {
             // http://docs.python.org/3/library/io.html#io.RawIOBase.write
             // "None is returned if the raw stream is set not to block and
@@ -320,6 +329,9 @@ STATIC mp_obj_t stream_readinto(size_t n_args, const mp_obj_t *args) {
     int error;
     mp_uint_t out_sz = mp_stream_read_exactly(args[0], bufinfo.buf, len, &error);
     if (error != 0) {
+        if (error == MP_EAGAIN_WR) {
+            return MP_OBJ_NEW_SMALL_INT(MP_STREAM_WANT_WRITE);
+        }
         if (mp_is_nonblocking_error(error)) {
             return mp_const_none;
         }
@@ -346,6 +358,9 @@ STATIC mp_obj_t stream_readall(mp_obj_t self_in) {
         int error;
         mp_uint_t out_sz = stream_p->read(self_in, p, current_read, &error);
         if (out_sz == MP_STREAM_ERROR) {
+            if (error == MP_EAGAIN_WR) {
+                return MP_OBJ_NEW_SMALL_INT(MP_STREAM_WANT_WRITE);
+            }
             if (mp_is_nonblocking_error(error)) {
                 // With non-blocking streams, we read as much as we can.
                 // If we read nothing, return None, just like read().
@@ -430,7 +445,13 @@ STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) 
         int error;
         mp_uint_t out_sz = stream_p->read(args[0], p, 1, &error);
         if (out_sz == MP_STREAM_ERROR) {
+            mp_obj_t ret = mp_const_none;
+            if (error == MP_EAGAIN_WR) {
+                ret = MP_OBJ_NEW_SMALL_INT(MP_STREAM_WANT_WRITE);
+                goto eagain;
+            }
             if (mp_is_nonblocking_error(error)) {
+eagain:
                 if (vstr.len == 1) {
                     // We just incremented it, but otherwise we read nothing
                     // and immediately got EAGAIN. This case is not well
@@ -439,7 +460,7 @@ STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) 
                     // unlike similar case for read(). But we follow the latter's
                     // behavior - return None.
                     vstr_clear(&vstr);
-                    return mp_const_none;
+                    return ret;
                 } else {
                     goto done;
                 }
