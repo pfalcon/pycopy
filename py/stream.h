@@ -64,6 +64,18 @@ struct mp_stream_seek_t {
 #define MP_SEEK_CUR (1)
 #define MP_SEEK_END (2)
 
+// Special values which can be returned from read*() and write*() Python
+// methods for non-blocking stream (besides None). Specifically, WANT_WRITE
+// may be returned from read*(), if no data is yet available, and underlying
+// stream implementation actually want to write to the stream. Likewise,
+// WANT_READ from write*() means that no data can be currently written,
+// and instead stream implementation wants data to read. These return
+// codes may occur in wrapper streams for complex protocols, e.g. TLS,
+// where a single read/write operation may actually lead to a complex
+// read/write transaction on the underlying transport.
+#define MP_STREAM_WANT_READ -2
+#define MP_STREAM_WANT_WRITE -3
+
 // Stream protocol
 typedef struct _mp_stream_p_t {
     // On error, functions should return MP_STREAM_ERROR and fill in *errcode (values
