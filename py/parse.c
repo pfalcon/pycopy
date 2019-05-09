@@ -534,6 +534,9 @@ STATIC const mp_rom_map_elem_t mp_constants_table[] = {
     #if MICROPY_PY_UCTYPES
     { MP_ROM_QSTR(MP_QSTR_uctypes), MP_ROM_PTR(&mp_module_uctypes) },
     #endif
+    #if MICROPY_PY_IO
+    { MP_ROM_QSTR(MP_QSTR_uio), MP_ROM_PTR(&mp_module_io) },
+    #endif
     // Extra constants as defined by a port
     MICROPY_PORT_CONSTANTS
 };
