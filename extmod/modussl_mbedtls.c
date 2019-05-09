@@ -246,7 +246,7 @@ STATIC mp_uint_t socket_read(mp_obj_t o_in, void *buf, mp_uint_t size, int *errc
         // If handshake is not finished, read attempt may end up in protocol
         // wanting to write next handshake message. The same may happen with
         // renegotation.
-        ret = MP_EWOULDBLOCK;
+        ret = MP_EAGAIN_WR;
     }
     *errcode = ret;
     return MP_STREAM_ERROR;
@@ -265,7 +265,7 @@ STATIC mp_uint_t socket_write(mp_obj_t o_in, const void *buf, mp_uint_t size, in
         // If handshake is not finished, write attempt may end up in protocol
         // wanting to read next handshake message. The same may happen with
         // renegotation.
-        ret = MP_EWOULDBLOCK;
+        ret = MP_EAGAIN_RD;
     }
     *errcode = ret;
     return MP_STREAM_ERROR;
