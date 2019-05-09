@@ -44,6 +44,11 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/debug.h"
 
+// It's pretty hard to get EAGAIN on Linux under normal circumstances when
+// writing to non-blocking socket, so defining this to 1 will make each
+// 2nd write to end with that condition.
+#define MOCK_SSL_SEND_WANT_WRITE 0
+
 typedef struct _mp_obj_ssl_socket_t {
     mp_obj_base_t base;
     mp_obj_t sock;
@@ -75,6 +80,13 @@ STATIC void mbedtls_debug(void *ctx, int level, const char *file, int line, cons
 #endif
 
 STATIC int _mbedtls_ssl_send(void *ctx, const byte *buf, size_t len) {
+    #if MOCK_SSL_SEND_WANT_WRITE
+    static int mock;
+    if (mock++ & 1) {
+        return MBEDTLS_ERR_SSL_WANT_WRITE;
+    }
+    #endif
+
     mp_obj_t sock = *(mp_obj_t*)ctx;
 
     const mp_stream_p_t *sock_stream = mp_get_stream(sock);
