@@ -82,6 +82,9 @@
 #define MP_EALREADY         (114) // Operation already in progress
 #define MP_EINPROGRESS      (115) // Operation now in progress
 
+#define MP_EAGAIN_RD        (254) // Write operation would block on pending read
+#define MP_EAGAIN_WR        (255) // Read operation would block on pending write
+
 #else
 
 // MP_Exxx errno's are defined in terms of system supplied ones
@@ -136,6 +139,9 @@
 #define MP_EHOSTUNREACH     EHOSTUNREACH
 #define MP_EALREADY         EALREADY
 #define MP_EINPROGRESS      EINPROGRESS
+
+#define MP_EAGAIN_RD        (1234) // Write operation would block on pending read
+#define MP_EAGAIN_WR        (1235) // Read operation would block on pending write
 
 #endif
 
