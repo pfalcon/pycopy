@@ -526,7 +526,7 @@ STATIC mp_obj_t stream_seek(size_t n_args, const mp_obj_t *args) {
         seek_s.whence = mp_obj_get_int(args[2]);
     }
 
-    // In POSIX, it's error to seek before end of stream, we enforce it here.
+    // In POSIX, it's error to seek before start of stream, we enforce it here.
     if (seek_s.whence == SEEK_SET && seek_s.offset < 0) {
         mp_raise_OSError(MP_EINVAL);
     }
