@@ -33,6 +33,7 @@
 #include "py/binary.h"
 #include "py/objarray.h"
 #include "py/objstringio.h"
+#include "py/stream.h"
 #include "py/frozenmod.h"
 
 #if MICROPY_PY_IO
@@ -267,6 +268,9 @@ STATIC const mp_rom_map_elem_t mp_module_io_globals_table[] = {
     #if MICROPY_PY_IO_BUFFEREDWRITER
     { MP_ROM_QSTR(MP_QSTR_BufferedWriter), MP_ROM_PTR(&bufwriter_type) },
     #endif
+
+    { MP_ROM_QSTR(MP_QSTR_WANT_READ), MP_ROM_INT(MP_STREAM_WANT_READ) },
+    { MP_ROM_QSTR(MP_QSTR_WANT_WRITE), MP_ROM_INT(MP_STREAM_WANT_WRITE) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_io_globals, mp_module_io_globals_table);
