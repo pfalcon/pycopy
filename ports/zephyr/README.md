@@ -4,7 +4,7 @@ MicroPython port to Zephyr RTOS
 This is an work-in-progress port of MicroPython to Zephyr RTOS
 (http://zephyrproject.org).
 
-This port requires Zephyr version 1.8 or higher. All boards supported
+This port requires Zephyr version 1.14 or higher. All boards supported
 by Zephyr (with standard level of features support, like UART console)
 should work with MicroPython (but not all were tested).
 
