@@ -76,7 +76,7 @@ $(GENERIC_TARGETS): $(LIBMICROPYTHON)
 $(CLEAN_TARGETS):  clean
 
 $(GENERIC_TARGETS) $(KCONFIG_TARGETS) $(CLEAN_TARGETS):
-	$(MAKE) -C outdir/$(BOARD) $@
+	$(MAKE) -C outdir/$(OUTDIR_PREFIX) $@
 
 $(LIBMICROPYTHON): | $(Z_EXPORTS)
 build/genhdr/qstr.i.last: | $(Z_EXPORTS)
@@ -101,11 +101,11 @@ prj_$(BOARD)_merged.conf: prj_base.conf $(wildcard prj_$(BOARD).conf)
 test:
 	cd $(TOP)/tests && ./run-tests --target minimal --device "execpty:make -C ../ports/zephyr run BOARD=$(BOARD) QEMU_PTY=1"
 
-cmake: outdir/$(BOARD)/Makefile
+cmake: outdir/$(OUTDIR_PREFIX)/Makefile
 
-outdir/$(BOARD)/Makefile: $(CONF_FILE)
-	mkdir -p outdir/$(BOARD) && cmake -DBOARD=$(BOARD) -DCONF_FILE=$(CONF_FILE) -Boutdir/$(BOARD) -H.
+outdir/$(OUTDIR_PREFIX)/Makefile: $(CONF_FILE)
+	mkdir -p outdir/$(OUTDIR_PREFIX) && cmake -DBOARD=$(BOARD) -DCONF_FILE=$(CONF_FILE) -Boutdir/$(OUTDIR_PREFIX) -H.
 
-$(Z_EXPORTS): outdir/$(BOARD)/Makefile
-	make --no-print-directory -C outdir/$(BOARD) outputexports CMAKE_COMMAND=: >$@
-	make -C outdir/$(BOARD) syscall_macros_h_target syscall_list_h_target kobj_types_h_target
+$(Z_EXPORTS): outdir/$(OUTDIR_PREFIX)/Makefile
+	make --no-print-directory -C outdir/$(OUTDIR_PREFIX) outputexports CMAKE_COMMAND=: >$@
+	make -C outdir/$(OUTDIR_PREFIX) syscall_macros_h_target syscall_list_h_target kobj_types_h_target
