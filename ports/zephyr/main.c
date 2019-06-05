@@ -92,6 +92,21 @@ int real_main(void) {
     upytest_set_heap(heap, heap + sizeof(heap));
     int r = tinytest_main(1, argv, groups);
     printf("status: %d\n", r);
+
+    #ifdef CONFIG_ARM
+    if (r == 0) {
+        __asm volatile ("ldr r1, =0x20026");
+        __asm volatile ("mov r0, #0x18");
+        __asm volatile ("bkpt #0xab");
+    } else {
+        __asm volatile ("ldr r1, =0");
+        __asm volatile ("mov r0, #0x18");
+        __asm volatile ("bkpt #0xab");
+    }
+    #else
+    exit(r);
+    #endif
+
     #endif
 
 soft_reset:
