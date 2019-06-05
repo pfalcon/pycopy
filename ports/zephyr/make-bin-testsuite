@@ -11,7 +11,7 @@
 (cd ../../tests; ./run-tests --write-exp)
 (cd ../../tests; ./run-tests --list-tests --target=minimal \
     -e async -e intbig -e int_big -e builtin_help -e memstats -e bytes_compare3 -e class_reverse_op \
-    -e /set -e frozenset -e complex -e const -e native -e viper \
+    -e /set -e '_set\.' -e frozenset -e complex -e const -e native -e viper \
     -e 'float_divmod\.' -e float_parse_doubleprec -e float/true_value -e float/types \
     | ../tools/tinytest-codegen.py --stdin) > bin-testsuite.c
 
