@@ -223,7 +223,7 @@ appropriate argument to ``setup()`` call::
 
 The sdist_upip.py module as referenced above can be found in
 `micropython-lib`:
-https://github.com/micropython/micropython-lib/blob/master/sdist_upip.py
+https://github.com/pfalcon/micropython-lib/blob/master/sdist_upip.py
 
 
 Application resources
