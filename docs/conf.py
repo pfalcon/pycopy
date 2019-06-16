@@ -65,7 +65,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'MicroPython'
+project = 'Pycopy'
 copyright = '2014-2019, Damien P. George, Paul Sokolovsky, and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
