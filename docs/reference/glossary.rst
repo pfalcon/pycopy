@@ -171,7 +171,7 @@ Glossary
         file with just few builtin modules. There is no extensive standard
         library comparable with :term:`CPython`. Instead, there is a related, but
         separate project
-        `micropython-lib <https://github.com/micropython/micropython-lib>`_
+        `micropython-lib <https://github.com/pfalcon/micropython-lib>`_
         which provides implementations for many modules from CPython's
         standard library. However, large subset of these modules require
         POSIX-like environment (Linux, FreeBSD, MacOS, etc.; Windows may be
