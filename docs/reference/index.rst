@@ -1,5 +1,5 @@
-MicroPython language
-====================
+Pycopy language
+===============
 
 MicroPython aims to implement the Python 3.4 standard (with selected
 features from later versions) with respect to language syntax, and most
