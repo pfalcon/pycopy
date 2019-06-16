@@ -193,6 +193,10 @@ Functions and types
 
 .. class:: str()
 
+    In MicroPython, strings are backed by Unicode UTF-8 encoding. While this
+    fact doesn't have to be known by normal users, advanced users may use it
+    to optimize applications/libraries.
+
 .. function:: sum()
 
 .. function:: super()
