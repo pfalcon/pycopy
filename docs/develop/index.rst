@@ -1,5 +1,5 @@
-Developing and building MicroPython
-===================================
+Developing and building
+=======================
 
 This chapter describes some options for extending MicroPython in C. Note
 that it doesn't aim to be a complete guide for developing with MicroPython.
