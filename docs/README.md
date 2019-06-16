@@ -1,11 +1,10 @@
-MicroPython Documentation
-=========================
+Pycopy Documentation
+====================
 
-The MicroPython documentation can be found at:
-http://docs.micropython.org/en/latest/
+The Pycopy documentation can be found at: https://pycopy.readthedocs.io/ .
 
 The documentation you see there is generated from the files in the docs tree:
-https://github.com/micropython/micropython/tree/master/docs
+https://github.com/pfalcon/pycopy/tree/master/docs
 
 Building the documentation locally
 ----------------------------------
@@ -19,11 +18,11 @@ preferably in a virtualenv:
      pip install sphinx
      pip install sphinx_rtd_theme
 
-In `micropython/docs`, build the docs:
+In `docs/`, build the docs:
 
     make html
 
-You'll find the index page at `micropython/docs/build/html/index.html`.
+You'll find the index page at `docs/build/html/index.html`.
 
 PDF manual generation
 ---------------------
