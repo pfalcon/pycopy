@@ -1,10 +1,12 @@
 .. _cpython_diffs:
 
-MicroPython differences from CPython
-====================================
+Differences from CPython
+========================
 
-The operations listed in this section produce conflicting results in MicroPython when compared to standard Python.
-MicroPython implements Python 3.4 and some select features of Python 3.5.
+The operations listed in this section produce different results in Pycopy
+when compared to `CPython`. Pycopy implements Python 3.4 and some select
+features of higher versions, which don't conflict with Pycopy's goals of
+minimalism and efficient resource usage.
 
 .. toctree::
     :maxdepth: 2
