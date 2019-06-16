@@ -1,7 +1,7 @@
 .. _micropython_lib:
 
-MicroPython libraries
-=====================
+Pycopy libraries
+================
 
 .. warning::
 
