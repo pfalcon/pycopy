@@ -50,6 +50,7 @@
 #define MICROPY_PY_MATH_FACTORIAL      (1)
 #define MICROPY_OPT_MATH_FACTORIAL     (1)
 #define MICROPY_PY_URANDOM_EXTRA_FUNCS (1)
+#define MICROPY_PY_IO_BUFFEREDREADER   (1)
 #define MICROPY_PY_IO_BUFFEREDWRITER   (1)
 // Explicitly disabled, deprecated and should not be used
 #define MICROPY_PY_IO_RESOURCE_STREAM  (0)
