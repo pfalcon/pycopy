@@ -1171,6 +1171,11 @@ typedef double mp_float_t;
 #endif
 
 // Whether to provide "io.BufferedWriter" class
+#ifndef MICROPY_PY_IO_BUFFEREDREADER
+#define MICROPY_PY_IO_BUFFEREDREADER (0)
+#endif
+
+// Whether to provide "io.BufferedWriter" class
 #ifndef MICROPY_PY_IO_BUFFEREDWRITER
 #define MICROPY_PY_IO_BUFFEREDWRITER (0)
 #endif
