@@ -41,6 +41,7 @@
 
 extern const mp_obj_type_t mp_type_fileio;
 extern const mp_obj_type_t mp_type_textio;
+extern const mp_obj_type_t mp_type_bufreader;
 
 #if MICROPY_PY_IO_IOBASE
 
@@ -265,6 +266,9 @@ STATIC const mp_rom_map_elem_t mp_module_io_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_StringIO), MP_ROM_PTR(&mp_type_stringio) },
     #if MICROPY_PY_IO_BYTESIO
     { MP_ROM_QSTR(MP_QSTR_BytesIO), MP_ROM_PTR(&mp_type_bytesio) },
+    #endif
+    #if MICROPY_PY_IO_BUFFEREDREADER
+    { MP_ROM_QSTR(MP_QSTR_BufferedReader), MP_ROM_PTR(&mp_type_bufreader) },
     #endif
     #if MICROPY_PY_IO_BUFFEREDWRITER
     { MP_ROM_QSTR(MP_QSTR_BufferedWriter), MP_ROM_PTR(&bufwriter_type) },
