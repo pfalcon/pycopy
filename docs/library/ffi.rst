@@ -99,11 +99,11 @@ codes, below only differences are described:
 * ``p`` - void*, pointer to writable memory. As return type, will produce
   an integer (address). As an argument, NULL pointer can be represented
   by ``None``.
-* ``P`` - const void*, pointer to read-only memory. As return type, will
-  produce an integer (address).
+* ``P`` - const void*, pointer to read-only memory. Otherwise, the same
+  as above.
 * ``s`` - As argument type, the same as ``P``. When used as return type,
   it's assumed to be a pointer to zero-terminated string, copy of that
-  string is made and return as Python `str` object. NULL pointer is returned
+  string is made and returned as Python `str` object. NULL pointer is returned
   as ``None``.
 * ``S`` - As above, but `bytes` object returned instead.
 * ``O`` - Arbitrary Python object. Passed by internal representation
