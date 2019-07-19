@@ -795,6 +795,11 @@ typedef double mp_float_t;
 #define MICROPY_MULTIPLE_INHERITANCE (1)
 #endif
 
+// Support for __bases__ in user-defined classes
+#ifndef MICROPY_PY_CLASS_BASES
+#define MICROPY_PY_CLASS_BASES (0)
+#endif
+
 // Support for __slots__ in user-defined classes
 #ifndef MICROPY_PY_CLASS_SLOTS
 #define MICROPY_PY_CLASS_SLOTS (0)
