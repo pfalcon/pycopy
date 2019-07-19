@@ -1068,6 +1068,16 @@ STATIC void type_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             return;
         }
         #endif
+        #if MICROPY_PY_CLASS_BASES
+        if (attr == MP_QSTR___bases__) {
+            if (self->parent == NULL) {
+                dest[0] = mp_const_empty_tuple;
+                return;
+            }
+            dest[0] = (mp_obj_t)self->parent;
+            return;
+        }
+        #endif
         struct class_lookup_data lookup = {
             .obj = (mp_obj_instance_t*)self,
             .attr = attr,
@@ -1231,7 +1241,13 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
             mp_raise_NotImplementedError("multiple inheritance not supported");
             #endif
         } else {
+            #if MICROPY_PY_CLASS_BASES
+            // If we provide access to __bases__, skip optimization of storing
+            // parent directly.
+            o->parent = MP_OBJ_TO_PTR(bases_tuple);
+            #else
             o->parent = MP_OBJ_TO_PTR(bases_items[0]);
+            #endif
         }
     }
 
