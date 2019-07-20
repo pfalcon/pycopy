@@ -74,6 +74,14 @@ STATIC const mp_rom_map_elem_t object_locals_dict_table[] = {
 STATIC MP_DEFINE_CONST_DICT(object_locals_dict, object_locals_dict_table);
 #endif
 
+const mp_rom_obj_tuple_t mp_const_object_tuple_obj = {
+    {&mp_type_tuple},
+    1,
+    {
+        MP_ROM_PTR(&mp_type_object),
+    }
+};
+
 const mp_obj_type_t mp_type_object = {
     { &mp_type_type },
     .name = MP_QSTR_object,
