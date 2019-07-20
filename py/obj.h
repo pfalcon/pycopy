@@ -611,6 +611,8 @@ extern const mp_obj_type_t mp_type_ZeroDivisionError;
 #define mp_const_empty_bytes (MP_OBJ_FROM_PTR(&mp_const_empty_bytes_obj))
 #define mp_const_empty_tuple (MP_OBJ_FROM_PTR(&mp_const_empty_tuple_obj))
 #define mp_const_notimplemented (MP_OBJ_FROM_PTR(&mp_const_notimplemented_obj))
+// A tuple with 'object' inside
+#define mp_const_object_tuple (MP_OBJ_FROM_PTR(&mp_const_object_tuple_obj))
 extern const struct _mp_obj_none_t mp_const_none_obj;
 extern const struct _mp_obj_bool_t mp_const_false_obj;
 extern const struct _mp_obj_bool_t mp_const_true_obj;
@@ -619,6 +621,7 @@ extern const struct _mp_obj_tuple_t mp_const_empty_tuple_obj;
 extern const struct _mp_obj_singleton_t mp_const_ellipsis_obj;
 extern const struct _mp_obj_singleton_t mp_const_notimplemented_obj;
 extern const struct _mp_obj_exception_t mp_const_GeneratorExit_obj;
+extern const struct _mp_rom_obj_tuple_t mp_const_object_tuple_obj;
 
 // General API for objects
 
