@@ -1144,6 +1144,10 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
         mp_raise_TypeError(NULL);
     }
 
+    if (bases_tuple == mp_const_empty_tuple) {
+        bases_tuple = mp_const_object_tuple;
+    }
+
     // TODO might need to make a copy of locals_dict; at least that's how CPython does it
 
     // Basic validation of base classes
