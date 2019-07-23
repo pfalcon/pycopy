@@ -153,16 +153,24 @@ mp_obj_t mp_obj_str_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
             return mp_obj_new_str_from_vstr(type, &vstr);
         }
 
-        default: // 2 or 3 args
+        default:; // 2 or 3 args
             // TODO: validate 2nd/3rd args
+            #if MICROPY_PY_BUILTINS_STR_UNICODE_CHECK
+            mp_obj_t enc_errors = MP_OBJ_NEW_QSTR(MP_QSTR_strict);
+            if (n_args > 2) {
+                enc_errors = args[2];
+            }
+            #endif
+
             if (mp_obj_is_type(args[0], &mp_type_bytes)) {
                 GET_STR_DATA_LEN(args[0], str_data, str_len);
                 GET_STR_HASH(args[0], str_hash);
                 if (str_hash == 0) {
                     str_hash = qstr_compute_hash(str_data, str_len);
                 }
+
                 #if MICROPY_PY_BUILTINS_STR_UNICODE_CHECK
-                if (!utf8_check(str_data, str_len)) {
+                if (MP_OBJ_QSTR_VALUE(enc_errors) == MP_QSTR_strict && !utf8_check(str_data, str_len)) {
                     mp_raise_msg(&mp_type_UnicodeError, NULL);
                 }
                 #endif
@@ -183,7 +191,7 @@ mp_obj_t mp_obj_str_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
                 mp_buffer_info_t bufinfo;
                 mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_READ);
                 #if MICROPY_PY_BUILTINS_STR_UNICODE_CHECK
-                if (!utf8_check(bufinfo.buf, bufinfo.len)) {
+                if (MP_OBJ_QSTR_VALUE(enc_errors) == MP_QSTR_strict && !utf8_check(bufinfo.buf, bufinfo.len)) {
                     mp_raise_msg(&mp_type_UnicodeError, NULL);
                 }
                 #endif
