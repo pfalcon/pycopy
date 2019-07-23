@@ -5,7 +5,7 @@ FROZEN_DIR = scripts
 FROZEN_MPY_DIR = modules
 
 # define main target
-PROG = micropython
+PROG = pycopy
 
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h
@@ -211,13 +211,13 @@ test: $(PROG) $(TOP)/tests/run-tests
 	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests $(RUN_TESTS_EXTRA)
 
 # install micropython in /usr/local/bin
-TARGET = micropython
+TARGET = $(PROG)
 PREFIX = $(DESTDIR)/usr/local
 BINDIR = $(PREFIX)/bin
 
 install: micropython
 	install -d $(BINDIR)
-	install $(TARGET) $(BINDIR)/$(TARGET)
+	install $(PROG) $(BINDIR)/$(TARGET)
 
 # uninstall micropython
 uninstall:
@@ -225,34 +225,34 @@ uninstall:
 
 # build synthetically fast interpreter for benchmarking
 fast:
-	$(MAKE) COPT="-O2 -DNDEBUG -fno-crossjumping" CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_fast.h>"' BUILD=build-fast PROG=micropython_fast
+	$(MAKE) COPT="-O2 -DNDEBUG -fno-crossjumping" CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_fast.h>"' BUILD=build-fast PROG=pycopy_fast
 
 # build a minimal interpreter
 minimal:
 	$(MAKE) COPT="-Os -DNDEBUG" CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_minimal.h>"' \
-	    BUILD=build-minimal PROG=micropython_minimal FROZEN_DIR= FROZEN_MPY_DIR= \
+	    BUILD=build-minimal PROG=pycopy_minimal FROZEN_DIR= FROZEN_MPY_DIR= \
 	    MICROPY_PY_BTREE=0 MICROPY_PY_FFI=0 MICROPY_PY_SOCKET=0 MICROPY_PY_THREAD=0 \
 	    MICROPY_PY_TERMIOS=0 MICROPY_PY_USSL=0 \
 	    MICROPY_USE_READLINE=0
 
 dev:
-	$(MAKE) BUILD=build-dev PROG=micropython-dev \
+	$(MAKE) BUILD=build-dev PROG=pycopy-dev \
 	    CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_dev.h>" -UNDEBUG' LDFLAGS_EXTRA=-rdynamic
 
 # based on coverage_test
 dev_test: dev
 	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython-dev ./run-tests
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython-dev ./run-tests -d thread
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython-dev ./run-tests --emit native
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython-dev ./run-tests --via-mpy -d basics float
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests -d thread
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --emit native
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --via-mpy -d basics float
 
 # build interpreter with nan-boxing as object model
 nanbox:
 	$(MAKE) \
 	CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_nanbox.h>"' \
 	BUILD=build-nanbox \
-	PROG=micropython_nanbox \
+	PROG=pycopy_nanbox \
 	MICROPY_FORCE_32BIT=1
 
 freedos:
@@ -262,7 +262,7 @@ freedos:
 	SIZE=i586-pc-msdosdjgpp-size \
 	CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_freedos.h>" -DMICROPY_NLR_SETJMP -Dtgamma=gamma -DMICROPY_EMIT_X86=0 -DMICROPY_NO_ALLOCA=1 -DMICROPY_PY_USELECT_POSIX=0' \
 	BUILD=build-freedos \
-	PROG=micropython_freedos \
+	PROG=pycopy_freedos \
 	MICROPY_PY_SOCKET=0 \
 	MICROPY_PY_FFI=0 \
 	MICROPY_PY_JNI=0 \
@@ -280,16 +280,16 @@ coverage:
 	    -DMICROPY_UNIX_COVERAGE' \
 	    LDFLAGS_EXTRA='-fprofile-arcs -ftest-coverage' \
 	    FROZEN_DIR=coverage-frzstr FROZEN_MPY_DIR=coverage-frzmpy \
-	    BUILD=build-coverage PROG=micropython_coverage
+	    BUILD=build-coverage PROG=pycopy_coverage
 
 coverage_test: coverage
 	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython_coverage ./run-tests
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython_coverage ./run-tests -d thread
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython_coverage ./run-tests --emit native
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython_coverage ./run-tests --via-mpy -d basics float micropython
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/micropython_coverage ./run-tests --via-mpy --emit native -d basics float micropython
-	cat $(TOP)/tests/basics/0prelim.py | ./micropython_coverage | grep -q 'abc'
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests -d thread
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --emit native
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --via-mpy -d basics float micropython
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --via-mpy --emit native -d basics float micropython
+	cat $(TOP)/tests/basics/0prelim.py | ./pycopy_coverage | grep -q 'abc'
 	gcov -o build-coverage/py $(TOP)/py/*.c
 	gcov -o build-coverage/extmod $(TOP)/extmod/*.c
 
