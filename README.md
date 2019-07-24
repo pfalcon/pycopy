@@ -89,14 +89,14 @@ To build (see section below for required dependencies):
 
 Then to give it a try:
 
-    $ ./micropython
+    $ ./pycopy
     >>> list(5 * x + y for x in range(10) for y in [4, 2, 1])
 
 Use `CTRL-D` (i.e. EOF) to exit the shell.
 Learn about command-line options (in particular, how to increase heap size
 which may be needed for larger applications):
 
-    $ ./micropython --help
+    $ ./pycopy --help
 
 Run complete testsuite:
 
@@ -104,8 +104,8 @@ Run complete testsuite:
 
 Unix version comes with a builtin package manager called `upip`, e.g.:
 
-    $ ./micropython -m upip install pycopy-pystone
-    $ ./micropython -m pystone
+    $ ./pycopy -m upip install pycopy-pystone
+    $ ./pycopy -m pystone
 
 Browse available modules on [PyPI](https://pypi.org/search/?q=pycopy-).
 Standard library modules come from
