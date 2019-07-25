@@ -39,6 +39,27 @@ STATIC mp_obj_t mp_obj_new_str_iterator(mp_obj_t str, mp_obj_iter_buf_t *iter_bu
 /******************************************************************************/
 /* str                                                                        */
 
+#if MICROPY_CPYTHON_COMPAT
+static inline bool uni_is_printable_bp(unichar ch) {
+    if (ch >= 0xd7fc) {
+        // Replacement chars
+        if (ch >= 0xfffc && ch <= 0xfffd) {
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+static inline bool uni_is_printable_ep(unichar ch) {
+    (void)ch;
+    return false;
+}
+#else
+#define uni_is_printable_bp(x) false
+#define uni_is_printable_ep(x) false
+#endif
+
 STATIC void uni_print_quoted(const mp_print_t *print, const byte *str_data, uint str_len) {
     // this escapes characters, but it will be very slow to print (calling print many times)
     bool has_single_quote = false;
@@ -59,6 +80,7 @@ STATIC void uni_print_quoted(const mp_print_t *print, const byte *str_data, uint
     while (s < top) {
         unichar ch;
         ch = utf8_get_char(s);
+        const byte *old_s = s;
         s = utf8_next_char(s);
         if (ch == quote_char) {
             mp_printf(print, "\\%c", quote_char);
@@ -73,11 +95,23 @@ STATIC void uni_print_quoted(const mp_print_t *print, const byte *str_data, uint
         } else if (ch == '\t') {
             mp_print_str(print, "\\t");
         } else if (ch < 0x100) {
-            mp_printf(print, "\\x%02x", ch);
+            if (ch > 0xa0) {
+                goto printable;
+            } else {
+                mp_printf(print, "\\x%02x", ch);
+            }
         } else if (ch < 0x10000) {
+            if (uni_is_printable_bp(ch)) {
+                goto printable;
+            }
             mp_printf(print, "\\u%04x", ch);
         } else {
-            mp_printf(print, "\\U%08x", ch);
+            if (uni_is_printable_ep(ch)) {
+printable:
+                mp_print_strn(print, (const char *)old_s, s - old_s, 0, 0, 0);
+            } else {
+                mp_printf(print, "\\U%08x", ch);
+            }
         }
     }
     mp_printf(print, "%c", quote_char);
