@@ -24,6 +24,45 @@ Pycopy can execute scripts in textual source form or from precompiled
 bytecode, in both cases either from an on-device filesystem or "frozen" into
 the executable.
 
+The Pycopy Zen
+--------------
+
+[Just as "big Python"](https://www.python.org/dev/peps/pep-0020/), Pycopy has
+its "Zen". The main principles of Pycopy are **simplicity**, **minimalism**,
+and **light-weightedness**.
+
+At the same the same time, Pycopy strives to be a full-stack language and
+be compatible with wider Python ecosystem. The Pycopy project resolves
+these seemingly conflicting goals in a well-known and elegant way: by
+being multi-level project, and by providing flexible configuration options.
+Specifically, there's a well-defined lightweight core written in C,
+defining "native Pycopy language". On top of it, a number of options are
+provided, providing additional functionality (oftentimes offering more
+CPython compatibility). On top of it, "native Pycopy builtin modules" are
+provided, defining the native Pycopy API, which provides a subset of CPython's
+modules functionality, and at the same time, some extensions to it (driven
+by Pycopy's goal to be efficient). These native Pycopy modules are clearly
+namespaced, to allow to implement modules fully compatible with CPython API
+without any changes to the main project.
+
+On top of this primary project, there are separate projects to further extend
+Pycopy functionality and achieve full-stack ecosystem. For example, there's
+a [pycopy-lib](https://github.com/pfalcon/pycopy-lib) project (see below) to
+implement a fully compatible CPython standard library for Pycopy.
+
+On top of that, there is an ecosystem of third-party packages, which are
+managed by the Pycopy users themselves.
+
+The art of working with Pycopy is to understand where a particular feature
+belongs. Just as with CPython, it's almost never the core project, and almost
+always users' third party packages.
+
+[Contributors' Guidelines](https://github.com/pfalcon/pycopy/wiki/ContributorGuidelines)
+further elaborate on some points touched above.
+
+Source tree layout
+------------------
+
 Major components in this repository:
 - py/ -- the core Python implementation, including compiler, runtime, and
   core library.
