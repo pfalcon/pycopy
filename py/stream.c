@@ -408,9 +408,9 @@ STATIC mp_obj_t stream_readbin(mp_obj_t self_in, mp_obj_t fmt_in) {
         nlr_raise(mp_obj_new_exception(&mp_type_EOFError));
     }
 
-    byte *ptr = buf;
+    size_t offset = 0;
     char fmt_type = mp_struct_get_fmt_type(&fmt);
-    mp_obj_t res = mp_binary_get_val(fmt_type, *fmt, &ptr);
+    mp_obj_t res = mp_binary_get_val(fmt_type, *fmt, buf, &offset);
 
     return res;
 }
