@@ -387,13 +387,15 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(uctypes_struct_calc_offsets_obj, 1, 2
 static inline mp_obj_t get_unaligned(uint val_type, byte *p, int big_endian) {
     char struct_type = big_endian ? '>' : '<';
     static const char type2char[16] = "BbHhIiQq------fd";
-    return mp_binary_get_val(struct_type, type2char[val_type], &p);
+    size_t offset = 0;
+    return mp_binary_get_val(struct_type, type2char[val_type], p, &offset);
 }
 
 static inline void set_unaligned(uint val_type, byte *p, int big_endian, mp_obj_t val) {
     char struct_type = big_endian ? '>' : '<';
     static const char type2char[16] = "BbHhIiQq------fd";
-    mp_binary_set_val(struct_type, type2char[val_type], val, &p);
+    size_t offset = 0;
+    mp_binary_set_val(struct_type, type2char[val_type], val, p, &offset);
 }
 
 static inline mp_uint_t get_aligned_basic(uint val_type, void *p) {
