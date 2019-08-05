@@ -185,23 +185,23 @@ long long mp_binary_get_int(mp_uint_t size, bool is_signed, bool big_endian, con
 }
 
 #define is_signed(typecode) (typecode > 'Z')
-mp_obj_t mp_binary_get_val(char struct_type, char val_type, byte **ptr) {
-    byte *p = *ptr;
+mp_obj_t mp_binary_get_val(char struct_type, char val_type, const byte *buf, size_t *offset) {
+    size_t off = *offset;
     mp_uint_t align;
 
     size_t size = mp_binary_get_size(struct_type, val_type, &align);
     if (struct_type == '@') {
-        // Make pointer aligned
-        p = (byte*)MP_ALIGN(p, (size_t)align);
+        // Make offset aligned
+        off = (size_t)MP_ALIGN(off, (size_t)align);
         #if MP_ENDIANNESS_LITTLE
         struct_type = '<';
         #else
         struct_type = '>';
         #endif
     }
-    *ptr = p + size;
+    *offset = off + size;
 
-    long long val = mp_binary_get_int(size, is_signed(val_type), (struct_type == '>'), p);
+    long long val = mp_binary_get_int(size, is_signed(val_type), (struct_type == '>'), buf + off);
 
     if (val_type == 'O') {
         return (mp_obj_t)(mp_uint_t)val;
@@ -250,22 +250,23 @@ void mp_binary_set_int(mp_uint_t val_sz, bool big_endian, byte *dest, mp_uint_t 
     }
 }
 
-void mp_binary_set_val(char struct_type, char val_type, mp_obj_t val_in, byte **ptr) {
-    byte *p = *ptr;
+void mp_binary_set_val(char struct_type, char val_type, mp_obj_t val_in, byte *buf, size_t *offset) {
+    size_t off = *offset;
     mp_uint_t align;
 
     size_t size = mp_binary_get_size(struct_type, val_type, &align);
     if (struct_type == '@') {
-        // Make pointer aligned
-        p = (byte*)MP_ALIGN(p, (size_t)align);
+        // Make offset aligned
+        off = (size_t)MP_ALIGN(off, (size_t)align);
         if (MP_ENDIANNESS_LITTLE) {
             struct_type = '<';
         } else {
             struct_type = '>';
         }
     }
-    *ptr = p + size;
+    *offset = off + size;
 
+    byte *p = buf + off;
     mp_uint_t val;
     switch (val_type) {
         case 'O':
