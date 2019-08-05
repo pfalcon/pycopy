@@ -152,6 +152,7 @@ STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
         mp_raise_ValueError("buffer too small");
     }
 
+    size_t field_offset = 0;
     for (size_t i = 0; i < num_items;) {
         mp_uint_t cnt = 1;
         if (unichar_isdigit(*fmt)) {
@@ -159,12 +160,12 @@ STATIC mp_obj_t struct_unpack_from(size_t n_args, const mp_obj_t *args) {
         }
         mp_obj_t item;
         if (*fmt == 's') {
-            item = mp_obj_new_bytes(p, cnt);
-            p += cnt;
+            item = mp_obj_new_bytes(p + field_offset, cnt);
+            field_offset += cnt;
             res->items[i++] = item;
         } else {
             while (cnt--) {
-                item = mp_binary_get_val(fmt_type, *fmt, &p);
+                item = mp_binary_get_val(fmt_type, *fmt, p, &field_offset);
                 res->items[i++] = item;
             }
         }
@@ -180,6 +181,7 @@ void mp_struct_pack_into_internal(mp_obj_t fmt_in, byte *p, size_t n_args, const
     char fmt_type = mp_struct_get_fmt_type(&fmt);
 
     size_t i;
+    size_t field_offset = 0;
     for (i = 0; i < n_args;) {
         mp_uint_t cnt = 1;
         if (*fmt == '\0') {
@@ -197,13 +199,13 @@ void mp_struct_pack_into_internal(mp_obj_t fmt_in, byte *p, size_t n_args, const
             if (bufinfo.len < to_copy) {
                 to_copy = bufinfo.len;
             }
-            memcpy(p, bufinfo.buf, to_copy);
-            memset(p + to_copy, 0, cnt - to_copy);
-            p += cnt;
+            memcpy(p + field_offset, bufinfo.buf, to_copy);
+            memset(p + field_offset + to_copy, 0, cnt - to_copy);
+            field_offset += cnt;
         } else {
             // If we run out of args then we just finish; CPython would raise struct.error
             while (cnt-- && i < n_args) {
-                mp_binary_set_val(fmt_type, *fmt, args[i++], &p);
+                mp_binary_set_val(fmt_type, *fmt, args[i++], p, &field_offset);
             }
         }
         fmt++;
