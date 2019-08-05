@@ -28,6 +28,11 @@ print(int('  \t\t  314  \t\t  '))
 print(int('  1  '))
 print(int(' -3 '))
 
+try:
+    int("0x10")
+except ValueError:
+    print("0x10: ValueError")
+
 print(int('0', 10))
 print(int('1', 10))
 print(int(' \t 1 \t ', 10))
@@ -41,6 +46,7 @@ print(int('0o123', 0))
 print(int('8388607'))
 print(int('0x123', 16))
 print(int('0X123', 16))
+print(int('0x123', 0))
 print(int('0A', 16))
 print(int('0o123', 8))
 print(int('0O123', 8))
