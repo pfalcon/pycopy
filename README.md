@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/pfalcon/pycopy.png?branch=pfalcon)](https://travis-ci.org/pfalcon/pycopy) [![Coverage Status](https://coveralls.io/repos/pfalcon/pycopy/badge.png?branch=pfalcon)](https://coveralls.io/github/pfalcon/pycopy?branch=pfalcon)
+[![Build Status](https://travis-ci.org/pfalcon/pycopy.png?branch=master)](https://travis-ci.org/pfalcon/pycopy) [![Coverage Status](https://coveralls.io/repos/pfalcon/pycopy/badge.png?branch=master)](https://coveralls.io/github/pfalcon/pycopy?branch=master)
 
 The Pycopy project
 ==================
