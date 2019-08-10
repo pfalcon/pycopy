@@ -9,7 +9,7 @@ PAPER         =
 BUILDDIR      = build/$(MICROPY_PORT)
 CPYDIFFDIR    = ../tools
 CPYDIFF       = gen-cpydiff.py
-GENRSTDIR     = genrst
+GENRSTDIR     = differences
 # Run "make FORCE= ..." to avoid rebuilding from scratch (and risk
 # producing incorrect docs).
 FORCE         = -E
@@ -56,11 +56,11 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -f $(GENRSTDIR)/*
+	rm -f $(GENRSTDIR)/*.rst
 
 cpydiff:
 	@echo "Generating MicroPython Differences."
-	rm -f $(GENRSTDIR)/*
+	rm -f $(GENRSTDIR)/*.rst
 	cd $(CPYDIFFDIR) && $(PYTHON) $(CPYDIFF)
 
 html: cpydiff
