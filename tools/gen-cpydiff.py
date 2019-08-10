@@ -177,8 +177,7 @@ def gen_rst(results):
                     rst = open(DOCPATH + filename + '.rst', 'w')
                     rst.write(HEADER)
                     rst.write(section[i] + '\n')
-                    rst.write(RSTCHARS[0] * len(section[i]))
-                    rst.write(time.strftime("\nGenerated %a %d %b %Y %X UTC\n\n", time.gmtime()))
+                    rst.write(RSTCHARS[0] * len(section[i]) + '\n\n')
                     toctree.append(filename)
                 else:
                     rst.write(section[i] + '\n')
