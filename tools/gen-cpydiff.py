@@ -86,6 +86,10 @@ def uimports(code):
         code = code.replace(uimport, b'u' + uimport)
     return code
 
+def clean_output(output):
+    """ remove unimport, transient details from output, like memory addresses """
+    return re.sub(r"at 0x[0-9a-f]+", "at 0x7fffffff", output)
+
 def run_tests(tests):
     """ executes all tests """
     results = []
@@ -95,10 +99,10 @@ def run_tests(tests):
         input_upy = uimports(input_cpy)
 
         process = subprocess.Popen(CPYTHON3, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        output_cpy = [com.decode('utf8') for com in process.communicate(input_cpy)]
+        output_cpy = [clean_output(com.decode('utf8')) for com in process.communicate(input_cpy)]
 
         process = subprocess.Popen(MICROPYTHON, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        output_upy = [com.decode('utf8') for com in process.communicate(input_upy)]
+        output_upy = [clean_output(com.decode('utf8')) for com in process.communicate(input_upy)]
 
         if output_cpy[0] == output_upy[0] and output_cpy[1] == output_upy[1]:
             status = 'Supported'
