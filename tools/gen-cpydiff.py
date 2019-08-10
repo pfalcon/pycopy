@@ -45,7 +45,7 @@ else:
     MICROPYTHON = os.getenv('MICROPY_MICROPYTHON', '../ports/unix/pycopy')
 
 TESTPATH = '../tests/cpydiff/'
-DOCPATH = '../docs/genrst/'
+DOCPATH = '../docs/differences/'
 INDEXTEMPLATE = '../docs/differences/index_template.txt'
 INDEX = 'index.rst'
 
