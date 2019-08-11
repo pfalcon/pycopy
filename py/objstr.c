@@ -1841,11 +1841,28 @@ MP_DEFINE_CONST_FUN_OBJ_2(str_rpartition_obj, str_rpartition);
 STATIC mp_obj_t str_caseconv(unichar (*op)(unichar), mp_obj_t self_in) {
     GET_STR_DATA_LEN(self_in, self_data, self_len);
     vstr_t vstr;
-    vstr_init_len(&vstr, self_len);
-    byte *data = (byte*)vstr.buf;
+    byte *data = NULL;
+    const byte *in = self_data;
+
     for (size_t i = 0; i < self_len; i++) {
-        *data++ = op(*self_data++);
+        unichar in_c = *in++;
+        unichar out_c = op(in_c);
+        if (data != NULL) {
+            *data++ = out_c;
+        } else if (in_c != out_c) {
+            vstr_init_len(&vstr, self_len);
+            data = (byte*)vstr.buf;
+            size_t sz = in - 1 - self_data;
+            memcpy(data, self_data, sz);
+            data += sz;
+            *data++ = out_c;
+        }
     }
+
+    if (data == NULL) {
+        return self_in;
+    }
+
     return mp_obj_new_str_from_vstr(mp_obj_get_type(self_in), &vstr);
 }
 
