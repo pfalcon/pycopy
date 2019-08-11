@@ -1,7 +1,7 @@
 #
-# upip - Package manager for MicroPython
+# upip - Package manager for Pycopy https://github.com/pfalcon/pycopy
 #
-# Copyright (c) 2015-2018 Paul Sokolovsky
+# Copyright (c) 2015-2019 Paul Sokolovsky
 #
 # Licensed under the MIT license.
 #
@@ -9,7 +9,8 @@ import sys
 import gc
 import uos as os
 import uerrno as errno
-import ujson as json
+import ure
+#import ujson as json
 import uzlib
 import upip_utarfile as tarfile
 gc.collect()
@@ -19,8 +20,12 @@ debug = False
 install_path = None
 cleanup_files = []
 gzdict_sz = 16 + 15
+gzdict_buf = None
 
 file_buf = bytearray(512)
+
+simple_lst_re = ure.compile('<a href="(.+?)#')
+
 
 class NotFoundError(Exception):
     pass
@@ -55,7 +60,7 @@ def _makedirs(name, mode=0o777):
             ret = True
         except OSError as e:
             if e.args[0] != errno.EEXIST and e.args[0] != errno.EISDIR:
-                raise e
+                raise
             ret = False
     return ret
 
@@ -134,7 +139,6 @@ def url_open(url):
                 print("Warning: %s SSL certificate is not validated" % host)
                 warn_ussl = False
 
-        # MicroPython rawsocket module supports file interface directly
         s.write("GET /%s HTTP/1.0\r\nHost: %s\r\n\r\n" % (urlpath, host))
         l = s.readline()
         protover, status, msg = l.split(None, 2)
@@ -162,6 +166,31 @@ def get_pkg_metadata(name):
     finally:
         f.close()
 
+def get_latest_url_json(name):
+    data = get_pkg_metadata(name)
+    latest_ver = data["info"]["version"]
+    packages = data["releases"][latest_ver]
+    del data
+    gc.collect()
+    assert len(packages) == 1
+    return packages[0]["url"]
+
+def get_latest_url_simple(name):
+    # Stupid PEP 503 normalization
+    name = name.replace("_", "-").replace(".", "-").lower()
+    f = url_open("https://pypi.org/simple/%s/" % name)
+    try:
+        last_url = None
+        while 1:
+            l = f.readline().decode()
+            if not l: break
+            m = simple_lst_re.search(l)
+            if m:
+                last_url = m.group(1)
+        return last_url
+    finally:
+        f.close()
+
 
 def fatal(msg, exc=None):
     print("Error:", msg)
@@ -170,19 +199,14 @@ def fatal(msg, exc=None):
     sys.exit(1)
 
 def install_pkg(pkg_spec, install_path):
-    data = get_pkg_metadata(pkg_spec)
+    #package_url = get_latest_url_json(pkg_spec)
+    package_url = get_latest_url_simple(pkg_spec)
 
-    latest_ver = data["info"]["version"]
-    packages = data["releases"][latest_ver]
-    del data
-    gc.collect()
-    assert len(packages) == 1
-    package_url = packages[0]["url"]
-    print("Installing %s %s from %s" % (pkg_spec, latest_ver, package_url))
+    print("Installing %s from %s" % (pkg_spec, package_url))
     package_fname = op_basename(package_url)
     f1 = url_open(package_url)
     try:
-        f2 = uzlib.DecompIO(f1, gzdict_sz)
+        f2 = uzlib.DecompIO(f1, gzdict_sz, gzdict_buf)
         f3 = tarfile.TarFile(fileobj=f2)
         meta = install_tar(f3, install_path)
     finally:
@@ -193,12 +217,6 @@ def install_pkg(pkg_spec, install_path):
     return meta
 
 def install(to_install, install_path=None):
-    # Calculate gzip dictionary size to use
-    global gzdict_sz
-    sz = gc.mem_free() + gc.mem_alloc()
-    if sz <= 65536:
-        gzdict_sz = 16 + 12
-
     if install_path is None:
         install_path = get_install_path()
     if install_path[-1] != "/":
@@ -246,8 +264,8 @@ def cleanup():
 
 def help():
     print("""\
-upip - Simple PyPI package manager for MicroPython
-Usage: micropython -m upip install [-p <path>] <package>... | -r <requirements.txt>
+upip - Simple PyPI package manager for Pycopy
+Usage: pycopy -m upip install [-p <path>] <package>... | -r <requirements.txt>
 import upip; upip.install(package_or_list, [<path>])
 
 If <path> is not given, packages will be installed into sys.path[1]
@@ -256,7 +274,7 @@ supports that).""")
     print("Current value of sys.path[1]:", sys.path[1])
     print("""\
 
-Note: only MicroPython packages (usually, named micropython-*) are supported
+Note: only Pycopy packages (usually, named pycopy-*) are supported
 for installation, upip does not support arbitrary code in setup.py.
 """)
 
@@ -271,6 +289,15 @@ def main():
 
     if sys.argv[1] != "install":
         fatal("Only 'install' command supported")
+
+    # Calculate gzip dictionary size to use
+    global gzdict_sz, gzdict_buf
+    sz = gc.mem_free() + gc.mem_alloc()
+    if sz <= 65536:
+        gzdict_sz = 16 + 12
+        gzdict_buf = bytearray(4096)
+    else:
+        gzdict_buf = bytearray(32768)
 
     to_install = []
 
