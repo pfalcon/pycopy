@@ -46,6 +46,7 @@
 #include "py/stackctrl.h"
 #include "py/mphal.h"
 #include "py/mpthread.h"
+#include "py/persistentcode.h"
 #include "extmod/misc.h"
 #include "extmod/vfs.h"
 #include "extmod/vfs_posix.h"
@@ -103,6 +104,7 @@ STATIC int handle_uncaught_exception(mp_obj_base_t *exc) {
 #define LEX_SRC_VSTR (2)
 #define LEX_SRC_FILENAME (3)
 #define LEX_SRC_STDIN (4)
+#define LEX_SRC_RAW_CODE (5)
 
 // Returns standard error codes: 0 for success, 1 for all other errors,
 // except if FORCED_EXIT bit is set then script raised SystemExit and the
@@ -114,7 +116,13 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
     if (nlr_push(&nlr) == 0) {
         // create lexer based on source kind
         mp_lexer_t *lex;
-        if (source_kind == LEX_SRC_STR) {
+        mp_obj_t module_fun;
+
+        if (source_kind == LEX_SRC_RAW_CODE) {
+            mp_raw_code_t *raw_code = mp_raw_code_load_file(source);
+            module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
+            goto execute;
+        } else if (source_kind == LEX_SRC_STR) {
             const char *line = source;
             lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, line, strlen(line), false);
         } else if (source_kind == LEX_SRC_VSTR) {
@@ -145,8 +153,9 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         }
         #endif
 
-        mp_obj_t module_fun = mp_compile(&parse_tree, source_name, is_repl);
+        module_fun = mp_compile(&parse_tree, source_name, is_repl);
 
+execute:
         if (!compile_only) {
             // execute it
             mp_call_function_0(module_fun);
@@ -301,7 +310,13 @@ STATIC int do_repl(void) {
 }
 
 STATIC int do_file(const char *file) {
-    return execute_from_lexer(LEX_SRC_FILENAME, file, MP_PARSE_FILE_INPUT, false);
+    size_t len = strlen(file);
+    int lex_type = LEX_SRC_FILENAME;
+    if (len >= 4 && strcmp(file + len - 4, ".mpy") == 0) {
+        lex_type = LEX_SRC_RAW_CODE;
+    }
+
+    return execute_from_lexer(lex_type, file, MP_PARSE_FILE_INPUT, false);
 }
 
 STATIC int do_str(const char *str) {
