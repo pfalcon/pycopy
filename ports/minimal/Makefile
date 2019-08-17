@@ -33,11 +33,23 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -O0 -ggdb
 else
 CFLAGS += -Os -DNDEBUG
+# Don't bring in *_chk symbols from Glibc, see unix/Makefile for more details
+CFLAGS += -U _FORTIFY_SOURCE
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-stack-protector
 CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
+CFLAGS += -fno-pie
 ifneq ($(CROSS), 1)
 CFLAGS += -mpreferred-stack-boundary=2
+# Nowadays various compilers have PIE by default, which bloats executable
+# size.
+LDFLAGS += -no-pie
+# Nowadays various compilers have -z relro as default, which cause random
+# blo(a)ts of zeros inside executable files, see
+# https://stackoverflow.com/questions/48372235/unexplained-padding-to-elf-section
+LDFLAGS += -Wl,-z,norelro
+# And of course, we don't need no build ids.
+LDFLAGS += -Wl,--build-id=none
 endif
 LDFLAGS += -s
 endif
