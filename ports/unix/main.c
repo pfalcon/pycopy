@@ -41,6 +41,7 @@
 #include "py/compile.h"
 #include "py/runtime.h"
 #include "py/builtin.h"
+#include "py/objfun.h"
 #include "py/repl.h"
 #include "py/gc.h"
 #include "py/stackctrl.h"
@@ -98,6 +99,17 @@ STATIC int handle_uncaught_exception(mp_obj_base_t *exc) {
     // Report all other exceptions
     mp_obj_print_exception(MICROPY_ERROR_PRINTER, MP_OBJ_FROM_PTR(exc));
     return 1;
+}
+
+STATIC void execute_strict_main(mp_obj_dict_t *ns) {
+    mp_strict_runtime = true;
+    mp_map_elem_t *elem = mp_map_lookup(&ns->map, MP_OBJ_NEW_QSTR(MP_QSTR___main__), MP_MAP_LOOKUP);
+    if (elem == NULL) {
+        mp_raise_msg(&mp_type_RuntimeError,
+            MP_ERROR_TEXT("strict mode: main module must contain __main__ function"));
+    }
+    mp_call_function_0(elem->value);
+    mp_handle_pending(true);
 }
 
 #define LEX_SRC_STR (1)
@@ -174,6 +186,14 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         if (!compile_only) {
             // execute it
             mp_call_function_0(module_fun);
+
+            // check for pending exception
+            mp_handle_pending(true);
+
+            if (mp_strict_mode) {
+                mp_obj_fun_bc_t *fun = MP_OBJ_TO_PTR(module_fun);
+                execute_strict_main(fun->globals);
+            }
         }
 
         mp_hal_set_interrupt_char(-1);
@@ -383,6 +403,8 @@ STATIC void pre_process_options(int argc, char **argv) {
                 if (0) {
                 } else if (strcmp(argv[a + 1], "compile-only") == 0) {
                     compile_only = true;
+                } else if (strcmp(argv[a + 1], "strict") == 0) {
+                    mp_strict_mode = true;
                 } else if (strcmp(argv[a + 1], "emit=bytecode") == 0) {
                     emit_opt = MP_EMIT_OPT_BYTECODE;
                 #if MICROPY_EMIT_NATIVE
@@ -649,6 +671,9 @@ MP_NOINLINE int main_(int argc, char **argv) {
             reimport:
                 if (nlr_push(&nlr) == 0) {
                     mod = mp_builtin___import__(MP_ARRAY_SIZE(import_args), import_args);
+                    if (mp_strict_mode && (!mp_obj_is_package(mod) || subpkg_tried)) {
+                        execute_strict_main(mp_obj_module_get_globals(mod));
+                    }
                     nlr_pop();
                 } else {
                     // uncaught exception
