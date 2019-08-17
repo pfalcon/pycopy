@@ -98,9 +98,14 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
         }
         if (dest[1] == MP_OBJ_NULL) {
             // delete attribute
+            MP_HANDLE_DEL_NS_STRICT();
             mp_obj_dict_delete(MP_OBJ_FROM_PTR(dict), MP_OBJ_NEW_QSTR(attr));
         } else {
             // store attribute
+            if (mp_handle_store_ns_strict(&dict->map, MP_OBJ_NEW_QSTR(attr), dest[1])) {
+                dest[0] = MP_OBJ_NULL; // indicate success
+                return;
+            }
             mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), MP_OBJ_NEW_QSTR(attr), dest[1]);
         }
         dest[0] = MP_OBJ_NULL; // indicate success
