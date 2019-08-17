@@ -1125,11 +1125,17 @@ STATIC void type_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             }
             if (dest[1] == MP_OBJ_NULL) {
                 // delete attribute
+                MP_HANDLE_DEL_NS_STRICT();
                 mp_map_elem_t *elem = mp_map_lookup(locals_map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP_REMOVE_IF_FOUND);
                 if (elem != NULL) {
                     dest[0] = MP_OBJ_NULL; // indicate success
                 }
             } else {
+                if (mp_handle_store_ns_strict(locals_map, MP_OBJ_NEW_QSTR(attr), dest[1])) {
+                    dest[0] = MP_OBJ_NULL; // indicate success
+                    return;
+                }
+
                 #if ENABLE_SPECIAL_ACCESSORS
                 // Check if we add any special accessor methods with this store
                 if (!(self->flags & MP_TYPE_FLAG_HAS_SPECIAL_ACCESSORS)) {

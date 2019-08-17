@@ -211,22 +211,30 @@ mp_obj_t mp_load_build_class(void) {
 
 void mp_store_name(qstr qst, mp_obj_t obj) {
     DEBUG_OP_printf("store name %s <- %p\n", qstr_str(qst), obj);
+    if (mp_handle_store_ns_strict(&mp_locals_get()->map, MP_OBJ_NEW_QSTR(qst), obj)) {
+        return;
+    }
     mp_obj_dict_store(MP_OBJ_FROM_PTR(mp_locals_get()), MP_OBJ_NEW_QSTR(qst), obj);
 }
 
 void mp_delete_name(qstr qst) {
     DEBUG_OP_printf("delete name %s\n", qstr_str(qst));
+    MP_HANDLE_DEL_NS_STRICT();
     // TODO convert KeyError to NameError if qst not found
     mp_obj_dict_delete(MP_OBJ_FROM_PTR(mp_locals_get()), MP_OBJ_NEW_QSTR(qst));
 }
 
 void mp_store_global(qstr qst, mp_obj_t obj) {
     DEBUG_OP_printf("store global %s <- %p\n", qstr_str(qst), obj);
+    if (mp_handle_store_ns_strict(&mp_globals_get()->map, MP_OBJ_NEW_QSTR(qst), obj)) {
+        return;
+    }
     mp_obj_dict_store(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(qst), obj);
 }
 
 void mp_delete_global(qstr qst) {
     DEBUG_OP_printf("delete global %s\n", qstr_str(qst));
+    MP_HANDLE_DEL_NS_STRICT();
     // TODO convert KeyError to NameError if qst not found
     mp_obj_dict_delete(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(qst));
 }

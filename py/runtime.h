@@ -28,6 +28,7 @@
 
 #include "py/mpstate.h"
 #include "py/pystack.h"
+#include "py/strict_mode.h"
 
 typedef enum {
     MP_VM_RETURN_NORMAL,
