@@ -295,7 +295,7 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
         mp_obj_t this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR___name__));
         assert(this_name_q != MP_OBJ_NULL);
         #if MICROPY_CPYTHON_COMPAT
-        if (MP_OBJ_QSTR_VALUE(this_name_q) == MP_QSTR___main__) {
+        if (this_name_q == MP_OBJ_NEW_QSTR(MP_QSTR___main__) || this_name_q == MP_OBJ_NEW_QSTR(MP_QSTR___main__s)) {
             // This is a module run by -m command-line switch, get its real name from backup attribute
             this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR__lt_module_gt_));
         }

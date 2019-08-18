@@ -167,6 +167,7 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         #endif
 
         mp_parse_tree_t parse_tree = mp_parse(lex, input_kind);
+        mp_strict_update_main_name();
 
         #if defined(MICROPY_UNIX_COVERAGE)
         // allow to print the parse tree in the coverage build
