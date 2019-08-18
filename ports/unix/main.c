@@ -183,6 +183,7 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         #if MICROPY_PERSISTENT_CODE_LOAD
     execute:
         #endif
+        mp_strict_update_main_name();
         if (!compile_only) {
             // execute it
             mp_call_function_0(module_fun);
