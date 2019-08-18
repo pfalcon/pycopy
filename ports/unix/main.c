@@ -115,13 +115,16 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         // create lexer based on source kind
+        #if MICROPY_ENABLE_COMPILER
         mp_lexer_t *lex;
+        #endif
         mp_obj_t module_fun;
 
         if (source_kind == LEX_SRC_RAW_CODE) {
             mp_raw_code_t *raw_code = mp_raw_code_load_file(source);
             module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
             goto execute;
+        #if MICROPY_ENABLE_COMPILER
         } else if (source_kind == LEX_SRC_STR) {
             const char *line = source;
             lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, line, strlen(line), false);
@@ -132,8 +135,13 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
             lex = mp_lexer_new_from_file((const char*)source);
         } else { // LEX_SRC_STDIN
             lex = mp_lexer_new_from_fd(MP_QSTR__lt_stdin_gt_, 0, false);
+        #else
+        } else {
+            return -1;
+        #endif // MICROPY_ENABLE_COMPILER
         }
 
+        #if MICROPY_ENABLE_COMPILER
         qstr source_name = lex->source_name;
 
         #if MICROPY_PY___FILE__
@@ -154,6 +162,7 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         #endif
 
         module_fun = mp_compile(&parse_tree, source_name, is_repl);
+        #endif // MICROPY_ENABLE_COMPILER
 
 execute:
         if (!compile_only) {
@@ -639,6 +648,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
             } else if (strcmp(argv[a], "-v") == 0) {
                 mp_verbose_flag++;
             #endif
+            #if MICROPY_ENABLE_COMPILER
             } else if (strncmp(argv[a], "-O", 2) == 0) {
                 if (unichar_isdigit(argv[a][2])) {
                     MP_STATE_VM(mp_optimise_value) = argv[a][2] & 0xf;
@@ -646,6 +656,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
                     MP_STATE_VM(mp_optimise_value) = 0;
                     for (char *p = argv[a] + 1; *p && *p == 'O'; p++, MP_STATE_VM(mp_optimise_value)++);
                 }
+            #endif
             } else {
                 return usage(argv);
             }
