@@ -91,6 +91,13 @@ void NORETURN __fatal_error(const char *msg) {
     while (1);
 }
 
+// If we don't define this, a resulting ELF executable with contain
+// a single relocation for this symbol. Get rid of it by defining
+// on our side (but this will of course interfere with profiling
+// using gprof, so don't do that).
+void __gmon_start__(void) {
+}
+
 #ifndef NDEBUG
 void MP_WEAK __assert_func(const char *file, int line, const char *func, const char *expr) {
     printf("Assertion '%s' failed, at file %s:%d\n", expr, file, line);
