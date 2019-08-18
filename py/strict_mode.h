@@ -32,3 +32,4 @@ extern bool mp_strict_runtime;
 
 NORETURN void mp_strict_mode_error(void);
 bool mp_handle_store_ns_strict(mp_map_t *map, mp_obj_t attr, mp_obj_t val);
+void mp_strict_update_main_name(void);

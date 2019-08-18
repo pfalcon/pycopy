@@ -1500,6 +1500,7 @@ mp_obj_t mp_parse_compile_execute(mp_lexer_t *lex, mp_parse_input_kind_t parse_i
             ret = module_fun;
         } else {
             // execute module function and get return value
+            mp_strict_update_main_name();
             ret = mp_call_function_0(module_fun);
         }
 
