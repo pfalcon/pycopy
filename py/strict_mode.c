@@ -49,3 +49,12 @@ bool mp_handle_store_ns_strict(mp_map_t *map, mp_obj_t attr, mp_obj_t val) {
 
     return false;
 }
+
+void mp_strict_update_main_name(void) {
+    if (mp_strict_mode) {
+        mp_obj_t this_name = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR___name__));
+        if (this_name == MP_OBJ_NEW_QSTR(MP_QSTR___main__)) {
+            mp_store_global(MP_QSTR___name__, MP_OBJ_NEW_QSTR(MP_QSTR___main__s));
+        }
+    }
+}
