@@ -285,7 +285,7 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
         #if MICROPY_CPYTHON_COMPAT
         if (MP_OBJ_QSTR_VALUE(this_name_q) == MP_QSTR___main__) {
             // This is a module run by -m command-line switch, get its real name from backup attribute
-            this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR___main__));
+            this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR__lt_module_gt_));
         }
         #endif
         mp_map_t *globals_map = &mp_globals_get()->map;
@@ -428,8 +428,8 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                     #if MICROPY_CPYTHON_COMPAT
                     // Store module as "__main__" in the dictionary of loaded modules (returned by sys.modules).
                     mp_obj_dict_store(MP_OBJ_FROM_PTR(&MP_STATE_VM(mp_loaded_modules_dict)), MP_OBJ_NEW_QSTR(MP_QSTR___main__), module_obj);
-                    // Store real name in "__main__" attribute. Chosen semi-randonly, to reuse existing qstr's.
-                    mp_obj_dict_store(MP_OBJ_FROM_PTR(o->globals), MP_OBJ_NEW_QSTR(MP_QSTR___main__), MP_OBJ_NEW_QSTR(mod_name));
+                    // Store real name in "<module>" attribute. Should not clash with any name which might be defined by user.
+                    mp_obj_dict_store(MP_OBJ_FROM_PTR(o->globals), MP_OBJ_NEW_QSTR(MP_QSTR__lt_module_gt_), MP_OBJ_NEW_QSTR(mod_name));
                     #endif
                 }
 
