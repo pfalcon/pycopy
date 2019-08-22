@@ -140,6 +140,11 @@ def run_micropython(pyb, args, test_file, is_special=False):
             if args.heapsize is not None:
                 cmdlist.extend(['-X', 'heapsize=' + args.heapsize])
 
+            if test_file.startswith('strict/'):
+                cmdlist.extend(['-X', 'strict'])
+                # parse regexes in .exp
+                is_special = True
+
             # if running via .mpy, first compile the .py file
             if args.via_mpy:
                 subprocess.check_output([MPYCROSS] + args.mpy_cross_flags.split() + ['-o', 'mpytest.mpy', '-X', 'emit=' + args.emit, test_file])
@@ -654,7 +659,7 @@ the last matching regex is used:
 
     if len(args.files) == 0:
         if args.test_dirs is None:
-            test_dirs = ('basics', 'micropython', 'misc', 'extmod',)
+            test_dirs = ('basics', 'micropython', 'misc', 'extmod')
             if args.target == 'pyboard':
                 # run pyboard tests
                 test_dirs += ('float', 'stress', 'pyb', 'pybnative', 'inlineasm')
@@ -665,7 +670,7 @@ the last matching regex is used:
                 test_dirs += ('wipy',)
             elif args.target == 'unix':
                 # run PC tests
-                test_dirs += ('float', 'import', 'io', 'stress', 'unicode', 'unix', 'cmdline',)
+                test_dirs += ('strict', 'float', 'import', 'io', 'stress', 'unicode', 'unix', 'cmdline',)
             elif args.target == 'qemu-arm':
                 if not args.write_exp:
                     raise ValueError('--target=qemu-arm must be used with --write-exp')
