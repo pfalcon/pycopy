@@ -1609,6 +1609,10 @@ STATIC void compile_try_except(compiler_t *comp, mp_parse_node_t pn_body, int n_
         qstr qstr_exception_local = 0;
         uint end_finally_label = comp_next_label(comp);
 
+        #if MICROPY_ENABLE_PRECISE_SOURCE_LINE
+        EMIT_ARG(set_source_line, pns_except->source_line);
+        #endif
+
         if (MP_PARSE_NODE_IS_NULL(pns_except->nodes[0])) {
             // this is a catch all exception handler
             if (i + 1 != n_except) {
