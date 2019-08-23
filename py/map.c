@@ -124,6 +124,7 @@ STATIC void mp_map_rehash(mp_map_t *map) {
     DEBUG_printf("mp_map_rehash(%p): " UINT_FMT " -> " UINT_FMT "\n", map, old_alloc, new_alloc);
     mp_map_elem_t *old_table = map->table;
     mp_map_elem_t *new_table = m_new0(mp_map_elem_t, new_alloc);
+    mp_uint_t key_mask = MP_MAP_GET_KEY_MASK(map);
     // If we reach this point, table resizing succeeded, now we can edit the old map.
     map->alloc = new_alloc;
     map->used = 0;
@@ -131,7 +132,11 @@ STATIC void mp_map_rehash(mp_map_t *map) {
     map->table = new_table;
     for (size_t i = 0; i < old_alloc; i++) {
         if (old_table[i].key != MP_OBJ_NULL && old_table[i].key != MP_OBJ_SENTINEL) {
-            mp_map_lookup(map, old_table[i].key, MP_MAP_LOOKUP_ADD_IF_NOT_FOUND)->value = old_table[i].value;
+            mp_obj_t key = MP_MAP_KEY_APPLY_MASK(old_table[i].key, key_mask);
+            mp_map_elem_t *elem = mp_map_lookup(map, key, MP_MAP_LOOKUP_ADD_IF_NOT_FOUND);
+            elem->value = old_table[i].value;
+            // In case it was const qstr slot which we masked above.
+            elem->key = old_table[i].key;
         }
     }
     m_del(mp_map_elem_t, old_table, old_alloc);
@@ -228,8 +233,10 @@ mp_map_elem_t *mp_map_lookup(mp_map_t *map, mp_obj_t index, mp_map_lookup_kind_t
     size_t pos = hash % map->alloc;
     size_t start_pos = pos;
     mp_map_elem_t *avail_slot = NULL;
+    mp_uint_t key_mask = MP_MAP_GET_KEY_MASK(map);
     for (;;) {
         mp_map_elem_t *slot = &map->table[pos];
+        mp_obj_t key = MP_MAP_KEY_APPLY_MASK(slot->key, key_mask);
         if (slot->key == MP_OBJ_NULL) {
             // found NULL slot, so index is not in table
             if (lookup_kind == MP_MAP_LOOKUP_ADD_IF_NOT_FOUND) {
@@ -251,7 +258,7 @@ mp_map_elem_t *mp_map_lookup(mp_map_t *map, mp_obj_t index, mp_map_lookup_kind_t
             if (avail_slot == NULL) {
                 avail_slot = slot;
             }
-        } else if (slot->key == index || (!compare_only_ptrs && mp_obj_equal(slot->key, index))) {
+        } else if (key == index || (!compare_only_ptrs && mp_obj_equal(key, index))) {
             // found index
             // Note: CPython does not replace the index; try x={True:'true'};x[1]='one';x
             if (lookup_kind == MP_MAP_LOOKUP_REMOVE_IF_FOUND) {
