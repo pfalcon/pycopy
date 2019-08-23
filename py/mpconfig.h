@@ -605,6 +605,12 @@ typedef long long mp_longint_impl_t;
 #define MICROPY_ENABLE_SOURCE_LINE (0)
 #endif
 
+// Whether to provide more precise line numbering information at the expense
+// of somewhat larger compiler code.
+#ifndef MICROPY_ENABLE_PRECISE_SOURCE_LINE
+#define MICROPY_ENABLE_PRECISE_SOURCE_LINE (0)
+#endif
+
 // Whether to include doc strings (increases RAM usage)
 #ifndef MICROPY_ENABLE_DOC_STRING
 #define MICROPY_ENABLE_DOC_STRING (0)
