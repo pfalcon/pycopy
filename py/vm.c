@@ -475,17 +475,21 @@ dispatch_loop:
                     DISPATCH();
                 }
 
+                ENTRY(MP_BC_STORE_NAME_CONST):
                 ENTRY(MP_BC_STORE_NAME): {
                     MARK_EXC_IP_SELECTIVE();
+                    byte opcode = ip[-1];
                     DECODE_QSTR;
-                    mp_store_name(qst, POP());
+                    mp_store_name(qst, POP(), opcode == MP_BC_STORE_NAME_CONST);
                     DISPATCH();
                 }
 
+                ENTRY(MP_BC_STORE_GLOBAL_CONST):
                 ENTRY(MP_BC_STORE_GLOBAL): {
                     MARK_EXC_IP_SELECTIVE();
+                    byte opcode = ip[-1];
                     DECODE_QSTR;
-                    mp_store_global(qst, POP());
+                    mp_store_global(qst, POP(), opcode == MP_BC_STORE_GLOBAL_CONST);
                     DISPATCH();
                 }
 

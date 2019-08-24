@@ -98,8 +98,8 @@ typedef struct _mp_fun_table_t {
     mp_obj_t (*load_attr)(mp_obj_t base, qstr attr);
     void (*load_method)(mp_obj_t base, qstr attr, mp_obj_t *dest);
     void (*load_super_method)(qstr attr, mp_obj_t *dest);
-    void (*store_name)(qstr qst, mp_obj_t obj);
-    void (*store_global)(qstr qst, mp_obj_t obj);
+    void (*store_name)(qstr qst, mp_obj_t obj, bool is_const);
+    void (*store_global)(qstr qst, mp_obj_t obj, bool is_const);
     void (*store_attr)(mp_obj_t base, qstr attr, mp_obj_t val);
     mp_obj_t (*obj_subscr)(mp_obj_t base, mp_obj_t index, mp_obj_t val);
     bool (*obj_is_true)(mp_obj_t arg);
