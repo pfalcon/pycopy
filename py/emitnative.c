@@ -1447,7 +1447,8 @@ STATIC void emit_native_load_local(emit_t *emit, qstr qst, mp_uint_t local_num, 
     }
 }
 
-STATIC void emit_native_load_global(emit_t *emit, qstr qst, int kind) {
+STATIC void emit_native_load_global(emit_t *emit, qstr qst, int kind, bool is_const) {
+    (void)is_const;
     MP_STATIC_ASSERT(MP_F_LOAD_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_F_LOAD_NAME);
     MP_STATIC_ASSERT(MP_F_LOAD_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_F_LOAD_GLOBAL);
     emit_native_pre(emit);
@@ -1679,7 +1680,8 @@ STATIC void emit_native_store_local(emit_t *emit, qstr qst, mp_uint_t local_num,
     }
 }
 
-STATIC void emit_native_store_global(emit_t *emit, qstr qst, int kind) {
+STATIC void emit_native_store_global(emit_t *emit, qstr qst, int kind, bool is_const) {
+    (void)is_const;
     MP_STATIC_ASSERT(MP_F_STORE_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_F_STORE_NAME);
     MP_STATIC_ASSERT(MP_F_STORE_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_F_STORE_GLOBAL);
     if (kind == MP_EMIT_IDOP_GLOBAL_NAME) {
@@ -1698,8 +1700,7 @@ STATIC void emit_native_store_global(emit_t *emit, qstr qst, int kind) {
         }
     }
 
-    // is_const = false
-    ASM_MOV_REG_IMM(emit->as, REG_ARG_3, 0);
+    ASM_MOV_REG_IMM(emit->as, REG_ARG_3, is_const);
     emit_call_with_qstr_arg(emit, MP_F_STORE_NAME + kind, qst, REG_ARG_1); // arg1 = name
     emit_post(emit);
 }
@@ -1902,7 +1903,8 @@ STATIC void emit_native_delete_local(emit_t *emit, qstr qst, mp_uint_t local_num
     }
 }
 
-STATIC void emit_native_delete_global(emit_t *emit, qstr qst, int kind) {
+STATIC void emit_native_delete_global(emit_t *emit, qstr qst, int kind, bool is_const) {
+    (void)is_const;
     MP_STATIC_ASSERT(MP_F_DELETE_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_F_DELETE_NAME);
     MP_STATIC_ASSERT(MP_F_DELETE_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_F_DELETE_GLOBAL);
     emit_native_pre(emit);

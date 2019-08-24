@@ -45,7 +45,7 @@ void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst) {
     }
 }
 
-void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emit_method_table, scope_t *scope, qstr qst) {
+void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emit_method_table, scope_t *scope, qstr qst, bool is_const) {
     // assumes pass is greater than 1, ie that all identifiers are defined in the scope
 
     qstr qst_find = qst;
@@ -57,9 +57,9 @@ void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emi
 
     // call the emit backend with the correct code
     if (id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT || id->kind == ID_INFO_KIND_CLS_LOCAL) {
-        emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_NAME);
+        emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_NAME, is_const);
     } else if (id->kind == ID_INFO_KIND_GLOBAL_EXPLICIT) {
-        emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL);
+        emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL, is_const);
     } else if (id->kind == ID_INFO_KIND_LOCAL) {
         emit_method_table->local(emit, qst, id->local_num, MP_EMIT_IDOP_LOCAL_FAST);
     } else {

@@ -94,7 +94,7 @@ typedef struct _emit_t emit_t;
 
 typedef struct _mp_emit_method_table_id_ops_t {
     void (*local)(emit_t *emit, qstr qst, mp_uint_t local_num, int kind);
-    void (*global)(emit_t *emit, qstr qst, int kind);
+    void (*global)(emit_t *emit, qstr qst, int kind, bool is_const);
 } mp_emit_method_table_id_ops_t;
 
 typedef struct _emit_method_table_t {
@@ -169,7 +169,7 @@ static inline void mp_emit_common_get_id_for_load(scope_t *scope, qstr qst) {
 }
 
 void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst);
-void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emit_method_table, scope_t *scope, qstr qst);
+void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emit_method_table, scope_t *scope, qstr qst, bool is_const);
 
 extern const emit_method_table_t emit_bc_method_table;
 extern const emit_method_table_t emit_native_x64_method_table;
@@ -208,11 +208,11 @@ void mp_emit_bc_adjust_stack_size(emit_t *emit, mp_int_t delta);
 void mp_emit_bc_set_source_line(emit_t *emit, mp_uint_t line);
 
 void mp_emit_bc_load_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kind);
-void mp_emit_bc_load_global(emit_t *emit, qstr qst, int kind);
+void mp_emit_bc_load_global(emit_t *emit, qstr qst, int kind, bool is_const);
 void mp_emit_bc_store_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kind);
-void mp_emit_bc_store_global(emit_t *emit, qstr qst, int kind);
+void mp_emit_bc_store_global(emit_t *emit, qstr qst, int kind, bool is_const);
 void mp_emit_bc_delete_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kind);
-void mp_emit_bc_delete_global(emit_t *emit, qstr qst, int kind);
+void mp_emit_bc_delete_global(emit_t *emit, qstr qst, int kind, bool is_const);
 
 void mp_emit_bc_label_assign(emit_t *emit, mp_uint_t l);
 void mp_emit_bc_import(emit_t *emit, qstr qst, int kind);
