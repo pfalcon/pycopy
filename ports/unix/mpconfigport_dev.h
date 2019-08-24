@@ -31,6 +31,7 @@
 
 #include <mpconfigport.h>
 
+#define MICROPY_ENABLE_PRECISE_SOURCE_LINE (1)
 #define MICROPY_FLOAT_HIGH_QUALITY_HASH (1)
 #define MICROPY_ENABLE_DOC_STRING      (1)
 #define MICROPY_ENABLE_SCHEDULER       (1)
