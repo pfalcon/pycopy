@@ -291,7 +291,8 @@ STATIC void compile_load_id(compiler_t *comp, qstr qst) {
     }
 }
 
-STATIC void compile_store_id(compiler_t *comp, qstr qst) {
+STATIC void compile_store_id(compiler_t *comp, qstr qst, bool is_const) {
+    (void)is_const; // TODO
     if (comp->pass == MP_PASS_SCOPE) {
         mp_emit_common_get_id_for_modification(comp->scope_cur, qst);
     } else {
@@ -499,7 +500,7 @@ STATIC void c_assign(compiler_t *comp, mp_parse_node_t pn, assign_kind_t assign_
             switch (assign_kind) {
                 case ASSIGN_STORE:
                 case ASSIGN_AUG_STORE:
-                    compile_store_id(comp, arg);
+                    compile_store_id(comp, arg, false);
                     break;
                 case ASSIGN_AUG_LOAD:
                 default:
@@ -934,13 +935,13 @@ STATIC void compile_decorated(compiler_t *comp, mp_parse_node_struct_t *pns) {
     }
 
     // store func/class object into name
-    compile_store_id(comp, body_name);
+    compile_store_id(comp, body_name, true);
 }
 
 STATIC void compile_funcdef(compiler_t *comp, mp_parse_node_struct_t *pns) {
     qstr fname = compile_funcdef_helper(comp, pns, comp->scope_cur->emit_options);
     // store function object into function name
-    compile_store_id(comp, fname);
+    compile_store_id(comp, fname, true);
 }
 
 STATIC void c_del_stmt(compiler_t *comp, mp_parse_node_t pn) {
@@ -1152,7 +1153,7 @@ STATIC void compile_dotted_as_name(compiler_t *comp, mp_parse_node_t pn) {
     EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE); // not importing from anything
     qstr q_base;
     do_import_name(comp, pn, &q_base);
-    compile_store_id(comp, q_base);
+    compile_store_id(comp, q_base, true);
 }
 
 STATIC void compile_import_name(compiler_t *comp, mp_parse_node_struct_t *pns) {
@@ -1238,9 +1239,9 @@ STATIC void compile_import_from(compiler_t *comp, mp_parse_node_struct_t *pns) {
             qstr id2 = MP_PARSE_NODE_LEAF_ARG(pns3->nodes[0]); // should be id
             EMIT_ARG(import, id2, MP_EMIT_IMPORT_FROM);
             if (MP_PARSE_NODE_IS_NULL(pns3->nodes[1])) {
-                compile_store_id(comp, id2);
+                compile_store_id(comp, id2, true);
             } else {
-                compile_store_id(comp, MP_PARSE_NODE_LEAF_ARG(pns3->nodes[1]));
+                compile_store_id(comp, MP_PARSE_NODE_LEAF_ARG(pns3->nodes[1]), true);
             }
         }
         EMIT(pop_top);
@@ -1654,7 +1655,7 @@ STATIC void compile_try_except(compiler_t *comp, mp_parse_node_t pn_body, int n_
         if (qstr_exception_local == 0) {
             EMIT(pop_top);
         } else {
-            compile_store_id(comp, qstr_exception_local);
+            compile_store_id(comp, qstr_exception_local, false);
         }
 
         // If the exception is bound to a variable <e> then the <body> of the
@@ -1683,7 +1684,7 @@ STATIC void compile_try_except(compiler_t *comp, mp_parse_node_t pn_body, int n_
             // That's quite a rare case, so save 2 bytecode bytes unless
             // full CPython compatibility is requested.
             EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE);
-            compile_store_id(comp, qstr_exception_local);
+            compile_store_id(comp, qstr_exception_local, false);
             #endif
             compile_delete_id(comp, qstr_exception_local);
             compile_decrease_except_level(comp);
@@ -1812,7 +1813,7 @@ STATIC void compile_async_for_stmt(compiler_t *comp, mp_parse_node_struct_t *pns
     compile_node(comp, pns->nodes[1]); // iterator
     EMIT_ARG(load_method, MP_QSTR___aiter__, false);
     EMIT_ARG(call_method, 0, 0, 0);
-    compile_store_id(comp, context);
+    compile_store_id(comp, context, false);
 
     START_BREAK_CONTINUE_BLOCK
 
@@ -2150,7 +2151,7 @@ STATIC void compile_namedexpr_helper(compiler_t *comp, mp_parse_node_t pn_name, 
         // Use parent's scope for assigned value so it can "escape"
         comp->scope_cur = comp->scope_cur->parent;
     }
-    compile_store_id(comp, MP_PARSE_NODE_LEAF_ARG(pn_name));
+    compile_store_id(comp, MP_PARSE_NODE_LEAF_ARG(pn_name), false);
     comp->scope_cur = old_scope;
 }
 
@@ -2746,7 +2747,7 @@ STATIC void compile_dictorsetmaker_item(compiler_t *comp, mp_parse_node_struct_t
 STATIC void compile_classdef(compiler_t *comp, mp_parse_node_struct_t *pns) {
     qstr cname = compile_classdef_helper(comp, pns, comp->scope_cur->emit_options);
     // store class object into class name
-    compile_store_id(comp, cname);
+    compile_store_id(comp, cname, true);
 }
 
 STATIC void compile_yield_expr(compiler_t *comp, mp_parse_node_struct_t *pns) {
@@ -3056,7 +3057,7 @@ STATIC void check_for_doc_string(compiler_t *comp, mp_parse_node_t pn) {
             // compile the doc string
             compile_node(comp, pns->nodes[0]);
             // store the doc string
-            compile_store_id(comp, MP_QSTR___doc__);
+            compile_store_id(comp, MP_QSTR___doc__, true);
         }
     }
     #else
@@ -3200,9 +3201,9 @@ STATIC void compile_scope(compiler_t *comp, scope_t *scope, pass_kind_t pass) {
         EMIT_ARG(set_source_line, pns->source_line);
         #endif
         compile_load_id(comp, MP_QSTR___name__);
-        compile_store_id(comp, MP_QSTR___module__);
+        compile_store_id(comp, MP_QSTR___module__, true);
         EMIT_ARG(load_const_str, MP_PARSE_NODE_LEAF_ARG(pns->nodes[0])); // 0 is class name
-        compile_store_id(comp, MP_QSTR___qualname__);
+        compile_store_id(comp, MP_QSTR___qualname__, true);
 
         check_for_doc_string(comp, pns->nodes[2]);
         compile_node(comp, pns->nodes[2]); // 2 is class body
