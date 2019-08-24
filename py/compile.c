@@ -398,7 +398,7 @@ STATIC void c_if_cond(compiler_t *comp, mp_parse_node_t pn, bool jump_if, int la
     EMIT_ARG(pop_jump_if, jump_if, label);
 }
 
-typedef enum { ASSIGN_STORE, ASSIGN_AUG_LOAD, ASSIGN_AUG_STORE } assign_kind_t;
+typedef enum { ASSIGN_STORE, ASSIGN_STORE_CONST, ASSIGN_AUG_LOAD, ASSIGN_AUG_STORE } assign_kind_t;
 STATIC void c_assign(compiler_t *comp, mp_parse_node_t pn, assign_kind_t kind);
 
 STATIC void c_assign_atom_expr(compiler_t *comp, mp_parse_node_struct_t *pns, assign_kind_t assign_kind) {
@@ -501,6 +501,9 @@ STATIC void c_assign(compiler_t *comp, mp_parse_node_t pn, assign_kind_t assign_
                 case ASSIGN_AUG_STORE:
                     compile_store_id(comp, arg, false);
                     break;
+                case ASSIGN_STORE_CONST:
+                    compile_store_id(comp, arg, true);
+                    break;
                 case ASSIGN_AUG_LOAD:
                 default:
                     compile_load_id(comp, arg);
@@ -510,6 +513,9 @@ STATIC void c_assign(compiler_t *comp, mp_parse_node_t pn, assign_kind_t assign_
             goto cannot_assign;
         }
     } else {
+        if (assign_kind == ASSIGN_STORE_CONST) {
+            assign_kind = ASSIGN_STORE;
+        }
         // pn must be a struct
         mp_parse_node_struct_t *pns = (mp_parse_node_struct_t *)pn;
         switch (MP_PARSE_NODE_STRUCT_KIND(pns)) {
