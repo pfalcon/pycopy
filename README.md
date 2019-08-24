@@ -25,6 +25,11 @@ Pycopy can execute scripts in textual source form or from precompiled
 bytecode, in both cases either from an on-device filesystem or "frozen" into
 the executable.
 
+Pycopy is highly portable, and the main repository includes support for
+POSIX operating systems (Linux, MacOSX, FreeBSD, etc.), Windows, Android,
+and a number of bare-metal microcontroller systems (see below). Ports to
+other systems can be implemented easily.
+
 The Pycopy Zen
 --------------
 
@@ -69,7 +74,8 @@ Major components in this repository:
   core library.
 - mpy-cross/ -- the bytecode (cross)compiler which is used to turn scripts
   into precompiled bytecode.
-- ports/unix/ -- a version of Pycopy that runs on Unix.
+- ports/unix/ -- a version of Pycopy that runs on Unix (which includes Android).
+- ports/windows/ -- a version for Windows.
 - ports/stm32/ -- a version of Pycopy that runs on the PyBoard and similar
   STM32 boards (using ST's Cube HAL drivers).
 - ports/minimal/ -- a minimal port. Start with this if you want
