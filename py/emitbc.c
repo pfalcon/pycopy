@@ -562,10 +562,10 @@ void mp_emit_bc_load_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kind
     }
 }
 
-void mp_emit_bc_load_global(emit_t *emit, qstr qst, int kind) {
+void mp_emit_bc_load_global(emit_t *emit, qstr qst, int kind, bool is_const) {
     MP_STATIC_ASSERT(MP_BC_LOAD_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_BC_LOAD_NAME);
     MP_STATIC_ASSERT(MP_BC_LOAD_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_BC_LOAD_GLOBAL);
-    (void)qst;
+    assert(!is_const);
     emit_write_bytecode_byte_qstr(emit, 1, MP_BC_LOAD_NAME + kind, qst);
     if (MICROPY_OPT_CACHE_MAP_LOOKUP_IN_BYTECODE_DYNAMIC) {
         emit_write_bytecode_raw_byte(emit, 0);
@@ -619,10 +619,16 @@ void mp_emit_bc_store_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kin
     }
 }
 
-void mp_emit_bc_store_global(emit_t *emit, qstr qst, int kind) {
+void mp_emit_bc_store_global(emit_t *emit, qstr qst, int kind, bool is_const) {
     MP_STATIC_ASSERT(MP_BC_STORE_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_BC_STORE_NAME);
     MP_STATIC_ASSERT(MP_BC_STORE_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_BC_STORE_GLOBAL);
-    emit_write_bytecode_byte_qstr(emit, -1, MP_BC_STORE_NAME + kind, qst);
+    MP_STATIC_ASSERT(MP_BC_STORE_NAME_CONST + MP_EMIT_IDOP_GLOBAL_NAME == MP_BC_STORE_NAME_CONST);
+    MP_STATIC_ASSERT(MP_BC_STORE_NAME_CONST + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_BC_STORE_GLOBAL_CONST);
+    if (is_const) {
+        emit_write_bytecode_byte_qstr(emit, -1, MP_BC_STORE_NAME_CONST + kind, qst);
+    } else {
+        emit_write_bytecode_byte_qstr(emit, -1, MP_BC_STORE_NAME + kind, qst);
+    }
 }
 
 void mp_emit_bc_delete_local(emit_t *emit, qstr qst, mp_uint_t local_num, int kind) {
@@ -632,9 +638,10 @@ void mp_emit_bc_delete_local(emit_t *emit, qstr qst, mp_uint_t local_num, int ki
     emit_write_bytecode_byte_uint(emit, 0, MP_BC_DELETE_FAST + kind, local_num);
 }
 
-void mp_emit_bc_delete_global(emit_t *emit, qstr qst, int kind) {
+void mp_emit_bc_delete_global(emit_t *emit, qstr qst, int kind, bool is_const) {
     MP_STATIC_ASSERT(MP_BC_DELETE_NAME + MP_EMIT_IDOP_GLOBAL_NAME == MP_BC_DELETE_NAME);
     MP_STATIC_ASSERT(MP_BC_DELETE_NAME + MP_EMIT_IDOP_GLOBAL_GLOBAL == MP_BC_DELETE_GLOBAL);
+    assert(!is_const);
     emit_write_bytecode_byte_qstr(emit, 0, MP_BC_DELETE_NAME + kind, qst);
 }
 
