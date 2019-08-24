@@ -803,8 +803,10 @@ STATIC bool fold_constants(parser_t *parser, uint8_t rule_id, size_t num_args) {
                 } // is_int
 
                 // replace const(value) with value
-                pop_result(parser);
-                push_result_node(parser, pn_value);
+                if (!mp_strict_mode) {
+                    pop_result(parser);
+                    push_result_node(parser, pn_value);
+                }
 
                 // finished folding this assignment, but we still want it to be part of the tree
                 return false;
