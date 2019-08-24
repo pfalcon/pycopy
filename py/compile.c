@@ -65,7 +65,7 @@ typedef enum {
 #define EMIT(fun) (comp->emit_method_table->fun(comp->emit))
 #define EMIT_ARG(fun, ...) (comp->emit_method_table->fun(comp->emit, __VA_ARGS__))
 #define EMIT_LOAD_FAST(qst, local_num) (comp->emit_method_table->load_id.local(comp->emit, qst, local_num, MP_EMIT_IDOP_LOCAL_FAST))
-#define EMIT_LOAD_GLOBAL(qst) (comp->emit_method_table->load_id.global(comp->emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL))
+#define EMIT_LOAD_GLOBAL(qst) (comp->emit_method_table->load_id.global(comp->emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL, false))
 
 #else
 
@@ -73,7 +73,7 @@ typedef enum {
 #define EMIT(fun) (mp_emit_bc_##fun(comp->emit))
 #define EMIT_ARG(fun, ...) (mp_emit_bc_##fun(comp->emit, __VA_ARGS__))
 #define EMIT_LOAD_FAST(qst, local_num) (mp_emit_bc_load_local(comp->emit, qst, local_num, MP_EMIT_IDOP_LOCAL_FAST))
-#define EMIT_LOAD_GLOBAL(qst) (mp_emit_bc_load_global(comp->emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL))
+#define EMIT_LOAD_GLOBAL(qst) (mp_emit_bc_load_global(comp->emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL, false))
 
 #endif
 
@@ -284,22 +284,21 @@ STATIC void compile_load_id(compiler_t *comp, qstr qst) {
         mp_emit_common_get_id_for_load(comp->scope_cur, qst);
     } else {
         #if NEED_METHOD_TABLE
-        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->load_id, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->load_id, comp->scope_cur, qst, false);
         #else
-        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_load_id_ops, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_load_id_ops, comp->scope_cur, qst, false);
         #endif
     }
 }
 
 STATIC void compile_store_id(compiler_t *comp, qstr qst, bool is_const) {
-    (void)is_const; // TODO
     if (comp->pass == MP_PASS_SCOPE) {
         mp_emit_common_get_id_for_modification(comp->scope_cur, qst);
     } else {
         #if NEED_METHOD_TABLE
-        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->store_id, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->store_id, comp->scope_cur, qst, is_const);
         #else
-        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_store_id_ops, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_store_id_ops, comp->scope_cur, qst, is_const);
         #endif
     }
 }
@@ -309,9 +308,9 @@ STATIC void compile_delete_id(compiler_t *comp, qstr qst) {
         mp_emit_common_get_id_for_modification(comp->scope_cur, qst);
     } else {
         #if NEED_METHOD_TABLE
-        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->delete_id, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &comp->emit_method_table->delete_id, comp->scope_cur, qst, false);
         #else
-        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_delete_id_ops, comp->scope_cur, qst);
+        mp_emit_common_id_op(comp->emit, &mp_emit_bc_method_table_delete_id_ops, comp->scope_cur, qst, false);
         #endif
     }
 }
