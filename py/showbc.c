@@ -275,9 +275,19 @@ const byte *mp_bytecode_print_str(const mp_print_t *print, const byte *ip) {
             mp_printf(print, "STORE_NAME %s", qstr_str(qst));
             break;
 
+        case MP_BC_STORE_NAME_CONST:
+            DECODE_QSTR;
+            mp_printf(print, "STORE_NAME_CONST %s", qstr_str(qst));
+            break;
+
         case MP_BC_STORE_GLOBAL:
             DECODE_QSTR;
             mp_printf(print, "STORE_GLOBAL %s", qstr_str(qst));
+            break;
+
+        case MP_BC_STORE_GLOBAL_CONST:
+            DECODE_QSTR;
+            mp_printf(print, "STORE_GLOBAL_CONST %s", qstr_str(qst));
             break;
 
         case MP_BC_STORE_ATTR:
