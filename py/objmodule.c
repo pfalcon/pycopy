@@ -102,7 +102,7 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             mp_obj_dict_delete(MP_OBJ_FROM_PTR(dict), MP_OBJ_NEW_QSTR(attr));
         } else {
             // store attribute
-            if (mp_handle_store_ns_strict(&dict->map, MP_OBJ_NEW_QSTR(attr), dest[1])) {
+            if (mp_handle_store_ns_strict(&dict->map, MP_OBJ_NEW_QSTR(attr), dest[1], false)) {
                 dest[0] = MP_OBJ_NULL; // indicate success
                 return;
             }
