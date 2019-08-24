@@ -41,7 +41,7 @@
 
 // Load, Store, Delete, Import, Make, Build, Unpack, Call, Jump, Exception, For, sTack, Return, Yield, Op
 #define MP_BC_BASE_RESERVED                 (0x00) // ----------------
-#define MP_BC_BASE_QSTR_O                   (0x10) // LLLLLLSSSDDII---
+#define MP_BC_BASE_QSTR_O                   (0x10) // LLLLLLSSSDDIISS-
 #define MP_BC_BASE_VINT_E                   (0x20) // MMLLLLSSDDBBBBBB
 #define MP_BC_BASE_VINT_O                   (0x30) // UUMMCCCC--------
 #define MP_BC_BASE_JUMP_E                   (0x40) // J-JJJJJEEEEF----
@@ -89,6 +89,9 @@
 #define MP_BC_STORE_GLOBAL                  (MP_BC_BASE_QSTR_O + 0x07) // qstr
 #define MP_BC_STORE_ATTR                    (MP_BC_BASE_QSTR_O + 0x08) // qstr
 #define MP_BC_STORE_SUBSCR                  (MP_BC_BASE_BYTE_O + 0x06)
+
+#define MP_BC_STORE_NAME_CONST              (MP_BC_BASE_QSTR_O + 0x0d) // qstr
+#define MP_BC_STORE_GLOBAL_CONST            (MP_BC_BASE_QSTR_O + 0x0e) // qstr
 
 #define MP_BC_DELETE_FAST                   (MP_BC_BASE_VINT_E + 0x08) // uint
 #define MP_BC_DELETE_DEREF                  (MP_BC_BASE_VINT_E + 0x09) // uint
