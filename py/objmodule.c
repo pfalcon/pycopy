@@ -85,6 +85,12 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             } else
             #endif
             {
+                #if MICROPY_MODULE_SETATTR
+                mp_map_elem_t *elem = mp_map_lookup(&self->globals->map, MP_OBJ_NEW_QSTR(MP_QSTR___setattr__), MP_MAP_LOOKUP);
+                if (elem != NULL) {
+                    dest[0] = mp_call_function_2(elem->value, MP_OBJ_NEW_QSTR(attr), dest[1]);
+                }
+                #endif
                 // can't delete or store to fixed map
                 return;
             }
