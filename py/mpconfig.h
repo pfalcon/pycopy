@@ -722,6 +722,11 @@ typedef double mp_float_t;
 #define MICROPY_MODULE_GETATTR (0)
 #endif
 
+// Whether to support module-level __setattr__ for builtin modules
+#ifndef MICROPY_MODULE_SETATTR
+#define MICROPY_MODULE_SETATTR (0)
+#endif
+
 // Whether module weak links are supported
 #ifndef MICROPY_MODULE_WEAK_LINKS
 #define MICROPY_MODULE_WEAK_LINKS (0)
