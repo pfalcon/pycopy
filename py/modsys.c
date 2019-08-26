@@ -50,6 +50,7 @@ extern struct _mp_dummy_t mp_sys_stderr_obj;
 
 #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
 MP_SYS_STDIO_ATTR mp_print_t mp_sys_stdout_print = {&mp_sys_stdout_obj, mp_stream_write_adaptor};
+MP_SYS_STDIO_ATTR mp_print_t mp_sys_stderr_print = {&mp_sys_stderr_obj, mp_stream_write_adaptor};
 #endif
 
 // version - Python language version that this implementation conforms to, as a string
@@ -196,6 +197,9 @@ STATIC mp_obj_t mp_sys___setattr__(mp_obj_t attr, mp_obj_t val) {
     switch (qst) {
         case MP_QSTR_stdout:
             mp_sys_stdout_print.data = val;
+            break;
+        case MP_QSTR_stderr:
+            mp_sys_stderr_print.data = val;
             break;
     }
 
