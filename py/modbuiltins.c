@@ -404,7 +404,7 @@ STATIC mp_obj_t mp_builtin_print(size_t n_args, const mp_obj_t *pos_args, mp_map
         { MP_QSTR_sep, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_QSTR(MP_QSTR__space_)} },
         { MP_QSTR_end, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_QSTR(MP_QSTR__0x0a_)} },
         #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
-        { MP_QSTR_file, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&mp_sys_stdout_obj)} },
+        { MP_QSTR_file, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&mp_const_none_obj)} },
         #endif
     };
 
@@ -416,8 +416,8 @@ STATIC mp_obj_t mp_builtin_print(size_t n_args, const mp_obj_t *pos_args, mp_map
     mp_arg_parse_all(0, NULL, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, u.args);
 
     #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
-    if (MP_UNLIKELY(u.args[ARG_file].u_obj == mp_const_none)) {
-        u.args[ARG_file].u_obj = MP_OBJ_FROM_PTR(&mp_sys_stdout_obj);
+    if (u.args[ARG_file].u_obj == mp_const_none) {
+        u.args[ARG_file].u_obj = MP_OBJ_FROM_PTR(mp_sys_stdout_print.data);
     }
     mp_get_stream_raise(u.args[ARG_file].u_obj, MP_STREAM_OP_WRITE);
     mp_print_t print = {MP_OBJ_TO_PTR(u.args[ARG_file].u_obj), mp_stream_write_adaptor};
