@@ -60,12 +60,18 @@ typedef struct _mp_print_t {
 #define MP_SYS_STDIO_ATTR const
 #endif
 
-// All (non-debug) prints go through one of the two interfaces below.
+// Declarations of concrete printers. These should never be used directly,
+// instead "virtual" MP_PYTHON_PRINTER/MICROPY_ERROR_PRINTER/MICROPY_DEBUG_PRINTER
+// printers should be used instead (with config mapping virtual to concrete
+// printers).
+//
 // 1) Wrapper for platform print function, which wraps MP_PLAT_PRINT_STRN.
 extern const mp_print_t mp_plat_print;
 #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
 // 2) Wrapper for printing to sys.stdout.
 extern MP_SYS_STDIO_ATTR mp_print_t mp_sys_stdout_print;
+// 3) Wrapper for printing to sys.stderr.
+extern MP_SYS_STDIO_ATTR mp_print_t mp_sys_stderr_print;
 #endif
 
 int mp_print_str(const mp_print_t *print, const char *str);
