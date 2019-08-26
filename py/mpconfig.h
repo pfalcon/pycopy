@@ -1257,6 +1257,15 @@ typedef double mp_float_t;
 #define MICROPY_PY_SYS_STDFILES (0)
 #endif
 
+// Whether to allow override sys.{stdin,stdout,stderr}
+#ifndef MICROPY_PY_SYS_STDFILES_OVERRIDE
+#define MICROPY_PY_SYS_STDFILES_OVERRIDE (0)
+#endif
+#if MICROPY_PY_SYS_STDFILES_OVERRIDE
+#undef MICROPY_MODULE_SETATTR
+#define MICROPY_MODULE_SETATTR (1)
+#endif
+
 // Whether to provide sys.{stdin,stdout,stderr}.buffer object
 // This is implemented per-port
 #ifndef MICROPY_PY_SYS_STDIO_BUFFER
