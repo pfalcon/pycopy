@@ -52,12 +52,20 @@ typedef struct _mp_print_t {
     mp_print_strn_t print_strn;
 } mp_print_t;
 
+// If sys.std* are overridable, some structure should not be constant.
+// MP_SYS_STDIO_ATTR define captures this difference.
+#if MICROPY_PY_SYS_STDFILES_OVERRIDE
+#define MP_SYS_STDIO_ATTR
+#else
+#define MP_SYS_STDIO_ATTR const
+#endif
+
 // All (non-debug) prints go through one of the two interfaces below.
 // 1) Wrapper for platform print function, which wraps MP_PLAT_PRINT_STRN.
 extern const mp_print_t mp_plat_print;
 #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
 // 2) Wrapper for printing to sys.stdout.
-extern const mp_print_t mp_sys_stdout_print;
+extern MP_SYS_STDIO_ATTR mp_print_t mp_sys_stdout_print;
 #endif
 
 int mp_print_str(const mp_print_t *print, const char *str);
