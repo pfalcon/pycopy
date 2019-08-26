@@ -96,7 +96,7 @@ STATIC int handle_uncaught_exception(mp_obj_base_t *exc) {
     }
 
     // Report all other exceptions
-    mp_obj_print_exception(&mp_stderr_print, MP_OBJ_FROM_PTR(exc));
+    mp_obj_print_exception(MICROPY_ERROR_PRINTER, MP_OBJ_FROM_PTR(exc));
     return 1;
 }
 
@@ -664,7 +664,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
             char *pathbuf = malloc(PATH_MAX);
             char *basedir = realpath(argv[a], pathbuf);
             if (basedir == NULL) {
-                mp_printf(&mp_stderr_print, "%s: can't open file '%s': [Errno %d] %s\n", argv[0], argv[a], errno, strerror(errno));
+                mp_printf(MICROPY_ERROR_PRINTER, "%s: can't open file '%s': [Errno %d] %s\n", argv[0], argv[a], errno, strerror(errno));
                 // CPython exits with 2 in such case
                 ret = 2;
                 break;
