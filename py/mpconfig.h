@@ -408,11 +408,6 @@
 #define MICROPY_MEM_STATS (0)
 #endif
 
-// The mp_print_t printer used for debugging output
-#ifndef MICROPY_DEBUG_PRINTER
-#define MICROPY_DEBUG_PRINTER (&mp_plat_print)
-#endif
-
 // Whether to build functions that print debugging info:
 //   mp_bytecode_print
 //   mp_parse_node_print
@@ -644,11 +639,6 @@ typedef long long mp_longint_impl_t;
 #if MICROPY_WARNINGS_LOC
 #undef MICROPY_ACCESS_CODE_STATE
 #define MICROPY_ACCESS_CODE_STATE (1)
-#endif
-
-// This macro is used when printing runtime warnings and errors
-#ifndef MICROPY_ERROR_PRINTER
-#define MICROPY_ERROR_PRINTER (&mp_plat_print)
 #endif
 
 // Float and complex implementation
@@ -1482,6 +1472,41 @@ typedef double mp_float_t;
 // Any root pointers for GC scanning - see mpstate.c
 #ifndef MICROPY_PORT_ROOT_POINTERS
 #define MICROPY_PORT_ROOT_POINTERS
+#endif
+
+/*****************************************************************************/
+/* Printers                                                                  */
+
+// The codebase uses 3 categories of print output: Python stdout, Python
+// stderr, and debugging output (the latter wouldn't be used in production
+// builds). These 3 categories can be routed to one of the conrete printers.
+// Baseline setup is that all the go to mp_plat_print. If sys.stdout
+// and sys.stderr are available, we use them for first to categories, as
+// expected. Ports may freely redefine this mapping.
+// TODO: Clean up naming.
+
+// This printer is used when printing normal Python output.
+#ifndef MP_PYTHON_PRINTER
+    #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
+    #define MP_PYTHON_PRINTER (&mp_sys_stdout_print)
+    #else
+    #define MP_PYTHON_PRINTER (&mp_plat_print)
+    #endif
+#endif
+
+// This printer is used when printing Python warnings and errors.
+#ifndef MICROPY_ERROR_PRINTER
+    #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
+    #define MICROPY_ERROR_PRINTER (&mp_sys_stderr_print)
+    #else
+    #define MICROPY_ERROR_PRINTER (&mp_plat_print)
+    #endif
+#endif
+
+// The mp_print_t printer used for non-Python debugging output, as used by
+// DEBUG_printf().
+#ifndef MICROPY_DEBUG_PRINTER
+#define MICROPY_DEBUG_PRINTER (&mp_plat_print)
 #endif
 
 /*****************************************************************************/
