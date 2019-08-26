@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014-2017 Paul Sokolovsky
+ * Copyright (c) 2014-2019 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@
 #include "py/stream.h"
 #include "py/smallint.h"
 #include "py/runtime.h"
+#include "py/mpprint.h"
 
 #if MICROPY_PY_SYS_SETTRACE
 #include "py/objmodule.h"
@@ -48,7 +49,7 @@ extern struct _mp_dummy_t mp_sys_stdout_obj;
 extern struct _mp_dummy_t mp_sys_stderr_obj;
 
 #if MICROPY_PY_IO && MICROPY_PY_SYS_STDFILES
-const mp_print_t mp_sys_stdout_print = {&mp_sys_stdout_obj, mp_stream_write_adaptor};
+MP_SYS_STDIO_ATTR mp_print_t mp_sys_stdout_print = {&mp_sys_stdout_obj, mp_stream_write_adaptor};
 #endif
 
 // version - Python language version that this implementation conforms to, as a string
@@ -174,7 +175,38 @@ STATIC mp_obj_t mp_sys_intern(mp_obj_t str_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_intern_obj, mp_sys_intern);
 #endif
 
-STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
+#if MICROPY_PY_SYS_STDFILES_OVERRIDE
+STATIC const mp_obj_dict_t mp_module_sys_globals;
+
+STATIC mp_obj_t mp_sys___setattr__(mp_obj_t attr, mp_obj_t val) {
+    qstr qst = MP_OBJ_QSTR_VALUE(attr);
+
+    switch (qst) {
+        case MP_QSTR_stdout:
+        case MP_QSTR_stderr:
+            mp_get_stream_raise(val, MP_STREAM_OP_WRITE);
+            break;
+        case MP_QSTR_stdin:
+            mp_get_stream_raise(val, MP_STREAM_OP_READ);
+            break;
+        default:
+            return mp_const_none;
+    }
+
+    switch (qst) {
+        case MP_QSTR_stdout:
+            mp_sys_stdout_print.data = val;
+            break;
+    }
+
+    mp_map_elem_t *elem = mp_map_lookup((mp_map_t*)&mp_module_sys_globals.map, attr, MP_MAP_LOOKUP);
+    elem->value = val;
+    return MP_OBJ_NULL;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_sys___setattr___obj, mp_sys___setattr__);
+#endif
+
+STATIC MP_SYS_STDIO_ATTR mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_sys) },
 
     { MP_ROM_QSTR(MP_QSTR_path), MP_ROM_PTR(&MP_STATE_VM(mp_sys_path_obj)) },
@@ -216,6 +248,9 @@ STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_stdin), MP_ROM_PTR(&mp_sys_stdin_obj) },
     { MP_ROM_QSTR(MP_QSTR_stdout), MP_ROM_PTR(&mp_sys_stdout_obj) },
     { MP_ROM_QSTR(MP_QSTR_stderr), MP_ROM_PTR(&mp_sys_stderr_obj) },
+    #endif
+    #if MICROPY_PY_SYS_STDFILES_OVERRIDE
+    { MP_ROM_QSTR(MP_QSTR___setattr__), MP_ROM_PTR(&mp_sys___setattr___obj) },
     #endif
 
     #if MICROPY_PY_SYS_MODULES
