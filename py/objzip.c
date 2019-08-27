@@ -30,6 +30,8 @@
 #include "py/objtuple.h"
 #include "py/runtime.h"
 
+#if MICROPY_PY_BUILTINS_ZIP
+
 typedef struct _mp_obj_zip_t {
     mp_obj_base_t base;
     size_t n_iters;
@@ -74,3 +76,5 @@ const mp_obj_type_t mp_type_zip = {
     .getiter = mp_identity_getiter,
     .iternext = zip_iternext,
 };
+
+#endif // MICROPY_PY_BUILTINS_ZIP
