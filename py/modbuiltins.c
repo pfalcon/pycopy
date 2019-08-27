@@ -670,7 +670,9 @@ STATIC const mp_rom_map_elem_t mp_module_builtins_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_super), MP_ROM_PTR(&mp_type_super) },
     { MP_ROM_QSTR(MP_QSTR_tuple), MP_ROM_PTR(&mp_type_tuple) },
     { MP_ROM_QSTR(MP_QSTR_type), MP_ROM_PTR(&mp_type_type) },
+    #if MICROPY_PY_BUILTINS_ZIP
     { MP_ROM_QSTR(MP_QSTR_zip), MP_ROM_PTR(&mp_type_zip) },
+    #endif
 
     { MP_ROM_QSTR(MP_QSTR_classmethod), MP_ROM_PTR(&mp_type_classmethod) },
     { MP_ROM_QSTR(MP_QSTR_staticmethod), MP_ROM_PTR(&mp_type_staticmethod) },
