@@ -1012,6 +1012,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_BUILTINS_REVERSED (1)
 #endif
 
+// Whether to support sum() function
+#ifndef MICROPY_PY_BUILTINS_SUM
+#define MICROPY_PY_BUILTINS_SUM (1)
+#endif
+
 // Whether to define "NotImplemented" special constant
 #ifndef MICROPY_PY_BUILTINS_NOTIMPLEMENTED
 #define MICROPY_PY_BUILTINS_NOTIMPLEMENTED (0)
