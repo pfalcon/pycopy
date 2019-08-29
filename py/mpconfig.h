@@ -1086,6 +1086,12 @@ typedef double mp_float_t;
 #define MICROPY_PY_MICROPYTHON_STACK_USE (MICROPY_PY_MICROPYTHON_MEM_INFO)
 #endif
 
+// Whether to provide micropython.patch_type() function allowing to add
+// new attributes to builtin types, implemented in Python.
+#ifndef MICROPY_PY_MICROPYTHON_PATCH_TYPE
+#define MICROPY_PY_MICROPYTHON_PATCH_TYPE (0)
+#endif
+
 // Whether to provide "array" module. Note that large chunk of the
 // underlying code is shared with "bytearray" builtin type, so to
 // get real savings, it should be disabled too.
