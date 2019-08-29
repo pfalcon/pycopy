@@ -1086,6 +1086,19 @@ STATIC void type_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             .is_type = true,
         };
         mp_obj_class_lookup(&lookup, self);
+        #if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+        if (dest[0] == MP_OBJ_NULL) {
+            mp_map_elem_t *type_elem = mp_map_lookup(&MP_STATE_VM(mp_type_patch_dict).map, self_in, MP_MAP_LOOKUP);
+            if (type_elem != NULL) {
+                mp_obj_dict_t *type_dict = MP_OBJ_TO_PTR(type_elem->value);
+                mp_map_elem_t *elem = mp_map_lookup(&type_dict->map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
+                if (elem != NULL) {
+                    dest[0] = elem->value;
+                    return;
+                }
+            }
+        }
+        #endif
     } else {
         // delete/store attribute
 

@@ -171,6 +171,24 @@ STATIC mp_obj_t mp_micropython_function(size_t n_args, const mp_obj_t *args) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_micropython_function_obj, 3, 4, mp_micropython_function);
 #endif
 
+#if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+STATIC mp_obj_t mp_micropython_patch_type(size_t n_args, const mp_obj_t *args) {
+    mp_obj_t type = args[0];
+    mp_map_elem_t *elem = mp_map_lookup(&MP_STATE_VM(mp_type_patch_dict).map, type, MP_MAP_LOOKUP_ADD_IF_NOT_FOUND);
+    if (elem->value == MP_OBJ_NULL) {
+        elem->value = mp_obj_new_dict(1);
+    }
+
+    if (n_args == 2) {
+        mp_obj_dict_delete(elem->value, args[1]);
+    } else {
+        mp_obj_dict_store(elem->value, args[1], args[2]);
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_micropython_patch_type_obj, 2, 3, mp_micropython_patch_type);
+#endif
+
 STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_micropython) },
     { MP_ROM_QSTR(MP_QSTR_const), MP_ROM_PTR(&mp_identity_obj) },
@@ -208,6 +226,9 @@ STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     #endif
     #if MICROPY_PY_MICROPYTHON_FUNCTION
     { MP_ROM_QSTR(MP_QSTR_function), MP_ROM_PTR(&mp_micropython_function_obj) },
+    #endif
+    #if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+    { MP_ROM_QSTR(MP_QSTR_patch_type), MP_ROM_PTR(&mp_micropython_patch_type_obj) },
     #endif
 };
 
