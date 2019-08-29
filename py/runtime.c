@@ -96,6 +96,11 @@ void mp_init(void) {
     // init global module dict
     mp_obj_dict_init(&MP_STATE_VM(mp_loaded_modules_dict), 3);
 
+    #if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+    // init type patch map dict
+    mp_obj_dict_init(&MP_STATE_VM(mp_type_patch_dict), 0);
+    #endif
+
     // initialise the __main__ module
     mp_obj_dict_init(&MP_STATE_VM(dict_main), 1);
     mp_obj_dict_store(MP_OBJ_FROM_PTR(&MP_STATE_VM(dict_main)), MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR___main__));
@@ -1091,8 +1096,24 @@ void mp_load_method_maybe(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
         mp_map_t *locals_map = &type->locals_dict->map;
         mp_map_elem_t *elem = mp_map_lookup(locals_map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
         if (elem != NULL) {
+        #if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+        convert:
+        #endif
             mp_convert_member_lookup(obj, type, elem->value, dest);
+            return;
         }
+        #if MICROPY_PY_MICROPYTHON_PATCH_TYPE
+        else {
+            mp_map_elem_t *type_elem = mp_map_lookup(&MP_STATE_VM(mp_type_patch_dict).map, MP_OBJ_FROM_PTR(type), MP_MAP_LOOKUP);
+            if (type_elem != NULL) {
+                mp_obj_dict_t *type_dict = MP_OBJ_TO_PTR(type_elem->value);
+                elem = mp_map_lookup(&type_dict->map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
+                if (elem != NULL) {
+                    goto convert;
+                }
+            }
+        }
+        #endif
     }
 }
 
