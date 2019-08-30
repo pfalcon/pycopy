@@ -74,11 +74,11 @@ it will fallback to loading the built-in ``ujson`` module.
    :maxdepth: 1
 
    builtins.rst
-   array.rst
    cmath.rst
    gc.rst
    math.rst
    sys.rst
+   uarray.rst
    ubinascii.rst
    ucollections.rst
    uerrno.rst
