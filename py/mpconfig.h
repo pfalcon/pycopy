@@ -1007,6 +1007,16 @@ typedef double mp_float_t;
 #define MICROPY_PY_BUILTINS_FILTER (1)
 #endif
 
+// Whether to support globals() function
+#ifndef MICROPY_PY_BUILTINS_GLOBALS
+#define MICROPY_PY_BUILTINS_GLOBALS (1)
+#endif
+
+// Whether to support globals() function
+#ifndef MICROPY_PY_BUILTINS_LOCALS
+#define MICROPY_PY_BUILTINS_LOCALS (1)
+#endif
+
 // Whether to support reversed function(type)
 #ifndef MICROPY_PY_BUILTINS_REVERSED
 #define MICROPY_PY_BUILTINS_REVERSED (1)
