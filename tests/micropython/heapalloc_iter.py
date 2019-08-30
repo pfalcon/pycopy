@@ -1,8 +1,16 @@
 # test that iterating doesn't use the heap
 try:
+    import uarray as array
+except ImportError:
+    try:
+        import array
+    except ImportError:
+        print("SKIP")
+        raise SystemExit
+
+try:
     frozenset
-    import array
-except (NameError, ImportError):
+except NameError:
     print("SKIP")
     raise SystemExit
 
