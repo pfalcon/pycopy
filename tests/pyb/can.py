@@ -4,7 +4,7 @@ except ImportError:
     print('SKIP')
     raise SystemExit
 
-from array import array
+from uarray import array
 import micropython
 import pyb
 
