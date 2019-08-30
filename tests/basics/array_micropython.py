@@ -1,6 +1,6 @@
-# test MicroPython-specific features of array.array
+# test MicroPython-specific features of uarray.array
 try:
-    import array
+    import uarray as array
 except ImportError:
     print("SKIP")
     raise SystemExit
