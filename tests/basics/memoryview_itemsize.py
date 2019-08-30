@@ -1,6 +1,14 @@
 try:
+    from uarray import array
+except ImportError:
+    try:
+        from array import array
+    except ImportError:
+        print("SKIP")
+        raise SystemExit
+
+try:
     memoryview(b'a').itemsize
-    from array import array
 except:
     print("SKIP")
     raise SystemExit
