@@ -20,7 +20,7 @@ for i in buf:
     assert i > 50 and i < 150
 
 # read into arrays with different element sizes
-import array
+import uarray as array
 arv = array.array('h', 25 * [0x7fff])
 adcv.read_timed(arv, tim)
 print(len(arv))
