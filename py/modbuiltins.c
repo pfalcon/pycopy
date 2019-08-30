@@ -602,15 +602,19 @@ STATIC mp_obj_t mp_builtin_hasattr(mp_obj_t object_in, mp_obj_t attr_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_2(mp_builtin_hasattr_obj, mp_builtin_hasattr);
 
+#if MICROPY_PY_BUILTINS_GLOBALS
 STATIC mp_obj_t mp_builtin_globals(void) {
     return MP_OBJ_FROM_PTR(mp_globals_get());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_builtin_globals_obj, mp_builtin_globals);
+#endif
 
+#if MICROPY_PY_BUILTINS_LOCALS
 STATIC mp_obj_t mp_builtin_locals(void) {
     return MP_OBJ_FROM_PTR(mp_locals_get());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_builtin_locals_obj, mp_builtin_locals);
+#endif
 
 // These are defined in terms of MicroPython API functions right away
 MP_DEFINE_CONST_FUN_OBJ_1(mp_builtin_id_obj, mp_obj_id);
@@ -707,7 +711,9 @@ STATIC const mp_rom_map_elem_t mp_module_builtins_globals_table[] = {
     #endif
     { MP_ROM_QSTR(MP_QSTR_getattr), MP_ROM_PTR(&mp_builtin_getattr_obj) },
     { MP_ROM_QSTR(MP_QSTR_setattr), MP_ROM_PTR(&mp_builtin_setattr_obj) },
+    #if MICROPY_PY_BUILTINS_GLOBALS
     { MP_ROM_QSTR(MP_QSTR_globals), MP_ROM_PTR(&mp_builtin_globals_obj) },
+    #endif
     { MP_ROM_QSTR(MP_QSTR_hasattr), MP_ROM_PTR(&mp_builtin_hasattr_obj) },
     { MP_ROM_QSTR(MP_QSTR_hash), MP_ROM_PTR(&mp_builtin_hash_obj) },
     #if MICROPY_PY_BUILTINS_HELP
@@ -722,7 +728,9 @@ STATIC const mp_rom_map_elem_t mp_module_builtins_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_issubclass), MP_ROM_PTR(&mp_builtin_issubclass_obj) },
     { MP_ROM_QSTR(MP_QSTR_iter), MP_ROM_PTR(&mp_builtin_iter_obj) },
     { MP_ROM_QSTR(MP_QSTR_len), MP_ROM_PTR(&mp_builtin_len_obj) },
+    #if MICROPY_PY_BUILTINS_LOCALS
     { MP_ROM_QSTR(MP_QSTR_locals), MP_ROM_PTR(&mp_builtin_locals_obj) },
+    #endif
     #if MICROPY_PY_BUILTINS_MIN_MAX
     { MP_ROM_QSTR(MP_QSTR_max), MP_ROM_PTR(&mp_builtin_max_obj) },
     { MP_ROM_QSTR(MP_QSTR_min), MP_ROM_PTR(&mp_builtin_min_obj) },
