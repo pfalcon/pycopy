@@ -39,7 +39,10 @@ m = memoryview(bytearray(2))
 print(bytearray(m))
 print(list(memoryview(memoryview(b'1234')))) # read-only memoryview
 
-import array
+try:
+    import uarray as array
+except ImportError:
+    import array
 a = array.array('i', [1, 2, 3, 4])
 m = memoryview(a)
 print(list(m))
