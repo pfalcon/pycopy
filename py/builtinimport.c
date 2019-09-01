@@ -58,9 +58,8 @@ bool mp_obj_is_package(mp_obj_t module) {
 // (whatever is available, if at all).
 STATIC mp_import_stat_t mp_import_stat_any(const char *path) {
     #if MICROPY_MODULE_FROZEN
-    mp_import_stat_t st = mp_frozen_stat(path);
-    if (st != MP_IMPORT_STAT_NO_EXIST) {
-        return st;
+    if (*path == FROZEN_VPATH_CHAR) {
+        return mp_frozen_stat(path + 1);
     }
     #endif
     return mp_import_stat(path);
@@ -109,6 +108,16 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
         return stat_dir_or_file(dest);
 #if MICROPY_PY_SYS
     } else {
+        mp_import_stat_t stat;
+        #if MICROPY_MODULE_FROZEN
+        // Iteration #0, virtual path for frozen modules
+        vstr_add_char(dest, FROZEN_VPATH_CHAR);
+        vstr_add_strn(dest, file_str, file_len);
+        stat = stat_dir_or_file(dest);
+        if (stat != MP_IMPORT_STAT_NO_EXIST) {
+            return stat;
+        }
+        #endif
         // go through each path looking for a directory or file
         for (size_t i = 0; i < path_num; i++) {
             vstr_reset(dest);
@@ -119,7 +128,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
                 vstr_add_char(dest, PATH_SEP_CHAR);
             }
             vstr_add_strn(dest, file_str, file_len);
-            mp_import_stat_t stat = stat_dir_or_file(dest);
+            stat = stat_dir_or_file(dest);
             if (stat != MP_IMPORT_STAT_NO_EXIST) {
                 return stat;
             }
@@ -190,7 +199,10 @@ STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
     // requested filename in the list of frozen module filenames.
     #if MICROPY_MODULE_FROZEN
     void *modref;
-    int frozen_type = mp_find_frozen_module(file_str, file->len, &modref);
+    int frozen_type = MP_FROZEN_NONE;
+    if (*file_str == FROZEN_VPATH_CHAR) {
+        frozen_type = mp_find_frozen_module(file_str + 1, file->len - 1, &modref);
+    }
     #endif
 
     // If we support frozen str modules and the compiler is enabled, and we
