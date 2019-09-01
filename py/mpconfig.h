@@ -1193,6 +1193,12 @@ typedef double mp_float_t;
 // Python" by prepocessing binary resources into Python source
 // and bytecode-freezing it (with a simple helper module available
 // e.g. in micropython-lib).
+// DEPRECATED: This function was added as an experiment, and remains
+// in the codebase only for further experimenting and research.
+// For production, use preprocessing and pure-Python loading approach
+// described above. While this adds preprocessing step, to use
+// uio.resource_stream() there's still an extra processing to
+// freeze some app files as FROZEN_MPY, while other - as FROZEN_STR.
 #ifndef MICROPY_PY_IO_RESOURCE_STREAM
 #define MICROPY_PY_IO_RESOURCE_STREAM (0)
 #endif
