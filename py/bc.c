@@ -341,7 +341,8 @@ void mp_decode_cur_lineno(const mp_code_state_t *code_state, mp_source_loc_t *lo
 #if MICROPY_PERSISTENT_CODE_LOAD || MICROPY_PERSISTENT_CODE_SAVE
 
 // The following table encodes the number of bytes that a specific opcode
-// takes up.  There are 3 special opcodes that always have an extra byte:
+// takes up.  There are 4 special opcodes that always have an extra byte:
+//     MP_BC_UNWIND_JUMP
 //     MP_BC_MAKE_CLOSURE
 //     MP_BC_MAKE_CLOSURE_DEFARGS
 //     MP_BC_RAISE_VARARGS
@@ -451,7 +452,8 @@ uint mp_opcode_format(const byte *ip, size_t *opcode_size, bool count_var_uint) 
         ip += 3;
     } else {
         int extra_byte = (
-            *ip == MP_BC_RAISE_VARARGS
+            *ip == MP_BC_UNWIND_JUMP
+            || *ip == MP_BC_RAISE_VARARGS
             || *ip == MP_BC_MAKE_CLOSURE
             || *ip == MP_BC_MAKE_CLOSURE_DEFARGS
         );
