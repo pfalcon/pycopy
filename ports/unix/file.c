@@ -113,7 +113,9 @@ STATIC mp_uint_t fdfile_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_t arg, i
             return 0;
         }
         case MP_STREAM_FLUSH:
-            if (fsync(o->fd) < 0) {
+            // From man fsync: EINVAL: fd is bound to a special file (e.g.,
+            // a pipe, FIFO, or socket). Also happens with a plain stdout.
+            if (fsync(o->fd) < 0 && errno != EINVAL) {
                 *errcode = errno;
                 return MP_STREAM_ERROR;
             }
