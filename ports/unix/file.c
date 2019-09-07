@@ -1,9 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2019 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -113,7 +115,9 @@ STATIC mp_uint_t fdfile_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_t arg, i
             return 0;
         }
         case MP_STREAM_FLUSH:
-            if (fsync(o->fd) < 0) {
+            // From man fsync: EINVAL: fd is bound to a special file (e.g.,
+            // a pipe, FIFO, or socket). Also happens with a plain stdout.
+            if (fsync(o->fd) < 0 && errno != EINVAL) {
                 *errcode = errno;
                 return MP_STREAM_ERROR;
             }
