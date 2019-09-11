@@ -9,7 +9,14 @@ def test_syntax(code):
         print("SyntaxError")
 
 # argument not a constant
-test_syntax("a = const(x)")
+# Pycopy: there's absolutely nothing wrong with passing arbitrary expression
+# to const(). It's a contract that name on the left side is always bound to
+# argument of const(), and is not rebound to any other value. In C terms,
+# 'a = const(x)' means 'const a = x'. With variable annotations, there would
+# be better syntax: 'a: const = x' (or in MyPy terms, 'a: Final = x'). But
+# variable annotations are currently not supported, and need to get general
+# syntax/semantics of const() right anyway.
+#test_syntax("a = const(x)")
 
 # redefined constant
 test_syntax("A = const(1); A = const(2)")
