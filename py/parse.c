@@ -718,14 +718,19 @@ STATIC bool fold_constants(parser_t *parser, uint8_t rule_id, size_t num_args) {
                 // get the value
                 mp_parse_node_t pn_value = ((mp_parse_node_struct_t*)((mp_parse_node_struct_t*)pn1)->nodes[1])->nodes[0];
                 mp_obj_t value;
+                bool is_int = true;
                 if (!mp_parse_node_get_int_maybe(pn_value, &value)) {
+                    is_int = false;
+                    #if 0
                     mp_obj_t exc = mp_obj_new_exception_msg(&mp_type_SyntaxError,
                         "constant must be an integer");
                     mp_obj_exception_add_traceback(exc, parser->lexer->source_name,
                         ((mp_parse_node_struct_t*)pn1)->source_line, MP_QSTR_NULL);
                     nlr_raise(exc);
+                    #endif
                 }
 
+                if (is_int) {
                 // store the value in the table of dynamic constants
                 mp_map_elem_t *elem = mp_map_lookup(&parser->consts, MP_OBJ_NEW_QSTR(id), MP_MAP_LOOKUP_ADD_IF_NOT_FOUND);
                 assert(elem->value == MP_OBJ_NULL);
@@ -739,6 +744,7 @@ STATIC bool fold_constants(parser_t *parser, uint8_t rule_id, size_t num_args) {
                     push_result_rule(parser, 0, RULE_pass_stmt, 0); // replace with "pass"
                     return true;
                 }
+                } // is_int
 
                 // replace const(value) with value
                 pop_result(parser);
