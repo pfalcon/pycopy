@@ -11,4 +11,4 @@ GC memory layout; from \[0-9a-f\]\+:
 qstr pool: n_pool=1, n_qstr=\\d, n_str_data_bytes=\\d\+, n_total_bytes=\\d\+
 qstr pool: n_pool=1, n_qstr=\\d, n_str_data_bytes=\\d\+, n_total_bytes=\\d\+
 ########
-Q(SKIP)
+ok
