@@ -10,3 +10,4 @@ else:
     micropython.mem_info(1)
     micropython.qstr_info()
     micropython.qstr_info(1)
+    print("ok")
