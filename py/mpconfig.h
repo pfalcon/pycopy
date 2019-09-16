@@ -735,6 +735,12 @@ typedef double mp_float_t;
 #define MICROPY_MODULE_WEAK_LINKS (0)
 #endif
 
+// Whether to import module "_boot" at the end of interpreter initialization
+// Note: currently implemented per-port
+#ifndef MICROPY_MODULE_BOOT
+#define MICROPY_MODULE_BOOT (0)
+#endif
+
 // Whether frozen modules are supported in the form of strings
 #ifndef MICROPY_MODULE_FROZEN_STR
 #define MICROPY_MODULE_FROZEN_STR (0)
