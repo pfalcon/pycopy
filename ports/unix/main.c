@@ -562,6 +562,18 @@ MP_NOINLINE int main_(int argc, char **argv) {
 
     mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_argv), 0);
 
+    #if MICROPY_MODULE_BOOT
+    {
+        nlr_buf_t nlr;
+        if (nlr_push(&nlr) == 0) {
+            mp_import_name(MP_QSTR__boot, mp_const_none, MP_OBJ_NEW_SMALL_INT(0));
+            nlr_pop();
+        } else {
+            // No _boot module, not a problem.
+        }
+    }
+    #endif
+
     #if defined(MICROPY_UNIX_COVERAGE)
     {
         MP_DECLARE_CONST_FUN_OBJ_0(extra_coverage_obj);
