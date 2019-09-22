@@ -196,17 +196,6 @@ bool mp_seq_cmp_objs(mp_uint_t op, const mp_obj_t *items1, size_t len1, const mp
         return false;
     }
 
-    // Let's deal only with > & >=
-    if (op == MP_BINARY_OP_LESS || op == MP_BINARY_OP_LESS_EQUAL) {
-        SWAP(const mp_obj_t *, items1, items2);
-        SWAP(size_t, len1, len2);
-        if (op == MP_BINARY_OP_LESS) {
-            op = MP_BINARY_OP_MORE;
-        } else {
-            op = MP_BINARY_OP_MORE_EQUAL;
-        }
-    }
-
     size_t len = len1 < len2 ? len1 : len2;
     for (size_t i = 0; i < len; i++) {
         // If current elements equal, can't decide anything - go on
@@ -225,7 +214,19 @@ bool mp_seq_cmp_objs(mp_uint_t op, const mp_obj_t *items1, size_t len1, const mp
     }
 
     // If we had tie in the last element...
-    // ... and we have lists of different lengths...
+
+    // Let's deal only with > & >= ...
+    if (op == MP_BINARY_OP_LESS || op == MP_BINARY_OP_LESS_EQUAL) {
+        SWAP(const mp_obj_t *, items1, items2);
+        SWAP(size_t, len1, len2);
+        if (op == MP_BINARY_OP_LESS) {
+            op = MP_BINARY_OP_MORE;
+        } else {
+            op = MP_BINARY_OP_MORE_EQUAL;
+        }
+    }
+
+    // If we have lists of different lengths...
     if (len1 != len2) {
         if (len1 < len2) {
             // ... then longer list length wins (we deal only with >)
