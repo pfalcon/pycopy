@@ -324,6 +324,7 @@ SRC_C = \
 	modsocket.c \
 	modesp.c \
 	esp32_partition.c \
+	esp32_rmt.c \
 	esp32_ulp.c \
 	modesp32.c \
 	espneopixel.c \
