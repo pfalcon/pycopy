@@ -409,11 +409,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                 #endif
                 if (module_obj == MP_OBJ_NULL) {
                     // couldn't find the file, so fail
-                    if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
-                        mp_raise_msg(&mp_type_ImportError, "module not found");
-                    } else {
-                        mp_raise_msg_varg(&mp_type_ImportError, "no module named '%q'", mod_name);
-                    }
+                    #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+                    mp_raise_msg(&mp_type_ImportError, "module not found");
+                    #else
+                    mp_raise_msg_varg(&mp_type_ImportError, "no module named '%q'", mod_name);
+                    #endif
                 }
             } else {
                 // found the file, so get the module
@@ -520,11 +520,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
     #endif
 
     // Couldn't find the module, so fail
-    if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
-        mp_raise_msg(&mp_type_ImportError, "module not found");
-    } else {
-        mp_raise_msg_varg(&mp_type_ImportError, "no module named '%q'", module_name_qstr);
-    }
+    #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+    mp_raise_msg(&mp_type_ImportError, "module not found");
+    #else
+    mp_raise_msg_varg(&mp_type_ImportError, "no module named '%q'", module_name_qstr);
+    #endif
 }
 
 #endif // MICROPY_ENABLE_EXTERNAL_IMPORT
