@@ -247,6 +247,7 @@ jobs:
         - sudo apt-get install libnewlib-arm-none-eabi
         - arm-none-eabi-gcc --version
       script:
+        - make ${MAKEOPTS} -C mpy-cross
         - make ${MAKEOPTS} -C ports/bare-arm
         - make ${MAKEOPTS} -C ports/minimal CROSS=1 build/firmware.bin
         - ls -l ports/minimal/build/firmware.bin
