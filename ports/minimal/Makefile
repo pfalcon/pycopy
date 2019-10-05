@@ -76,6 +76,9 @@ else
 all: $(BUILD)/firmware.elf
 endif
 
+frozentest.mpy: frozentest.py
+	$(MPY_CROSS) $^ -o $@
+
 $(BUILD)/_frozen_mpy.c: frozentest.mpy $(BUILD)/genhdr/qstrdefs.generated.h
 	$(ECHO) "MISC freezing bytecode"
 	$(Q)$(TOP)/tools/mpy-tool.py -f -q $(BUILD)/genhdr/qstrdefs.preprocessed.h -mlongint-impl=none $< > $@
