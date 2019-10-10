@@ -111,6 +111,20 @@ def expandhome(s):
         s = s.replace("~/", h + "/")
     return s
 
+
+def init_bufs():
+    # Calculate gzip dictionary size to use
+    global gzdict_sz, gzdict_buf
+    if gzdict_buf:
+        return
+    sz = gc.mem_free() + gc.mem_alloc()
+    if sz <= 65536:
+        gzdict_sz = 16 + 12
+        gzdict_buf = bytearray(4096)
+    else:
+        gzdict_buf = bytearray(32768)
+
+
 import ussl
 import usocket
 warn_ussl = True
@@ -217,6 +231,9 @@ def install_pkg(pkg_spec, install_path):
     return meta
 
 def install(to_install, install_path=None):
+    # Called here, because install() is advertized as public UI function
+    # (e.g. for baremetal ports).
+    init_bufs()
     if install_path is None:
         install_path = get_install_path()
     if install_path[-1] != "/":
@@ -289,15 +306,6 @@ def main():
 
     if sys.argv[1] != "install":
         fatal("Only 'install' command supported")
-
-    # Calculate gzip dictionary size to use
-    global gzdict_sz, gzdict_buf
-    sz = gc.mem_free() + gc.mem_alloc()
-    if sz <= 65536:
-        gzdict_sz = 16 + 12
-        gzdict_buf = bytearray(4096)
-    else:
-        gzdict_buf = bytearray(32768)
 
     to_install = []
 
