@@ -1,3 +1,12 @@
+# This file is a part of Pycopy and pycopy-lib projects, a minimalist
+# and resource-efficient implementations of Python-compatible programming
+# language and library:
+# https://github.com/pfalcon/pycopy , https://github.com/pfalcon/pycopy-lib
+#
+# Copyright (c) 2019 Paul Sokolovsky
+#
+# Licensed under the MIT license.
+
 import uctypes
 
 # http://www.gnu.org/software/tar/manual/html_node/Standard.html
