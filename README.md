@@ -127,9 +127,9 @@ Alternatively, fallback implementation based on setjmp/longjmp can be used.
 
 To build (see section below for required dependencies):
 
-    $ git submodule update --init
     $ make -C mpy-cross
     $ cd ports/unix
+    $ make submodules
     $ make
 
 Then to give it a try:
@@ -170,11 +170,11 @@ be required to enable extra features or capabilities, and in recent
 versions, these may be enabled by default. To build
 these additional dependencies, first fetch git submodules for them:
 
-    $ git submodule update --init
+    $ make submodules
 
-Use the same command to get the latest versions of dependencies, as
-they are updated from time to time. After that, in the port directory
-(e.g. `ports/unix/`), execute:
+This will fetch all the relevant git submodules (sub repositories) that
+the port needs.  Use the same command to get the latest versions of
+submodules as they are updated from time to time. After that execute:
 
     $ make deplibs
 
@@ -187,8 +187,8 @@ For example, to build SSL module (required for `upip` tool described above,
 and so enabled by dfeault), `MICROPY_PY_USSL` should be set to 1.
 
 For some ports, building required dependences is transparent, and happens
-automatically. They still need to be fetched with the git submodule command
-above.
+automatically.  But they still need to be fetched with the `make submodules`
+command.
 
 The STM32 version
 -----------------
@@ -200,8 +200,8 @@ https://launchpad.net/gcc-arm-embedded
 
 To build:
 
-    $ git submodule update --init
     $ cd ports/stm32
+    $ make submodules
     $ make
 
 You then need to get your board into DFU mode.  On the pyboard, connect the
