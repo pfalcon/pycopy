@@ -41,6 +41,14 @@ print("%-10.2s" % "abc")
 print('%s' % {})
 print('%s' % ({},))
 
+# It's ok to not use any args from the dict.
+print("foo" % {"key": 1})
+
+# In CPython, it's even possible to both print dict as a positional arg,
+# and still look up a key in it. It's likely undocumented/unintended
+# implementation edge case, but we're compliant.
+print("%s foo: %(foo)s" % {"foo": "---"})
+
 # Cases when "*" used and there's not enough values total
 try:
     print("%*s" % 5)
