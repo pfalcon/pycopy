@@ -58,8 +58,8 @@ jobs:
         - ${HAS_XTENSA} || make
       script:
         - cd ${TRAVIS_BUILD_DIR}
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx
         - make ${MAKEOPTS} -C mpy-cross
+        - make -C ports/esp8266 submodules
         - PATH=${XTENSA_CROSS_BINDIR}:${PATH} make -C ports/esp8266
 
     # stm32 port
@@ -73,8 +73,8 @@ jobs:
         - sudo apt-get install libnewlib-arm-none-eabi
         - arm-none-eabi-gcc --version
       script:
-        - git submodule update --init lib/lwip lib/mbedtls lib/stm32lib lib/mynewt-nimble
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/stm32 submodules
         - make ${MAKEOPTS} -C ports/stm32 BOARD=NUCLEO_F091RC
         - make ${MAKEOPTS} -C ports/stm32 BOARD=PYBV11 MICROPY_PY_WIZNET5K=5200 MICROPY_PY_CC3K=1
         - make ${MAKEOPTS} -C ports/stm32 BOARD=PYBD_SF2
@@ -107,8 +107,8 @@ jobs:
         - gcc --version
         - python3 --version
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix deplibs
         - make ${MAKEOPTS} -C ports/unix coverage
         # run the main test suite
@@ -128,8 +128,8 @@ jobs:
     - stage: test
       env: NAME="unix port build and tests"
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix deplibs
         - make ${MAKEOPTS} -C ports/unix
         - make ${MAKEOPTS} -C ports/unix test
@@ -139,8 +139,8 @@ jobs:
     - stage: test
       env: NAME="unix port with mbedTLS build and tests"
       script:
-        - git submodule update --init lib/mbedtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0
         - make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0 test RUN_TESTS_EXTRA="-e ussl_basic"
 
@@ -148,8 +148,8 @@ jobs:
     - stage: test
       env: NAME="unix port micropython-dev"
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix dev
         - make ${MAKEOPTS} -C ports/unix dev_test
 
@@ -159,8 +159,8 @@ jobs:
       install:
         - sudo apt-get install gcc-multilib libffi-dev:i386
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix deplibs
         - make ${MAKEOPTS} -C ports/unix nanbox
         - (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy_nanbox ./run-tests)
@@ -169,8 +169,8 @@ jobs:
     - stage: test
       env: NAME="unix stackless port build and tests"
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} -C ports/unix deplibs
         - make ${MAKEOPTS} -C ports/unix CFLAGS_EXTRA="-DMICROPY_STACKLESS=1 -DMICROPY_STACKLESS_STRICT=1"
         - make ${MAKEOPTS} -C ports/unix test
@@ -179,8 +179,8 @@ jobs:
     - stage: test
       env: NAME="unix port with clang"
       script:
-        - git submodule update --init lib/axtls lib/berkeley-db-1.xx lib/libffi
         - make ${MAKEOPTS} CC=clang -C mpy-cross
+        - make ${MAKEOPTS} -C ports/unix submodules
         - make ${MAKEOPTS} CC=clang -C ports/unix
         - make ${MAKEOPTS} CC=clang -C ports/unix test
 
@@ -216,11 +216,11 @@ jobs:
         - git clone https://github.com/espressif/esp-idf.git
         - export IDF_PATH=$(pwd)/esp-idf
       script:
-        - git submodule update --init lib/berkeley-db-1.xx
         - make ${MAKEOPTS} -C mpy-cross
         # IDF v3 build
         - git -C esp-idf checkout $(grep "ESPIDF_SUPHASH_V3 :=" ports/esp32/Makefile | cut -d " " -f 3)
         - git -C esp-idf submodule update --init components/json/cJSON components/esp32/lib components/esptool_py/esptool components/expat/expat components/lwip/lwip components/mbedtls/mbedtls components/micro-ecc/micro-ecc components/nghttp/nghttp2
+        - make ${MAKEOPTS} -C ports/esp32 submodules
         - make ${MAKEOPTS} -C ports/esp32
         # clean
         - git -C esp-idf clean -f -f -d components/json/cJSON components/esp32/lib components/expat/expat components/micro-ecc/micro-ecc components/nghttp/nghttp2
@@ -228,6 +228,7 @@ jobs:
         # IDF v4 build
         - git -C esp-idf checkout $(grep "ESPIDF_SUPHASH_V4 :=" ports/esp32/Makefile | cut -d " " -f 3)
         - git -C esp-idf submodule update --init components/bt/controller/lib components/bt/host/nimble/nimble components/esp_wifi/lib_esp32 components/esptool_py/esptool components/lwip/lwip components/mbedtls/mbedtls
+        - make ${MAKEOPTS} -C ports/esp32 submodules
         - make ${MAKEOPTS} -C ports/esp32
 
     # nrf port
@@ -238,7 +239,7 @@ jobs:
         - sudo apt-get install libnewlib-arm-none-eabi
         - arm-none-eabi-gcc --version
       script:
-        - git submodule update --init lib/nrfx
+        - make ${MAKEOPTS} -C ports/nrf submodules
         - make ${MAKEOPTS} -C ports/nrf
 
     # bare-arm and minimal ports
@@ -275,7 +276,7 @@ jobs:
         - sudo apt-get install gcc-arm-none-eabi
         - sudo apt-get install libnewlib-arm-none-eabi
       script:
-        - git submodule update --init lib/asf4 lib/tinyusb
+        - make ${MAKEOPTS} -C ports/samd submodules
         - make ${MAKEOPTS} -C ports/samd
 
     # teensy port
