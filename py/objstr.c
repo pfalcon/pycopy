@@ -1453,7 +1453,6 @@ STATIC mp_obj_t str_modulo_format(mp_obj_t pattern, size_t n_args, const mp_obj_
             if (dict == MP_OBJ_NULL) {
                 mp_raise_TypeError("format needs a dict");
             }
-            arg_i = 1; // we used up the single dict argument
             const byte *key = ++str;
             while (*str != ')') {
                 if (str >= top) {
@@ -1624,7 +1623,7 @@ not_enough_args:
         }
     }
 
-    if (arg_i != n_args) {
+    if (dict == MP_OBJ_NULL && arg_i != n_args) {
         mp_raise_TypeError("format string didn't convert all arguments");
     }
 
