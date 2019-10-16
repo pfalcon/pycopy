@@ -38,3 +38,9 @@ try:
     poller.unregister(s)
 except KeyError:
     print("KeyError")
+
+# poll after closing the socket, should return POLLNVAL
+poller.register(s)
+s.close()
+p = poller.poll(0)
+print(len(p), p[0][-1])
