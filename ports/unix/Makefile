@@ -281,6 +281,7 @@ coverage:
 	    -Wold-style-definition -Wpointer-arith -Wshadow -Wuninitialized -Wunused-parameter \
 	    -DMICROPY_UNIX_COVERAGE' \
 	    LDFLAGS_EXTRA='-fprofile-arcs -ftest-coverage' \
+	    MICROPY_VFS_LFS=1 \
 	    FROZEN_DIR=coverage-frzstr FROZEN_MPY_DIR=coverage-frzmpy \
 	    BUILD=build-coverage PROG=pycopy_coverage
 
