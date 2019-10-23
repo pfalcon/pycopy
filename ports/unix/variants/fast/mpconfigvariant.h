@@ -28,7 +28,6 @@
 // synthetic benchmarking, at the expense of features supported and memory
 // usage. This config is not intended to be used in production.
 
-#include <mpconfigport.h>
 #define MICROPY_PY___FILE__ (0)
 // 91 is a magic number proposed by @dpgeorge, which make pystone run ~ at tie
 // with CPython 3.4.
@@ -38,3 +37,5 @@
 // synthetic benchmarking
 #undef MICROPY_MODULE_FROZEN_STR
 #define MICROPY_MODULE_FROZEN_STR (0)
+
+#include "variants/DEV/mpconfigvariant.h"
