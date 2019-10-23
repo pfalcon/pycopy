@@ -1,14 +1,28 @@
--include mpconfigport.mk
+# Select the variant to build for.
+VARIANT ?= standard
+
+# If the build directory is not given, make it reflect the variant name.
+BUILD ?= build-$(VARIANT)
+
+VARIANT_DIR ?= variants/$(VARIANT)
+ifeq ($(wildcard $(VARIANT_DIR)/.),)
+$(error Invalid VARIANT specified: $(VARIANT_DIR))
+endif
+
 include ../../py/mkenv.mk
+-include mpconfigport.mk
+include $(VARIANT_DIR)/mpconfigvariant.mk
 
 FROZEN_DIR = scripts
 FROZEN_MPY_DIR = modules
 
 # define main target
-PROG = pycopy
+# This might be overriden in a mpconfigvariant.mk
+PROG ?= pycopy
 
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h
+QSTR_GLOBAL_DEPENDENCIES = $(VARIANT_DIR)/mpconfigvariant.h
 
 # OS name, for simple autoconfig
 UNAME_S := $(shell uname -s)
@@ -25,7 +39,7 @@ INC += -I$(BUILD)
 # compiler settings
 CWARN = -Wall -Werror
 CWARN += -Wpointer-arith -Wuninitialized
-CFLAGS = $(INC) $(CWARN) -std=gnu99 -DUNIX $(CFLAGS_MOD) $(COPT) $(CFLAGS_EXTRA)
+CFLAGS = $(INC) $(CWARN) -std=gnu99 -DUNIX $(CFLAGS_MOD) $(COPT) -I$(VARIANT_DIR) $(CFLAGS_EXTRA)
 
 # Debugging/Optimization
 ifdef DEBUG
@@ -171,7 +185,8 @@ SRC_C = \
 	alloc.c \
 	coverage.c \
 	fatfs_port.c \
-	$(SRC_MOD)
+	$(SRC_MOD) \
+	$(wildcard $(VARIANT_DIR)/*.c)
 
 LIB_SRC_C = $(addprefix lib/,\
 	$(LIB_SRC_C_EXTRA) \
@@ -200,36 +215,44 @@ endif
 
 include $(TOP)/py/mkrules.mk
 
-.PHONY: test
+# install
+TARGET = $(PROG)
+PREFIX = $(DESTDIR)/usr/local
+BINDIR = $(PREFIX)/bin
+
+install: $(PROG)
+	install -d $(BINDIR)
+	install $(PROG) $(BINDIR)/$(TARGET)
+
+# uninstall
+uninstall:
+	-rm $(BINDIR)/$(TARGET)
+
+.PHONY: test test_full
 
 test: $(PROG) $(TOP)/tests/run-tests
 	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
 	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests $(RUN_TESTS_EXTRA)
 
-# install micropython in /usr/local/bin
-TARGET = $(PROG)
-PREFIX = $(DESTDIR)/usr/local
-BINDIR = $(PREFIX)/bin
+test_full: $(PROG) $(TOP)/tests/run-tests
+	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests -d thread
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests --emit native
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests --via-mpy -d basics float micropython
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/$(PROG) ./run-tests --via-mpy --emit native -d basics float micropython
+	cat $(TOP)/tests/basics/0prelim.py | ./$(PROG) | grep -q 'abc'
 
-install: micropython
-	install -d $(BINDIR)
-	install $(PROG) $(BINDIR)/$(TARGET)
+test_gcov: test_full
+	gcov -o $(BUILD)/py $(TOP)/py/*.c
+	gcov -o $(BUILD)/extmod $(TOP)/extmod/*.c
 
-# uninstall micropython
-uninstall:
-	-rm $(BINDIR)/$(TARGET)
-
-# build synthetically fast interpreter for benchmarking
+# Maintain historical targets from pre-variant configurations.
 fast:
-	$(MAKE) COPT="-O2 -DNDEBUG -fno-crossjumping" CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_fast.h>"' BUILD=build-fast PROG=pycopy_fast
+	$(MAKE) VARIANT=fast
 
-# build a minimal interpreter
 minimal:
-	$(MAKE) COPT="-Os -DNDEBUG" CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_minimal.h>"' \
-	    BUILD=build-minimal PROG=pycopy_minimal FROZEN_DIR= FROZEN_MPY_DIR= \
-	    MICROPY_PY_BTREE=0 MICROPY_PY_FFI=0 MICROPY_PY_SOCKET=0 MICROPY_PY_THREAD=0 \
-	    MICROPY_PY_TERMIOS=0 MICROPY_PY_USSL=0 \
-	    MICROPY_USE_READLINE=0
+	$(MAKE) VARIANT=minimal
 
 dev:
 	$(MAKE) BUILD=build-dev PROG=pycopy-dev \
@@ -246,50 +269,17 @@ dev_test: dev
 
 # build interpreter with nan-boxing as object model
 nanbox:
-	$(MAKE) \
-	CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_nanbox.h>"' \
-	BUILD=build-nanbox \
-	PROG=pycopy_nanbox \
-	MICROPY_FORCE_32BIT=1
+	$(MAKE) VARIANT=nanbox
 
 freedos:
-	$(MAKE) \
-	CC=i586-pc-msdosdjgpp-gcc \
-	STRIP=i586-pc-msdosdjgpp-strip \
-	SIZE=i586-pc-msdosdjgpp-size \
-	CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_freedos.h>" -DMICROPY_NLR_SETJMP -Dtgamma=gamma -DMICROPY_EMIT_X86=0 -DMICROPY_NO_ALLOCA=1 -DMICROPY_PY_USELECT_POSIX=0' \
-	BUILD=build-freedos \
-	PROG=pycopy_freedos \
-	MICROPY_PY_SOCKET=0 \
-	MICROPY_PY_FFI=0 \
-	MICROPY_PY_JNI=0 \
-	MICROPY_PY_BTREE=0 \
-	MICROPY_PY_THREAD=0 \
-	MICROPY_PY_USSL=0
+freedos:
+	$(MAKE) VARIANT=freedos
 
 # build an interpreter for coverage testing and do the testing
 coverage:
-	$(MAKE) \
-	    COPT="-O0" CFLAGS_EXTRA='$(CFLAGS_EXTRA) -DMP_CONFIGFILE="<mpconfigport_coverage.h>" \
-	    -fprofile-arcs -ftest-coverage \
-	    -Wdouble-promotion -Wformat -Wmissing-declarations -Wmissing-prototypes -Wsign-compare \
-	    -Wold-style-definition -Wpointer-arith -Wshadow -Wuninitialized -Wunused-parameter \
-	    -DMICROPY_UNIX_COVERAGE' \
-	    LDFLAGS_EXTRA='-fprofile-arcs -ftest-coverage' \
-	    MICROPY_VFS_FAT=1 MICROPY_VFS_LFS=1 MICROPY_VFS_LFS2=1 \
-	    FROZEN_DIR=coverage-frzstr FROZEN_MPY_DIR=coverage-frzmpy \
-	    BUILD=build-coverage PROG=pycopy_coverage
-
-coverage_test: coverage
-	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests -d thread
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --emit native
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --via-mpy -d basics float micropython
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy_coverage ./run-tests --via-mpy --emit native -d basics float micropython
-	cat $(TOP)/tests/basics/0prelim.py | ./pycopy_coverage | grep -q 'abc'
-	gcov -o build-coverage/py $(TOP)/py/*.c
-	gcov -o build-coverage/extmod $(TOP)/extmod/*.c
+	$(MAKE) VARIANT=coverage
+coverage_test:
+	$(MAKE) VARIANT=coverage test_gcov
 
 # Value of configure's --host= option (required for cross-compilation).
 # Deduce it from CROSS_COMPILE by default, but can be overridden.
