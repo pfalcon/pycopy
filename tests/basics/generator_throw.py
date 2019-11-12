@@ -65,3 +65,17 @@ try:
     next(g)
 except StopIteration:
     pass
+
+# throwing into stopped generator should raise thrown exception
+# (case for exception type)
+try:
+    g.throw(ValueError)
+except ValueError:
+    print("ValueError1")
+
+# throwing into stopped generator should raise thrown exception
+# (case for exception instance)
+try:
+    g.throw(ValueError())
+except ValueError:
+    print("ValueError2")
