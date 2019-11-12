@@ -51,3 +51,17 @@ print(g.throw(GeneratorExit(), None))
 g = gen()
 print(next(g))
 print(g.throw(GeneratorExit, GeneratorExit(123)))
+
+# it's legal to throw exception into just-started generator
+g = gen()
+try:
+    g.throw(KeyError)
+except KeyError:
+    print('just-started throw: KeyError')
+
+# reinsure that such just-started generator is properly stopped after
+# exception
+try:
+    next(g)
+except StopIteration:
+    pass
