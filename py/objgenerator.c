@@ -147,6 +147,10 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
     mp_check_self(mp_obj_is_type(self_in, &mp_type_gen_instance));
     mp_obj_gen_instance_t *self = MP_OBJ_TO_PTR(self_in);
     if (self->code_state.ip == 0) {
+        if (throw_value != MP_OBJ_NULL) {
+            *ret_val = mp_make_raise_obj(throw_value);
+            return MP_VM_RETURN_EXCEPTION;
+        }
         // Trying to resume already stopped generator
         *ret_val = MP_OBJ_STOP_ITERATION;
         return MP_VM_RETURN_NORMAL;
