@@ -2,4 +2,4 @@
 1
 raised ValueError()
 ret was: None
-TypeError
+ValueError from just-started gen
