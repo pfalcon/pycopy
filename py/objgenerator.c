@@ -64,6 +64,9 @@ STATIC mp_obj_t gen_wrap_call(mp_obj_t self_in, size_t n_args, size_t n_kw, cons
     o->code_state.ip = 0;
     o->code_state.n_state = n_state;
     mp_setup_code_state(&o->code_state, n_args, n_kw, args);
+    #if MICROPY_PY_GENERATOR_PEND_THROW
+    o->code_state.sp[1] = mp_const_none;
+    #endif
     return MP_OBJ_FROM_PTR(o);
 }
 
@@ -102,6 +105,9 @@ STATIC mp_obj_t native_gen_wrap_call(mp_obj_t self_in, size_t n_args, size_t n_k
     o->code_state.ip = (const byte*)prelude_offset;
     o->code_state.n_state = n_state;
     mp_setup_code_state(&o->code_state, n_args, n_kw, args);
+    #if MICROPY_PY_GENERATOR_PEND_THROW
+    o->code_state.sp[1] = mp_const_none;
+    #endif
 
     // Indicate we are a native function, which doesn't use this variable
     o->code_state.exc_sp_idx = MP_CODE_STATE_EXC_SP_IDX_SENTINEL;
@@ -151,6 +157,13 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
         if (send_value != mp_const_none) {
             mp_raise_TypeError("can't send non-None value to a just-started generator");
         }
+        #if MICROPY_PY_GENERATOR_PEND_THROW
+        // If exception is pending (set using .pend_throw()), process it now.
+        if (self->code_state.sp[1] != mp_const_none) {
+            throw_value = self->code_state.sp[1];
+            self->code_state.sp[1] = MP_OBJ_NULL;
+        }
+        #endif
     } else {
         #if MICROPY_PY_GENERATOR_PEND_THROW
         // If exception is pending (set using .pend_throw()), process it now.
@@ -309,11 +322,14 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(gen_instance_close_obj, gen_instance_close);
 #if MICROPY_PY_GENERATOR_PEND_THROW
 STATIC mp_obj_t gen_instance_pend_throw(mp_obj_t self_in, mp_obj_t exc_in) {
     mp_obj_gen_instance_t *self = MP_OBJ_TO_PTR(self_in);
-    if (self->code_state.sp == self->code_state.state - 1) {
-        mp_raise_TypeError("can't pend throw to just-started generator");
+    mp_obj_t *tos = self->code_state.sp;
+    if (tos == self->code_state.state - 1) {
+        // For just started generator, sp points below the value stack,
+        // so make it point to initial element of stack.
+        tos++;
     }
-    mp_obj_t prev = *self->code_state.sp;
-    *self->code_state.sp = exc_in;
+    mp_obj_t prev = *tos;
+    *tos = exc_in;
     return prev;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(gen_instance_pend_throw_obj, gen_instance_pend_throw);
