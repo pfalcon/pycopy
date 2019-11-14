@@ -25,7 +25,11 @@ except Exception as e:
 
 print("ret was:", v)
 
+# It's legal to pend exception in a just-started generator, just the same
+# as it's legal to .throw() into it.
+g = gen()
+g.pend_throw(ValueError())
 try:
-    gen().pend_throw(ValueError())
-except TypeError:
-    print("TypeError")
+    next(g)
+except ValueError:
+    print("ValueError from just-started gen")
