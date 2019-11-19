@@ -1,7 +1,7 @@
 .. _constrained:
 
-MicroPython on Microcontrollers
-===============================
+Usage on Microcontrollers
+=========================
 
 MicroPython is designed to be capable of running on microcontrollers. These
 have hardware limitations which may be unfamiliar to programmers more familiar
