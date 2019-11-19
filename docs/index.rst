@@ -1,5 +1,5 @@
-MicroPython documentation and references
-========================================
+Pycopy documentation and references
+===================================
 
 .. toctree::
 
