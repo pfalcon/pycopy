@@ -1,7 +1,7 @@
 .. _speed_python:
 
-Maximising MicroPython Speed
-============================
+Maximising Speed
+================
 
 .. contents::
 
