@@ -153,7 +153,6 @@ void mp_import_all(mp_obj_t module);
 #define FROZEN_VPATH_CHAR '*'
 
 NORETURN void mp_raise_msg(const mp_obj_type_t *exc_type, const char *msg);
-//NORETURN void nlr_raise_msg_varg(const mp_obj_type_t *exc_type, const char *fmt, ...);
 NORETURN void mp_raise_IndexError(const char *msg);
 NORETURN void mp_raise_ValueError(const char *msg);
 NORETURN void mp_raise_TypeError(const char *msg);
