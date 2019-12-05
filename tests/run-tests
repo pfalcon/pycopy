@@ -309,6 +309,7 @@ def run_tests(pyb, tests, args, base_path="."):
         'object1',
         'python34',
         'struct_endian',
+        'struct_offset',
     )
 
     # Some tests shouldn't be run under Travis CI
