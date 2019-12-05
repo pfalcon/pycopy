@@ -121,9 +121,13 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         mp_obj_t module_fun;
 
         if (source_kind == LEX_SRC_RAW_CODE) {
+            #if MICROPY_PERSISTENT_CODE_LOAD
             mp_raw_code_t *raw_code = mp_raw_code_load_file(source);
             module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
             goto execute;
+            #else
+            return -1;
+            #endif
         #if MICROPY_ENABLE_COMPILER
         } else if (source_kind == LEX_SRC_STR) {
             const char *line = source;
@@ -164,7 +168,9 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
         module_fun = mp_compile(&parse_tree, source_name, is_repl);
         #endif // MICROPY_ENABLE_COMPILER
 
+#if MICROPY_PERSISTENT_CODE_LOAD
 execute:
+#endif
         if (!compile_only) {
             // execute it
             mp_call_function_0(module_fun);
