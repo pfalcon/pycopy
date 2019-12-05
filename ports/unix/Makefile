@@ -233,6 +233,7 @@ minimal:
 
 dev:
 	$(MAKE) BUILD=build-dev PROG=pycopy-dev \
+	    MICROPY_VFS_FAT=1 \
 	    CFLAGS_EXTRA='-DMP_CONFIGFILE="<mpconfigport_dev.h>" -UNDEBUG' LDFLAGS_EXTRA=-rdynamic
 
 # based on coverage_test
