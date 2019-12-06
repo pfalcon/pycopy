@@ -62,7 +62,11 @@ Filesystem access
 
 .. function:: listdir([dir])
 
-   With no argument, list the current directory.  Otherwise list the given directory.
+   This function is **not** part of the ``uos`` API. You can use ``os.listdir()``
+   from `pycopy-lib`, or use following snippet instead::
+
+    def listdir(dir):
+        return [x[0] for x in uos.ilistdir(dir)]
 
 .. function:: mkdir(path)
 
