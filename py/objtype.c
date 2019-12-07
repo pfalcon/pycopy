@@ -274,15 +274,16 @@ STATIC void instance_print(const mp_print_t *print, mp_obj_t self_in, mp_print_k
     }
 
     if (member[0] == MP_OBJ_SENTINEL) {
-        // Handle Exception subclasses specially
-        if (mp_obj_is_native_exception_instance(self->subobj[0])) {
-            if (kind != PRINT_STR) {
-                mp_print_str(print, qstr_str(self->base.type->name));
-            }
-            mp_obj_print_helper(print, self->subobj[0], kind | PRINT_EXC_SUBCLASS);
-        } else {
-            mp_obj_print_helper(print, self->subobj[0], kind);
+        // If Python-level method wasn't found, but was found a slot in native
+        // superclass:
+        // Handle subclasses of native exceptions specially: print type name
+        // here, and tell native exception to skip printing type (or it would
+        // print its type name, not ours).
+        if (kind == PRINT_REPR && mp_obj_is_native_exception_instance(self->subobj[0])) {
+            mp_print_str(print, qstr_str(self->base.type->name));
+            kind = PRINT_REPR | PRINT_EXC_SUBCLASS;
         }
+        mp_obj_print_helper(print, self->subobj[0], kind);
         return;
     }
 
