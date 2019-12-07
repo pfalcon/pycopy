@@ -409,7 +409,6 @@ typedef mp_obj_t (*mp_fun_kw_t)(size_t n, const mp_obj_t *, mp_map_t *);
 typedef enum {
     PRINT_STR = 0,
     PRINT_REPR = 1,
-    PRINT_EXC = 2, // Special format for printing exception in unhandled exception message
     PRINT_JSON = 3,
     PRINT_RAW = 4, // Special format for printing bytes as an undercorated string
     PRINT_EXC_SUBCLASS = 0x80, // Internal flag for printing exception subclasses
