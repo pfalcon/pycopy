@@ -103,7 +103,8 @@ void mp_obj_print_exception(const mp_print_t *print, mp_obj_t exc) {
             }
         }
     }
-    mp_obj_print_helper(print, exc, PRINT_EXC);
+    mp_printf(print, "%s: ", mp_obj_get_type_str(exc));
+    mp_obj_print_helper(print, exc, PRINT_STR);
     mp_print_str(print, "\n");
 }
 
