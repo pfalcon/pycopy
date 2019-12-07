@@ -103,18 +103,10 @@ mp_obj_t mp_alloc_emergency_exception_buf(mp_obj_t size_in) {
 void mp_obj_exception_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     mp_obj_exception_t *o = MP_OBJ_TO_PTR(o_in);
     mp_print_kind_t k = kind & ~PRINT_EXC_SUBCLASS;
-    bool is_subclass = kind & PRINT_EXC_SUBCLASS;
-    if (!is_subclass && (k == PRINT_REPR || k == PRINT_EXC)) {
-        mp_print_str(print, qstr_str(o->base.type->name));
-    }
 
-    if (k == PRINT_EXC) {
-        mp_print_str(print, ": ");
-    }
-
-    if (k == PRINT_STR || k == PRINT_EXC) {
+    if (k == PRINT_STR) {
         if (o->args == NULL || o->args->len == 0) {
-            mp_print_str(print, "");
+            // In this case, str() is empty string, nothing to print.
             return;
         } else if (o->args->len == 1) {
             #if MICROPY_PY_UERRNO
@@ -130,6 +122,16 @@ void mp_obj_exception_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kin
             mp_obj_print_helper(print, o->args->items[0], PRINT_STR);
             return;
         }
+        // Fallthru
+    }
+
+    // PRINT_STR with multiple args, PRINT_REPR, etc.
+
+    if (kind == (PRINT_REPR & ~PRINT_EXC_SUBCLASS)) {
+        // Print type name only for pure PRINT_REPR, not
+        // PRINT_REPR | PRINT_EXC_SUBCLASS.
+        // In the latter case, type name is printed in objtype:instance_print().
+        mp_print_str(print, qstr_str(o->base.type->name));
     }
     mp_obj_tuple_print(print, MP_OBJ_FROM_PTR(o->args), kind);
 }
