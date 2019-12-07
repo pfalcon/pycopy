@@ -79,6 +79,20 @@ try:
 except Exception as e:
     print_exc(e)
 
+
+# For user exceptions, printing traceback should use __str__, not __repr__
+class MyException(Exception):
+    def __repr__(self):
+        return "repr"
+    def __str__(self):
+        return "str"
+
+try:
+    raise MyException
+except Exception as e:
+    print_exc(e)
+
+
 # Test non-stream object passed as output object, only valid for uPy
 if hasattr(sys, 'print_exception'):
     try:
