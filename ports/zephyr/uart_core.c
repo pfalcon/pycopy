@@ -28,7 +28,7 @@
 #include "src/zephyr_getchar.h"
 // Zephyr headers
 #include <uart.h>
-#include <console.h>
+#include <console/console.h>
 
 /*
  * Core UART functions to implement for a port
