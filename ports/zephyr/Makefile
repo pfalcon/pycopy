@@ -108,4 +108,4 @@ outdir/$(OUTDIR_PREFIX)/Makefile: $(CONF_FILE)
 
 $(Z_EXPORTS): outdir/$(OUTDIR_PREFIX)/Makefile
 	make --no-print-directory -C outdir/$(OUTDIR_PREFIX) outputexports CMAKE_COMMAND=: >$@
-	make -C outdir/$(OUTDIR_PREFIX) syscall_macros_h_target syscall_list_h_target kobj_types_h_target
+	make -C outdir/$(OUTDIR_PREFIX) syscall_list_h_target kobj_types_h_target
