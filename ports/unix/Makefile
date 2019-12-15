@@ -239,7 +239,7 @@ dev:
 # based on coverage_test
 dev_test: dev
 	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev MICROPYPATH= ./run-tests
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests
 #	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests -d thread
 #	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --emit native
 #	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --via-mpy -d basics float
