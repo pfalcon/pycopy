@@ -75,7 +75,7 @@ STATIC const mp_obj_type_t ussl_socket_type;
 STATIC void mbedtls_debug(void *ctx, int level, const char *file, int line, const char *str) {
     (void)ctx;
     (void)level;
-    printf("DBG:%s:%04d: %s\n", file, line, str);
+    printf("DBG:%p:%s:%04d: %s", ctx, file, line, str);
 }
 #endif
 
@@ -209,7 +209,7 @@ STATIC mp_obj_ssl_socket_t *socket_new(mp_obj_t sock, struct ssl_args *args) {
     if (args->do_handshake.u_bool) {
         while ((ret = mbedtls_ssl_handshake(&o->ssl)) != 0) {
             if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
-                printf("mbedtls_ssl_handshake error: -%x\n", -ret);
+                printf("mbedtls_ssl_handshake error: -0x%x\n", -ret);
                 goto cleanup;
             }
         }
