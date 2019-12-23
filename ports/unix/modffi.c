@@ -381,14 +381,16 @@ STATIC mp_obj_t ffifunc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const
             mp_buffer_info_t bufinfo;
             int ret = o->type->buffer_p.get_buffer(MP_OBJ_FROM_PTR(o), &bufinfo, MP_BUFFER_READ); // TODO: MP_BUFFER_READ?
             if (ret != 0) {
-                goto error;
+                goto next;
             }
             values[i] = (ffi_arg)(intptr_t)bufinfo.buf;
-        } else if (mp_obj_is_type(a, &fficallback_type)) {
+        } else
+next:
+        if (mp_obj_is_type(a, &fficallback_type)) {
             mp_obj_fficallback_t *p = MP_OBJ_TO_PTR(a);
             values[i] = (ffi_arg)(intptr_t)p->func;
         } else {
-            goto error;
+            values[i] = mp_obj_get_int(a);
         }
         valueptrs[i] = &values[i];
     }
@@ -409,9 +411,6 @@ STATIC mp_obj_t ffifunc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const
         ffi_call(&self->cif, self->func, &retval, valueptrs);
         return return_ffi_value(retval, self->rettype);
     }
-
-error:
-    mp_raise_TypeError("Don't know how to pass object to native function");
 }
 
 STATIC const mp_obj_type_t ffifunc_type = {
