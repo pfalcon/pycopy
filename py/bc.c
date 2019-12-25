@@ -298,50 +298,28 @@ continue2:;
 
 void mp_decode_cur_lineno(const mp_code_state_t *code_state, mp_source_loc_t *loc) {
     const byte *ip = code_state->fun_bc->bytecode;
-    ip = mp_decode_uint_skip(ip); // skip n_state
-    ip = mp_decode_uint_skip(ip); // skip n_exc_stack
-    ip++; // skip scope_params
-    ip++; // skip n_pos_args
-    ip++; // skip n_kwonly_args
-    ip++; // skip n_def_pos_args
-    size_t bc = code_state->ip - ip;
-    size_t code_info_size = mp_decode_uint_value(ip);
-    ip = mp_decode_uint_skip(ip); // skip code_info_size
-    bc -= code_info_size;
+    MP_BC_PRELUDE_SIG_DECODE(ip);
+    MP_BC_PRELUDE_SIZE_DECODE(ip);
+    const byte *bytecode_start = ip + n_info + n_cell;
+    #if !MICROPY_PERSISTENT_CODE
+    // so bytecode is aligned
+    bytecode_start = MP_ALIGN(bytecode_start, sizeof(mp_uint_t));
+    #endif
+    size_t bc = code_state->ip - bytecode_start;
     #if MICROPY_PERSISTENT_CODE
-    loc->block_name = ip[0] | (ip[1] << 8);
-    loc->source_file = ip[2] | (ip[3] << 8);
+    qstr block_name = ip[0] | (ip[1] << 8);
+    qstr source_file = ip[2] | (ip[3] << 8);
     ip += 4;
     #else
-    loc->block_name = mp_decode_uint_value(ip);
+    qstr block_name = mp_decode_uint_value(ip);
     ip = mp_decode_uint_skip(ip);
-    loc->source_file = mp_decode_uint_value(ip);
+    qstr source_file = mp_decode_uint_value(ip);
     ip = mp_decode_uint_skip(ip);
     #endif
-    size_t source_line = 1;
-    size_t c;
-    while ((c = *ip)) {
-        size_t b, l;
-        if ((c & 0x80) == 0) {
-            // 0b0LLBBBBB encoding
-            b = c & 0x1f;
-            l = c >> 5;
-            ip += 1;
-        } else {
-            // 0b1LLLBBBB 0bLLLLLLLL encoding (l's LSB in second byte)
-            b = c & 0xf;
-            l = ((c << 4) & 0x700) | ip[1];
-            ip += 2;
-        }
-        if (bc >= b) {
-            bc -= b;
-            source_line += l;
-        } else {
-            // found source line corresponding to bytecode offset
-            break;
-        }
-    }
+    size_t source_line = mp_bytecode_get_source_line(ip, bc);
 
+    loc->block_name = block_name;
+    loc->source_file = source_file;
     loc->source_line = source_line;
 }
 
