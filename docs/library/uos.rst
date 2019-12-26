@@ -84,9 +84,13 @@ Filesystem access
 
    Rename a file.
 
-.. function:: stat(path)
+.. function:: stat(path, follow_symlinks=True)
 
    Get the status of a file or directory.
+
+   Second argument can be ``False`` to stat a symlink instead of a path it
+   points too, which is otherwise the defauly behavior. Not all ports support
+   2-argument form.
 
 .. function:: statvfs(path)
 
