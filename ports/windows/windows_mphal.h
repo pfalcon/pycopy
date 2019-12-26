@@ -34,3 +34,5 @@ void mp_hal_erase_line_from_cursor(unsigned int n_chars_to_erase);
 
 #undef mp_hal_ticks_cpu
 mp_uint_t mp_hal_ticks_cpu(void);
+
+#define lstat stat
