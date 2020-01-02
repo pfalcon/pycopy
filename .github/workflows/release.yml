@@ -1,0 +1,54 @@
+name: Release
+
+on:
+#  push:
+  release:
+    types: [created, edited]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone
+      uses: actions/checkout@v1
+    - name: Install i386 support
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt install gcc-multilib libffi-dev:i386
+    - name: Build pre-requisites
+      run: |
+        make ${MAKEOPTS} -C mpy-cross
+        make ${MAKEOPTS} -C ports/unix submodules
+        make ${MAKEOPTS} -C ports/unix deplibs
+    - name: Workaround for random permission change in libffi
+      run: cd lib/libffi; git checkout .
+    - run: git status
+
+    - name: Build Unix port (pycopy.x86)
+      run: |
+        make ${MAKEOPTS} -C ports/unix MICROPY_FORCE_32BIT=1
+        mv ports/unix/pycopy ports/unix/pycopy.x86
+    - name: Build Unix port (pycopy-dev.x86)
+      run: |
+        make ${MAKEOPTS} -C ports/unix dev MICROPY_FORCE_32BIT=1
+        mv ports/unix/pycopy-dev ports/unix/pycopy-dev.x86
+        rm -rf ports/unix/build*
+
+    - name: Build Unix port (pycopy)
+      run: |
+        make ${MAKEOPTS} -C ports/unix
+    - name: Build Unix port (pycopy-dev)
+      run: |
+        make ${MAKEOPTS} -C ports/unix dev
+
+    - name: Create release tarball
+      run: |
+        cd ports/unix; tar cfvz pycopy-$(git describe --tags).tar.gz pycopy pycopy-dev pycopy.x86 pycopy-dev.x86
+    - name: Upload release files
+      uses: pfalcon/github-action-publish-binaries@master
+      env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+          args: "ports/unix/pycopy*.tar.gz"
