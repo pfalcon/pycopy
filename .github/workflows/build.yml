@@ -1,0 +1,34 @@
+name: CI
+
+on:
+- push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone
+      uses: actions/checkout@v1
+    - run: sudo apt install libmbedtls-dev
+    - name: Build pre-requisites
+      run: |
+        make ${MAKEOPTS} -C mpy-cross
+        make ${MAKEOPTS} -C ports/unix submodules
+        make ${MAKEOPTS} -C ports/unix deplibs
+    - name: Build Unix port
+      run: make ${MAKEOPTS} -C ports/unix
+    - name: Build Unix port (pycopy-dev)
+      run: make ${MAKEOPTS} -C ports/unix dev
+    - name: Run tests (standard variant)
+      run: make ${MAKEOPTS} -C ports/unix test
+    - name: Upload pycopy
+      uses: actions/upload-artifact@v1
+      with:
+        name: pycopy
+        path: ports/unix/pycopy
+    - name: Upload pycopy-dev
+      uses: actions/upload-artifact@v1
+      with:
+        name: pycopy-dev
+        path: ports/unix/pycopy-dev
