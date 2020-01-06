@@ -13,7 +13,7 @@ mp_obj_type_t decompio_type;
 
 #include "extmod/moduzlib.c"
 
-mp_map_elem_t decompio_locals_dict_table[3];
+mp_map_elem_t decompio_locals_dict_table[4];
 STATIC MP_DEFINE_CONST_DICT(decompio_locals_dict, decompio_locals_dict_table);
 
 mp_obj_t mpy_init(mp_obj_fun_bc_t *self, size_t n_args, size_t n_kw, mp_obj_t *args) {
@@ -26,6 +26,7 @@ mp_obj_t mpy_init(mp_obj_fun_bc_t *self, size_t n_args, size_t n_kw, mp_obj_t *a
     decompio_locals_dict_table[0] = (mp_map_elem_t){ MP_OBJ_NEW_QSTR(MP_QSTR_read), MP_OBJ_FROM_PTR(&mp_stream_read_obj) };
     decompio_locals_dict_table[1] = (mp_map_elem_t){ MP_OBJ_NEW_QSTR(MP_QSTR_readinto), MP_OBJ_FROM_PTR(&mp_stream_readinto_obj) };
     decompio_locals_dict_table[2] = (mp_map_elem_t){ MP_OBJ_NEW_QSTR(MP_QSTR_readline), MP_OBJ_FROM_PTR(&mp_stream_unbuffered_readline_obj) };
+    decompio_locals_dict_table[3] = (mp_map_elem_t){ MP_OBJ_NEW_QSTR(MP_QSTR_init), MP_OBJ_FROM_PTR(&decompio_init_obj) };
     decompio_type.locals_dict = (void*)&decompio_locals_dict;
 
     mp_store_global(MP_QSTR___name__, MP_OBJ_NEW_QSTR(MP_QSTR_uzlib));
