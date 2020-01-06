@@ -1,6 +1,6 @@
 # This Python code will be merged with the C code in main.c
 
-import array
+import uarray as array
 
 def isclose(a, b):
     return abs(a - b) < 1e-3
