@@ -38,6 +38,7 @@
 #define MICROPY_READER_VFS             (1)
 #define MICROPY_WARNINGS_CATEGORY      (1)
 #define MICROPY_WARNINGS_LOC           (1)
+#define MICROPY_MODULE_BOOT            (1)
 #define MICROPY_MODULE_GETATTR         (1)
 #define MICROPY_PY_CLASS_BASES         (1)
 #define MICROPY_PY_DELATTR_SETATTR     (1)
