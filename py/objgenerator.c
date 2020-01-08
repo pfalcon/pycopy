@@ -47,6 +47,12 @@ typedef struct _mp_obj_gen_instance_t {
     mp_code_state_t code_state;
 } mp_obj_gen_instance_t;
 
+#if MICROPY_PY_GENERATOR_PEND_THROW
+STATIC mp_obj_t gen_instance_pend_throw(mp_obj_t self_in, mp_obj_t exc_in);
+#else
+#define gen_instance_pend_throw(self_in, exc_in)
+#endif
+
 STATIC mp_obj_t gen_wrap_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     // A generating function is just a bytecode function with type mp_type_gen_wrap
     mp_obj_fun_bc_t *self_fun = MP_OBJ_TO_PTR(self_in);
@@ -297,6 +303,9 @@ STATIC mp_obj_t gen_instance_throw(size_t n_args, const mp_obj_t *args) {
         exc = args[2];
     }
 
+    // Reset any pending exception, explicit .throw() has higher priority.
+    gen_instance_pend_throw(args[0], mp_const_none);
+
     mp_obj_t ret = gen_resume_and_raise(args[0], mp_const_none, exc);
     if (ret == MP_OBJ_STOP_ITERATION) {
         nlr_raise(mp_obj_new_exception(&mp_type_StopIteration));
@@ -308,6 +317,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gen_instance_throw_obj, 2, 4, gen_ins
 
 STATIC mp_obj_t gen_instance_close(mp_obj_t self_in) {
     mp_obj_t ret;
+
+    // Reset any pending exception, explicit .close() has higher priority.
+    gen_instance_pend_throw(self_in, mp_const_none);
+
     switch (mp_obj_gen_resume(self_in, mp_const_none, MP_OBJ_FROM_PTR(&mp_const_GeneratorExit_obj), &ret)) {
         case MP_VM_RETURN_YIELD:
             mp_raise_msg(&mp_type_RuntimeError, "generator ignored GeneratorExit");
