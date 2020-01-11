@@ -194,7 +194,7 @@ Following are encoding specification for various field types:
 Module contents
 ---------------
 
-.. class:: struct(addr, descriptor, layout_type=NATIVE)
+.. class:: struct(addr, descriptor, layout_type=NATIVE, /)
 
    Instantiate a "foreign data structure" object based on structure address in
    memory, descriptor (encoded as a dictionary), and layout type (see below).
@@ -214,7 +214,7 @@ Module contents
    Layout type for a native structure - with data endianness and alignment
    conforming to the ABI of the system on which MicroPython runs.
 
-.. function:: sizeof(struct, layout_type=NATIVE)
+.. function:: sizeof(struct, layout_type=NATIVE, /)
 
    Return size of data structure in bytes. The *struct* argument can be
    either a structure class or a specific instantiated structure object
