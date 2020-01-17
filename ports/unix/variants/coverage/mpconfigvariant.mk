@@ -1,4 +1,4 @@
-PROG ?= micropython_coverage
+PROG ?= pycopy-coverage
 
 COPT = -O0
 
@@ -10,7 +10,9 @@ CFLAGS_EXTRA += \
 
 LDFLAGS_EXTRA += -fprofile-arcs -ftest-coverage
 
-FROZEN_MANIFEST = manifest_coverage.py
+#FROZEN_MANIFEST = manifest_coverage.py
+FROZEN_DIR = coverage-frzstr
+FROZEN_MPY_DIR = coverage-frzmpy
 
 MICROPY_VFS_FAT = 1
 MICROPY_VFS_LFS1 = 1
