@@ -2,6 +2,6 @@
 
 COPT = "-O2 -DNDEBUG -fno-crossjumping"
 
-PROG = micropython_fast
+PROG = pycopy-fast
 
 FROZEN_MANIFEST =
