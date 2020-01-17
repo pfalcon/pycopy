@@ -1,9 +1,11 @@
 # build a minimal interpreter
 COPT = -Os -DNDEBUG
 
-PROG = micropython_minimal
+PROG = pycopy-minimal
 
-FROZEN_MANIFEST =
+#FROZEN_MANIFEST =
+FROZEN_DIR =
+FROZEN_MPY_DIR =
 
 MICROPY_PY_BTREE = 0
 MICROPY_PY_FFI = 0
