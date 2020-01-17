@@ -13,8 +13,8 @@ include ../../py/mkenv.mk
 -include mpconfigport.mk
 include $(VARIANT_DIR)/mpconfigvariant.mk
 
-FROZEN_DIR = scripts
-FROZEN_MPY_DIR = modules
+FROZEN_DIR ?= scripts
+FROZEN_MPY_DIR ?= modules
 
 # define main target
 # This might be overriden in a mpconfigvariant.mk
