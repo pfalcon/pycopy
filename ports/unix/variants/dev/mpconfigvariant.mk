@@ -1,0 +1,6 @@
+CFLAGS_EXTRA = -UNDEBUG
+LDFLAGS_EXTRA = -rdynamic
+
+PROG = pycopy-dev
+
+MICROPY_VFS_FAT = 1
