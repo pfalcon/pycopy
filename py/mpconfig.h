@@ -117,7 +117,7 @@
 // real objects.  Reduces code size by a decent amount without hurting
 // performance, for all representations except D on some architectures.
 #ifndef MICROPY_OBJ_IMMEDIATE_OBJS
-#define MICROPY_OBJ_IMMEDIATE_OBJS (MICROPY_OBJ_REPR != MICROPY_OBJ_REPR_D)
+#define MICROPY_OBJ_IMMEDIATE_OBJS (0) //(MICROPY_OBJ_REPR != MICROPY_OBJ_REPR_D)
 #endif
 
 /*****************************************************************************/
