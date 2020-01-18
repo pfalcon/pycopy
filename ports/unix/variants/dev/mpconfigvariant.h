@@ -1,9 +1,9 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 Paul Sokolovsky
+ * Copyright (c) 2018-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,10 @@
  * THE SOFTWARE.
  */
 
-// Config for "Development and Instrumentation" build of MicroPython
+// Config for "Development and Instrumentation" build of Pycopy
 
 #define MICROPY_VFS                    (1)
 #define MICROPY_PY_UOS_VFS             (1)
-
-#include <mpconfigport.h>
 
 #define MICROPY_ENABLE_PRECISE_SOURCE_LINE (1)
 #define MICROPY_FLOAT_HIGH_QUALITY_HASH (1)
