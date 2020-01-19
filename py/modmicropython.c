@@ -171,6 +171,27 @@ STATIC mp_obj_t mp_micropython_function(size_t n_args, const mp_obj_t *args) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_micropython_function_obj, 3, 4, mp_micropython_function);
 #endif
 
+#if MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+STATIC mp_obj_t mp_micropython_writable_ns(mp_obj_t obj_in, mp_obj_t is_writable) {
+    mp_obj_dict_t *dict;
+
+    if (mp_obj_is_type(obj_in, &mp_type_type)) {
+        mp_obj_type_t *type = MP_OBJ_TO_PTR(obj_in);
+        dict = type->locals_dict;
+    } else if (mp_obj_is_type(obj_in, &mp_type_module)) {
+        dict = mp_obj_module_get_globals(obj_in);
+    } else {
+        mp_raise_TypeError(NULL);
+    }
+
+    bool old = dict->map.is_fixed;
+    dict->map.is_fixed = !mp_obj_is_true(is_writable);
+
+    return mp_obj_new_bool(!old);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_micropython_writable_ns_obj, mp_micropython_writable_ns);
+#endif
+
 STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_micropython) },
     { MP_ROM_QSTR(MP_QSTR_const), MP_ROM_PTR(&mp_identity_obj) },
@@ -208,6 +229,9 @@ STATIC const mp_rom_map_elem_t mp_module_micropython_globals_table[] = {
     #endif
     #if MICROPY_PY_MICROPYTHON_FUNCTION
     { MP_ROM_QSTR(MP_QSTR_function), MP_ROM_PTR(&mp_micropython_function_obj) },
+    #endif
+    #if MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+    { MP_ROM_QSTR(MP_QSTR_writable_ns), MP_ROM_PTR(&mp_micropython_writable_ns_obj) },
     #endif
 };
 
