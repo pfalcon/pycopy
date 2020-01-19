@@ -177,7 +177,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_intern_obj, mp_sys_intern);
 #endif
 
 #if MICROPY_PY_SYS_STDFILES_OVERRIDE
-STATIC const mp_obj_dict_t mp_module_sys_globals;
+STATIC MP_NS_DICT mp_obj_dict_t mp_module_sys_globals;
 
 STATIC mp_obj_t mp_sys___setattr__(mp_obj_t attr, mp_obj_t val) {
     qstr qst = MP_OBJ_QSTR_VALUE(attr);
