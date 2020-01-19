@@ -1,0 +1,6 @@
+expected AttributeError #1
+foo!
+foo!
+bar?
+expected AttributeError #2
+Captured: "Shouldn't be printed on its own\n"
