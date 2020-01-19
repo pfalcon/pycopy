@@ -332,6 +332,14 @@ typedef struct _mp_rom_obj_t { mp_const_obj_t o; } mp_rom_obj_t;
 // These macros are used to define constant map/dict objects
 // You can put "static" in front of the definition to make it local
 
+#if MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+#define MP_NS_DICT
+#define MP_NS_DICT_TABLE
+#else
+#define MP_NS_DICT const
+#define MP_NS_DICT_TABLE const
+#endif
+
 #define MP_DEFINE_CONST_MAP(map_name, table_name) \
     const mp_map_t map_name = { \
         .all_keys_are_qstrs = 1, \
@@ -343,7 +351,7 @@ typedef struct _mp_rom_obj_t { mp_const_obj_t o; } mp_rom_obj_t;
     }
 
 #define MP_DEFINE_CONST_DICT(dict_name, table_name) \
-    const mp_obj_dict_t dict_name = { \
+    MP_NS_DICT mp_obj_dict_t dict_name = { \
         .base = {&mp_type_dict}, \
         .map = { \
             .all_keys_are_qstrs = 1, \
