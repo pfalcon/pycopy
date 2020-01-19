@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014 Paul Sokolovsky
+ * Copyright (c) 2014-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,11 @@
 
 #include "py/gc.h"
 #include "py/runtime.h"
+
+#if MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+// For malloc()
+#include <stdlib.h>
+#endif
 
 #if MICROPY_ENABLE_GC
 
@@ -664,6 +669,28 @@ void *gc_realloc(void *ptr_in, size_t n_bytes, bool allow_move) {
     if (ptr_in == NULL) {
         return gc_alloc(n_bytes, false);
     }
+
+    #if MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+    // Used e.g. when patching namespace dicts of the builtin types.
+    if (ptr_in < (void *)MP_STATE_MEM(gc_pool_start) || ptr_in >= (void *)MP_STATE_MEM(gc_pool_end)) {
+        // If this request comes from some builtin, statically allocated type's
+        // namespace dictionary, we can't allocate a new dict on heap, because
+        // builtin types aren't in root pointer set, so such a newly allocated
+        // dict would be gc'ed eventually. So, we must allocate it outside the
+        // GCed heap.
+        /*void *newp = gc_alloc(n_bytes, false);*/
+        // This would leak memory on 2nd and subsequent calls. For now, done
+        // like that for simplicity (patching namespace dicts would be one-time
+        // startup event).
+        void *newp = malloc(n_bytes);
+        DEBUG_printf("Migrating from outside heap to system heap: %p -> %p(%u)\n", ptr_in, newp, (uint)n_bytes);
+        // This will copy more copy more bytes than was in the original block.
+        // Hopefully won't crash. Will leave some cruft at the end which should
+        // be cleared.
+        memcpy(newp, ptr_in, n_bytes);
+        return newp;
+    }
+    #endif
 
     // check for pure free
     if (n_bytes == 0) {
