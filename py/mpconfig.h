@@ -787,6 +787,12 @@ typedef double mp_float_t;
 #define MICROPY_CAN_OVERRIDE_BUILTINS (0)
 #endif
 
+// Whether one can (potentially) override methods (and other attributes)
+// of the builtin types and modules
+#ifndef MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES
+#define MICROPY_CAN_OVERRIDE_BUILTIN_NAMESPACES (0)
+#endif
+
 // Whether to check that the "self" argument of a builtin method has the
 // correct type.  Such an explicit check is only needed if a builtin
 // method escapes to Python land without a first argument, eg
