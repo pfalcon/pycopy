@@ -266,7 +266,7 @@ STATIC mp_obj_t str_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value) {
     }
 }
 
-STATIC const mp_rom_map_elem_t struni_locals_dict_table[] = {
+STATIC MP_NS_DICT_TABLE mp_rom_map_elem_t struni_locals_dict_table[] = {
 #if MICROPY_CPYTHON_COMPAT
     { MP_ROM_QSTR(MP_QSTR_encode), MP_ROM_PTR(&str_encode_obj) },
 #endif
