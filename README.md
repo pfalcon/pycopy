@@ -197,6 +197,7 @@ For some ports, building required dependences is transparent, and happens
 automatically.  But they still need to be fetched with the `make submodules`
 command.
 
+<!--
 The STM32 version
 -----------------
 
@@ -223,6 +224,7 @@ This will use the included `tools/pydfu.py` script.  If flashing the firmware
 does not work it may be because you don't have the correct permissions, and
 need to use `sudo make deploy`.
 See the README.md file in the ports/stm32/ directory for further details.
+-->
 
 Contributing
 ------------
