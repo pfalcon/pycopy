@@ -42,6 +42,9 @@ print("%.1s" % "ab")
 print("%10.2s" % "abc")
 print("%-10.2s" % "abc")
 
+print('%c' % False)
+print('%c' % True)
+
 # Should be able to print dicts; in this case they aren't used
 # to lookup keywords in formats like %(foo)s
 print('%s' % {})
