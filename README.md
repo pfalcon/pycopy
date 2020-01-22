@@ -77,33 +77,33 @@ Source tree layout
 ------------------
 
 Major components in this repository:
-- py/ -- the core Python implementation, including compiler, runtime, and
+- [py/](py/) -- the core Python implementation, including compiler, runtime, and
   core library.
-- mpy-cross/ -- the bytecode (cross)compiler which is used to turn scripts
+- [mpy-cross/](mpy-cross/) -- the bytecode (cross)compiler which is used to turn scripts
   into precompiled bytecode.
-- ports/unix/ -- a version of Pycopy that runs on Unix (which includes Android).
-- ports/windows/ -- a version for Windows.
-- ports/stm32/ -- a version of Pycopy that runs on the PyBoard and similar
+- [ports/unix/](ports/unix/) -- a version of Pycopy that runs on Unix (which includes Android).
+- [ports/windows/](ports/windows/) -- a version for Windows.
+- [ports/stm32/](ports/stm32/) -- a version of Pycopy that runs on the PyBoard and similar
   STM32 boards (using ST's Cube HAL drivers).
-- ports/minimal/ -- a minimal port. Start with this if you want
+- [ports/minimal/](ports/minimal/) -- a minimal port. Start with this if you want
   to port the project to another microcontroller.
-- tests/ -- test framework and test scripts.
-- docs/ -- user documentation in Sphinx reStructuredText format. Rendered
+- [tests/](tests/) -- test framework and test scripts.
+- [docs/](docs/) -- user documentation in Sphinx reStructuredText format. Rendered
   HTML documentation is available at http://pycopy.readthedocs.io/ .
 
 Additional components:
-- ports/bare-arm/ -- a bare minimum version for ARM MCUs. Used
+- [ports/bare-arm/](ports/bare-arm/) -- a bare minimum version for ARM MCUs. Used
   mostly to control code size.
-- ports/teensy/ -- a version that runs on the Teensy 3.1
+- [ports/teensy/](ports/teensy/) -- a version that runs on the Teensy 3.1
   (preliminary but functional).
-- ports/pic16bit/ -- a version for 16-bit PIC microcontrollers.
-- ports/cc3200/ -- a version that runs on the CC3200 from TI.
-- ports/esp8266/ -- a version that runs on Espressif's ESP8266 SoC.
-- ports/esp32/ -- a version that runs on Espressif's ESP32 SoC.
-- ports/nrf/ -- a version that runs on Nordic's nRF51 and nRF52 MCUs.
-- extmod/ -- additional (non-core) modules implemented in C.
-- tools/ -- various tools, including the pyboard.py module.
-- examples/ -- a few example Python scripts.
+- [ports/pic16bit/](ports/pic16bit/) -- a version for 16-bit PIC microcontrollers.
+- [ports/cc3200/](ports/cc3200/) -- a version that runs on the CC3200 from TI.
+- [ports/esp8266/](ports/esp8266/) -- a version that runs on Espressif's ESP8266 SoC.
+- [ports/esp32/](ports/esp32/) -- a version that runs on Espressif's ESP32 SoC.
+- [ports/nrf/](ports/nrf/) -- a version that runs on Nordic's nRF51 and nRF52 MCUs.
+- [extmod/](extmod/) -- additional (non-core) modules implemented in C.
+- [tools/](tools/) -- various tools, including the pyboard.py module.
+- [examples/](examples/) -- various example scripts.
 
 The subdirectories above may include READMEs with additional info.
 
