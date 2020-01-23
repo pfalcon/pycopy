@@ -38,6 +38,7 @@
 #include "py/runtime.h"
 #include "py/objtuple.h"
 #include "py/mphal.h"
+#include "py/mpthread.h"
 #include "extmod/vfs.h"
 #include "extmod/misc.h"
 
@@ -54,7 +55,9 @@ STATIC mp_obj_t mod_os_stat(size_t n_args, const mp_obj_t *args) {
     struct stat sb;
     const char *path = mp_obj_str_get_str(path_in);
 
+    MP_THREAD_GIL_EXIT();
     int res = (follow_symlinks ? stat : lstat)(path, &sb);
+    MP_THREAD_GIL_ENTER();
     RAISE_ERRNO(res, errno);
 
     mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
@@ -94,7 +97,9 @@ STATIC mp_obj_t mod_os_statvfs(mp_obj_t path_in) {
     STRUCT_STATVFS sb;
     const char *path = mp_obj_str_get_str(path_in);
 
+    MP_THREAD_GIL_EXIT();
     int res = STATVFS(path, &sb);
+    MP_THREAD_GIL_ENTER();
     RAISE_ERRNO(res, errno);
 
     mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
@@ -121,7 +126,9 @@ STATIC mp_obj_t mod_os_remove(mp_obj_t path_in) {
     // of that function. But Python remove() follows ANSI C, and explicitly
     // required to raise exception on attempt to remove a directory. Thus,
     // call POSIX unlink() here.
+    MP_THREAD_GIL_EXIT();
     int r = unlink(path);
+    MP_THREAD_GIL_ENTER();
 
     RAISE_ERRNO(r, errno);
 
@@ -133,7 +140,9 @@ STATIC mp_obj_t mod_os_rename(mp_obj_t src_in, mp_obj_t dst_in) {
     const char *src = mp_obj_str_get_str(src_in);
     const char *dst = mp_obj_str_get_str(dst_in);
 
+    MP_THREAD_GIL_EXIT();
     int r = rename(src, dst);
+    MP_THREAD_GIL_ENTER();
 
     RAISE_ERRNO(r, errno);
 
@@ -144,7 +153,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_os_rename_obj, mod_os_rename);
 STATIC mp_obj_t mod_os_system(mp_obj_t cmd_in) {
     const char *cmd = mp_obj_str_get_str(cmd_in);
 
+    MP_THREAD_GIL_EXIT();
     int r = system(cmd);
+    MP_THREAD_GIL_ENTER();
 
     RAISE_ERRNO(r, errno);
 
@@ -164,11 +175,13 @@ MP_DEFINE_CONST_FUN_OBJ_1(mod_os_getenv_obj, mod_os_getenv);
 STATIC mp_obj_t mod_os_mkdir(mp_obj_t path_in) {
     // TODO: Accept mode param
     const char *path = mp_obj_str_get_str(path_in);
+    MP_THREAD_GIL_EXIT();
     #ifdef _WIN32
     int r = mkdir(path);
     #else
     int r = mkdir(path, 0777);
     #endif
+    MP_THREAD_GIL_ENTER();
     RAISE_ERRNO(r, errno);
     return mp_const_none;
 }
@@ -186,13 +199,16 @@ STATIC mp_obj_t listdir_next(mp_obj_t self_in) {
     if (self->dir == NULL) {
         goto done;
     }
+    MP_THREAD_GIL_EXIT();
     struct dirent *dirent = readdir(self->dir);
     if (dirent == NULL) {
         closedir(self->dir);
+        MP_THREAD_GIL_ENTER();
         self->dir = NULL;
     done:
         return MP_OBJ_STOP_ITERATION;
     }
+    MP_THREAD_GIL_ENTER();
 
     mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(3, NULL));
     t->items[0] = mp_obj_new_str(dirent->d_name, strlen(dirent->d_name));
@@ -229,7 +245,9 @@ STATIC mp_obj_t mod_os_ilistdir(size_t n_args, const mp_obj_t *args) {
     }
     mp_obj_listdir_t *o = m_new_obj(mp_obj_listdir_t);
     o->base.type = &mp_type_polymorph_iter;
+    MP_THREAD_GIL_EXIT();
     o->dir = opendir(path);
+    MP_THREAD_GIL_ENTER();
     o->iternext = listdir_next;
     return MP_OBJ_FROM_PTR(o);
 }
