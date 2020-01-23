@@ -4,6 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2014-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +27,9 @@
 #ifndef MICROPY_INCLUDED_PY_MPCONFIG_H
 #define MICROPY_INCLUDED_PY_MPCONFIG_H
 
-// Current version of MicroPython
-#define MICROPY_VERSION_MAJOR 2
-#define MICROPY_VERSION_MINOR 12
+// Current version of Pycopy
+#define MICROPY_VERSION_MAJOR 3
+#define MICROPY_VERSION_MINOR 0
 #define MICROPY_VERSION_MICRO 0
 
 // Combined version as a 32-bit number for convenience
