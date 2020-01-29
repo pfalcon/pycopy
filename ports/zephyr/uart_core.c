@@ -27,7 +27,7 @@
 #include "py/mpconfig.h"
 #include "src/zephyr_getchar.h"
 // Zephyr headers
-#include <uart.h>
+#include <drivers/uart.h>
 #include <console/console.h>
 
 /*
