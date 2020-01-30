@@ -24,7 +24,7 @@ include ../../py/mkenv.mk
 include $(TOP)/py/py.mk
 
 # Zephyr (generated) config files - must be defined before include below
-Z_EXPORTS = outdir/$(OUTDIR_PREFIX)/Makefile.export
+Z_EXPORTS = outdir/$(OUTDIR_PREFIX)/Makefile.exports.C
 ifneq ($(MAKECMDGOALS), clean)
 include $(Z_EXPORTS)
 endif
@@ -101,11 +101,8 @@ prj_$(BOARD)_merged.conf: prj_base.conf $(wildcard prj_$(BOARD).conf)
 test:
 	cd $(TOP)/tests && ./run-tests --target minimal --device "execpty:make -C ../ports/zephyr run BOARD=$(BOARD) QEMU_PTY=1"
 
-cmake: outdir/$(OUTDIR_PREFIX)/Makefile
+cmake: $(Z_EXPORTS)
 
-outdir/$(OUTDIR_PREFIX)/Makefile: $(CONF_FILE)
+$(Z_EXPORTS): $(CONF_FILE)
 	mkdir -p outdir/$(OUTDIR_PREFIX) && cmake -DBOARD=$(BOARD) -DCONF_FILE=$(CONF_FILE) -Boutdir/$(OUTDIR_PREFIX) -H.
-
-$(Z_EXPORTS): outdir/$(OUTDIR_PREFIX)/Makefile
-	make --no-print-directory -C outdir/$(OUTDIR_PREFIX) outputexports CMAKE_COMMAND=: >$@
-	make -C outdir/$(OUTDIR_PREFIX) syscall_list_h_target kobj_types_h_target
+	make -C outdir/$(OUTDIR_PREFIX) zephyr_generated_headers
