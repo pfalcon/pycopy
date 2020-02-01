@@ -104,6 +104,12 @@ jobs:
     - stage: test
       env: NAME="unix coverage build and tests"
       install:
+        # Install gcc 7.x, as older version has glitchy strict alisasing warnings-as-errors
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get update -qq || true
+        - sudo apt-get install -y gcc-7
+        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 80
+        - sudo update-alternatives --config gcc
         - sudo apt-get install python3-pip
         - sudo pip install cpp-coveralls
         - sudo pip3 install setuptools
@@ -143,7 +149,13 @@ jobs:
     - stage: test
       env: NAME="unix coverage 32-bit build and tests"
       install:
-        - sudo apt-get install gcc-multilib libffi-dev:i386
+        # Install gcc 7.x, as older version has glitchy strict alisasing warnings-as-errors
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get update -qq || true
+        - sudo apt-get install -y gcc-7
+        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 80
+        - sudo update-alternatives --config gcc
+        - sudo apt-get install gcc-multilib gcc-7-multilib libffi-dev:i386
         - sudo apt-get install python3-pip
         - sudo pip3 install setuptools
         - sudo pip3 install pyelftools
