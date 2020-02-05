@@ -176,17 +176,17 @@ execute:
         if (!compile_only) {
             // execute it
             mp_call_function_0(module_fun);
-            // check for pending exception
-            mp_handle_pending();
         }
 
         mp_hal_set_interrupt_char(-1);
+        mp_handle_pending(true);
         nlr_pop();
         return 0;
 
     } else {
         // uncaught exception
         mp_hal_set_interrupt_char(-1);
+        mp_handle_pending(false);
         return handle_uncaught_exception(nlr.ret_val);
     }
 }
