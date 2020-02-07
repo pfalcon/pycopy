@@ -82,8 +82,3 @@ Environment variables
     not defined, the search path will be ``~/.micropython/lib:/usr/lib/micropython``
     or the value of the ``MICROPY_PY_SYS_PATH_DEFAULT`` option if it was set
     when MicroPython itself was compiled.
-
-.. envvar:: MICROPYINSPECT
-
-    Enables inspection. If ``MICROPYINSPECT`` is set to a non-empty string, it
-    has the same effect as setting the :option:`-i` command line option.
