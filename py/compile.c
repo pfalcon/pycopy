@@ -3084,11 +3084,6 @@ STATIC void compile_scope(compiler_t *comp, scope_t *scope, pass_kind_t pass) {
 
         compile_node(comp, pns->nodes[1]); // 1 is lambda body
 
-        // if the lambda is a generator, then we return None, not the result of the expression of the lambda
-        if (scope->scope_flags & MP_SCOPE_FLAG_GENERATOR) {
-            EMIT(pop_top);
-            EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE);
-        }
         EMIT(return_value);
     } else if (scope->kind == SCOPE_LIST_COMP || scope->kind == SCOPE_DICT_COMP || scope->kind == SCOPE_SET_COMP || scope->kind == SCOPE_GEN_EXPR) {
         // a bit of a hack at the moment
