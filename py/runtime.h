@@ -155,6 +155,7 @@ void mp_import_all(mp_obj_t module);
 
 #define mp_raise_type(exc_type) mp_raise_msg(exc_type, NULL)
 NORETURN void mp_raise_msg(const mp_obj_type_t *exc_type, const char *msg);
+NORETURN void mp_raise_msg_varg(const mp_obj_type_t *exc_type, const char *fmt, ...);
 NORETURN void mp_raise_IndexError(const char *msg);
 NORETURN void mp_raise_ValueError(const char *msg);
 NORETURN void mp_raise_TypeError(const char *msg);
