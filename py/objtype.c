@@ -1354,7 +1354,7 @@ STATIC void super_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
         .attr = attr,
         .meth_offset = 0,
         .dest = dest,
-        .is_type = false,
+        .is_type = mp_obj_is_type(self->obj, &mp_type_type),
     };
 
     // Allow a call super().__init__() to reach any native base classes
