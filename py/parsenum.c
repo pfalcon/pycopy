@@ -278,9 +278,6 @@ mp_obj_t mp_parse_num_decimal(const char *str, size_t len, bool allow_imag, bool
                 if (str == top) {
                     goto value_error;
                 }
-            } else if (allow_imag && (dig | 0x20) == 'j') {
-                imag = true;
-                break;
             } else if (dig == '_') {
                 continue;
             } else {
@@ -322,6 +319,11 @@ mp_obj_t mp_parse_num_decimal(const char *str, size_t len, bool allow_imag, bool
     // check we parsed something
     if (str == str_val_start) {
         goto value_error;
+    }
+
+    if (allow_imag && str < top && (*str | 0x20) == 'j') {
+        imag = true;
+        str++;
     }
 
     // skip trailing space
