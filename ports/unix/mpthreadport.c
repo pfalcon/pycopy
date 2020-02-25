@@ -39,7 +39,7 @@
 #include <sched.h>
 #include <semaphore.h>
 
-#define MP_THREAD_GC_SIGNAL (SIGRTMIN + 5)
+#define MP_THREAD_GC_SIGNAL (SIGUSR1)
 
 // this structure forms a linked list, one node per active thread
 typedef struct _thread_t {
