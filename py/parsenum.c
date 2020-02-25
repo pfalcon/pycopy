@@ -31,6 +31,7 @@
 #include "py/parsenumbase.h"
 #include "py/parsenum.h"
 #include "py/smallint.h"
+#include "py/objcomplex.h"
 
 #if MICROPY_PY_BUILTINS_FLOAT
 #include <math.h>
@@ -325,6 +326,16 @@ mp_obj_t mp_parse_num_decimal(const char *str, size_t len, bool allow_imag, bool
         imag = true;
         str++;
     }
+
+    #if MICROPY_PY_BUILTINS_COMPLEX
+    if (!imag && force_complex) {
+        if (*str == '+' || *str == '-') {
+            mp_obj_t o = mp_parse_num_decimal(str, top - str, true, true, lex);
+            mp_obj_complex_t *imag_part = MP_OBJ_TO_PTR(o);
+            return mp_obj_new_complex(dec_val, imag_part->imag);
+        }
+    }
+    #endif
 
     // skip trailing space
     for (; str < top && unichar_isspace(*str); str++) {

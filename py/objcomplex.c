@@ -35,12 +35,7 @@
 
 #include <math.h>
 #include "py/formatfloat.h"
-
-typedef struct _mp_obj_complex_t {
-    mp_obj_base_t base;
-    mp_float_t real;
-    mp_float_t imag;
-} mp_obj_complex_t;
+#include "py/objcomplex.h"
 
 STATIC void complex_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     (void)kind;
