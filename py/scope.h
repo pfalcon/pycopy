@@ -36,6 +36,7 @@ enum {
     ID_INFO_KIND_LOCAL, // in a function f, written and only referenced by f
     ID_INFO_KIND_CELL,  // in a function f, read/written by children of f
     ID_INFO_KIND_FREE,  // in a function f, belongs to the parent of f
+    ID_INFO_KIND_CLS_LOCAL, // class local
 };
 
 enum {

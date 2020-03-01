@@ -36,6 +36,8 @@ void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst) {
     if (SCOPE_IS_FUNC_LIKE(scope->kind) && id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT) {
         // rebind as a local variable
         id->kind = ID_INFO_KIND_LOCAL;
+    } else if (scope->kind == SCOPE_CLASS && id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT) {
+        id->kind = ID_INFO_KIND_CLS_LOCAL;
     }
 }
 
@@ -46,7 +48,7 @@ void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emi
     assert(id != NULL);
 
     // call the emit backend with the correct code
-    if (id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT) {
+    if (id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT || id->kind == ID_INFO_KIND_CLS_LOCAL) {
         emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_NAME);
     } else if (id->kind == ID_INFO_KIND_GLOBAL_EXPLICIT) {
         emit_method_table->global(emit, qst, MP_EMIT_IDOP_GLOBAL_GLOBAL);
