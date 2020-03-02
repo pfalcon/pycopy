@@ -174,7 +174,7 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
     }
     if (self->code_state.sp == self->code_state.state - 1) {
         if (send_value != mp_const_none) {
-            mp_raise_TypeError("can't send non-None value to a just-started generator");
+            mp_raise_TypeError(MP_ERROR_TEXT("can't send non-None value to a just-started generator"));
         }
         #if MICROPY_PY_GENERATOR_PEND_THROW
         // If exception is pending (set using .pend_throw()), process it now.
@@ -199,7 +199,7 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
     // We set self->globals=NULL while executing, for a sentinel to ensure the generator
     // cannot be reentered during execution
     if (self->globals == NULL) {
-        mp_raise_ValueError("generator already executing");
+        mp_raise_ValueError(MP_ERROR_TEXT("generator already executing"));
     }
 
     // Set up the correct globals context for the generator and execute it
@@ -247,7 +247,7 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
             *ret_val = self->code_state.state[0];
             // PEP479: if StopIteration is raised inside a generator it is replaced with RuntimeError
             if (mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(mp_obj_get_type(*ret_val)), MP_OBJ_FROM_PTR(&mp_type_StopIteration))) {
-                *ret_val = mp_obj_new_exception_msg(&mp_type_RuntimeError, "generator raised StopIteration");
+                *ret_val = mp_obj_new_exception_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("generator raised StopIteration"));
             }
             break;
         }
@@ -328,7 +328,7 @@ STATIC mp_obj_t gen_instance_close(mp_obj_t self_in) {
 
     switch (mp_obj_gen_resume(self_in, mp_const_none, MP_OBJ_FROM_PTR(&mp_const_GeneratorExit_obj), &ret)) {
         case MP_VM_RETURN_YIELD:
-            mp_raise_msg(&mp_type_RuntimeError, "generator ignored GeneratorExit");
+            mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("generator ignored GeneratorExit"));
 
         // Swallow GeneratorExit (== successful close), and re-raise any other
         case MP_VM_RETURN_EXCEPTION:
