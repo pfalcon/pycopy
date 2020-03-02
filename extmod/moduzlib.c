@@ -80,7 +80,7 @@ STATIC unsigned handle_dict_opt(mp_obj_decompio_t *o) {
         int dict_code = uzlib_zlib_parse_header(&o->decomp);
         if (dict_code < 0) {
         header_error:
-            mp_raise_ValueError("compression header");
+            mp_raise_ValueError(MP_ERROR_TEXT("compression header"));
         }
         if (o->dict_opt == 0) {
             o->dict_opt = dict_code + 8;
