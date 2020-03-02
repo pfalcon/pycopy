@@ -520,7 +520,7 @@ STATIC mp_obj_t set_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs) {
 /******************************************************************************/
 /* set constructors & public C API                                            */
 
-STATIC const mp_rom_map_elem_t set_locals_dict_table[] = {
+STATIC MP_NS_DICT_TABLE mp_rom_map_elem_t set_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&set_add_obj) },
     { MP_ROM_QSTR(MP_QSTR_clear), MP_ROM_PTR(&set_clear_obj) },
     { MP_ROM_QSTR(MP_QSTR_copy), MP_ROM_PTR(&set_copy_obj) },
@@ -554,7 +554,7 @@ const mp_obj_type_t mp_type_set = {
 };
 
 #if MICROPY_PY_BUILTINS_FROZENSET
-STATIC const mp_rom_map_elem_t frozenset_locals_dict_table[] = {
+STATIC MP_NS_DICT_TABLE mp_rom_map_elem_t frozenset_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_copy), MP_ROM_PTR(&set_copy_obj) },
     { MP_ROM_QSTR(MP_QSTR_difference), MP_ROM_PTR(&set_diff_obj) },
     { MP_ROM_QSTR(MP_QSTR_intersection), MP_ROM_PTR(&set_intersect_obj) },
