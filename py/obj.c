@@ -228,7 +228,9 @@ bool mp_obj_equal(mp_obj_t o1, mp_obj_t o2) {
             // both SMALL_INT, and not equal if we get here
             return false;
         } else {
-            mp_obj_t temp = o2; o2 = o1; o1 = temp;
+            mp_obj_t temp = o2;
+            o2 = o1;
+            o1 = temp;
             // o2 is now the SMALL_INT, o1 is not
             // fall through to generic op
         }
