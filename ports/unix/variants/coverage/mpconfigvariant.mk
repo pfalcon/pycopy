@@ -14,6 +14,7 @@ LDFLAGS += -fprofile-arcs -ftest-coverage
 FROZEN_DIR = coverage-frzstr
 FROZEN_MPY_DIR = coverage-frzmpy
 
+MICROPY_ROM_TEXT_COMPRESSION = 1
 MICROPY_VFS_FAT = 1
 MICROPY_VFS_LFS1 = 1
 MICROPY_VFS_LFS2 = 1
