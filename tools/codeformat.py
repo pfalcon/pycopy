@@ -56,6 +56,7 @@ EXCLUSIONS = [
     "ports/*/build*",
     # gitignore in ports/unix ignores *.py, so also do it here.
     "ports/unix/*.py",
+    "**/upip*.py",
 ]
 
 # Path to repo top-level dir.
