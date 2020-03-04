@@ -83,6 +83,8 @@ def list_files(paths, exclusions=None, prefix=""):
         files.update(glob.glob(os.path.join(prefix, pattern), recursive=True))
     for pattern in exclusions or []:
         files.difference_update(glob.fnmatch.filter(files, os.path.join(prefix, pattern)))
+    # Filter out dangling symlinks, etc.
+    files = [f for f in files if os.path.isfile(f)]
     return sorted(files)
 
 
