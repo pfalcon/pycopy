@@ -45,7 +45,7 @@ jobs:
 
     - name: Create release tarball
       run: |
-        cd ports/unix; tar cfvz pycopy-$(git describe --tags).tar.gz pycopy pycopy-dev pycopy.x86 pycopy-dev.x86
+        cd ports/unix; tar cfvz pycopy-$(git describe --tags)-bin.tar.gz pycopy pycopy-dev pycopy.x86 pycopy-dev.x86
     - name: Upload release files
       uses: pfalcon/github-action-publish-binaries@master
       env:
