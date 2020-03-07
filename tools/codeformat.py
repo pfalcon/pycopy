@@ -57,6 +57,8 @@ EXCLUSIONS = [
     # gitignore in ports/unix ignores *.py, so also do it here.
     "ports/unix/*.py",
     "**/upip*.py",
+    "**/modules/*.py",
+    "**/scripts/*.py",
 ]
 
 # Path to repo top-level dir.
@@ -84,7 +86,7 @@ def list_files(paths, exclusions=None, prefix=""):
     for pattern in exclusions or []:
         files.difference_update(glob.fnmatch.filter(files, os.path.join(prefix, pattern)))
     # Filter out dangling symlinks, etc.
-    files = [f for f in files if os.path.isfile(f)]
+    files = [f for f in files if os.path.isfile(f) and not os.path.islink(f)]
     return sorted(files)
 
 
