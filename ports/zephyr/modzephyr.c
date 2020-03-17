@@ -50,15 +50,8 @@ extern k_tid_t const _main_thread;
 extern k_tid_t const _idle_thread;
 
 static void thread_stack_dump(const struct k_thread *thread, void *user_data) {
-    const char *th_name = k_thread_name_get((k_tid_t)thread);
-
-    if (th_name == NULL) {
-        static char tid[9];
-        snprintf(tid, sizeof(tid), "%08x", (int)thread);
-        th_name = tid;
-    }
-
-    stack_analyze(th_name, (char *)thread->stack_info.start, thread->stack_info.size);
+    (void)user_data;
+    log_stack_usage(thread);
 }
 
 STATIC mp_obj_t mod_stacks_analyze(void) {
