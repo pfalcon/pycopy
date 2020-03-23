@@ -2,11 +2,13 @@
 
 from micropython import const
 
+
 def test_syntax(code):
     try:
         exec(code)
     except SyntaxError:
         print("SyntaxError")
+
 
 # argument not a constant
 # Pycopy: there's absolutely nothing wrong with passing arbitrary expression
