@@ -368,7 +368,7 @@ def main():
     test_files = prepare_test_file_list(cmd_args.files)
     max_instances = max(t[1] for t in test_files)
 
-    instances_truth = [PyInstanceSubProcess([PYTHON_TRUTH]) for _ in range(max_instances)]
+    instances_truth = [PyInstanceSubProcess([PYTHON_TRUTH, "-S"]) for _ in range(max_instances)]
 
     instances_test = []
     for i in cmd_args.instance:
