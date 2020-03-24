@@ -375,6 +375,7 @@ STATIC void parse_string_literal(mp_lexer_t *lex, bool is_raw) {
                             } else {
                                 // unrecognised escape character; CPython lets this through verbatim as '\' and then the character
                                 vstr_add_char(&lex->vstr, '\\');
+                                continue;
                             }
                             break;
                     }
