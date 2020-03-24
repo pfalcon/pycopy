@@ -1,6 +1,9 @@
 # Simple test of a TCP server and client transferring data
 
-import socket
+try:
+    import usocket as socket
+except ImportError:
+    import socket
 
 PORT = 8000
 
