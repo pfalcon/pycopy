@@ -1,6 +1,9 @@
 # Test when client does a TCP RST on an open connection
 
-import struct, time, socket, select
+try:
+    import ustruct as struct, utime as time, usocket as socket, uselect as select
+except ImportError:
+    import struct, time, socket, select
 
 PORT = 8000
 
