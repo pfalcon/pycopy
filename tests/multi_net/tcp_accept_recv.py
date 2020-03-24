@@ -1,6 +1,9 @@
 # Test recv on socket that just accepted a connection
 
-import socket
+try:
+    import usocket as socket
+except ImportError:
+    import socket
 
 PORT = 8000
 
