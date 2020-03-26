@@ -186,15 +186,6 @@ described here.
         for stream operations. If an operation is not completed in the time
         alloted, ``OSError(ETIMEDOUT)`` is raised.
 
-Functions
----------
-
-.. function:: open(name, mode='r', **kwargs)
-
-    Open a file. Builtin ``open()`` function is aliased to this function.
-    All ports (which provide access to file system) are required to support
-    *mode* parameter, but support for other arguments vary by port.
-
 Classes
 -------
 
