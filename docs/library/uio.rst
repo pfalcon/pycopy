@@ -15,49 +15,50 @@ Conceptual hierarchy
 .. admonition:: Difference to CPython
    :class: attention
 
-   Conceptual hierarchy of stream base classes is simplified in MicroPython,
+   Conceptual hierarchy of stream base classes is simplified in Pycopy,
    as described in this section.
 
 (Abstract) base stream classes, which serve as a foundation for behavior
 of all the concrete classes, adhere to few dichotomies (pair-wise
-classifications) in CPython. In MicroPython, they are somewhat simplified
+classifications) in CPython. In Pycopy, they are somewhat simplified
 and made implicit to achieve higher efficiencies and save resources.
 
 An important dichotomy in CPython is unbuffered vs buffered streams. In
-MicroPython, all streams are currently unbuffered. This is because all
+Pycopy, all streams are unbuffered by default. This is because all
 modern OSes, and even many RTOSes and filesystem drivers already perform
 buffering on their side. Adding another layer of buffering is counter-
 productive (an issue known as "bufferbloat") and takes precious memory.
-Note that there are still cases where buffering may be useful, so we may
-introduce optional buffering support at a later time.
+Note that there are still cases where buffering may be useful, so
+optional `BufferedReader` and `BufferedWriter` classes are provided in
+some :term:`Pycopy ports <Pycopy port>`.
 
 But in CPython, another important dichotomy is tied with "bufferedness" -
-it's whether a stream may incur short read/writes or not. A short read
+it is whether a stream may incur short read/writes or not. A short read
 is when a user asks e.g. 10 bytes from a stream, but gets less, similarly
-for writes. In CPython, unbuffered streams are automatically short
-operation susceptible, while buffered are guaranteed against them. The
-no short read/writes is an important trait, as it allows to develop
+for writes. In CPython, unbuffered streams are automatically susceptible
+to short operations, while buffered are guaranteed against them. The
+"no short read/writes" is an important trait, as it allows to develop
 more concise and efficient programs - something which is highly desirable
-for MicroPython. So, while MicroPython doesn't support buffered streams,
+for Pycopy. So, while Pycopy doesn't support buffered streams,
 it still provides for no-short-operations streams. Whether there will
 be short operations or not depends on each particular class' needs, but
 developers are strongly advised to favor no-short-operations behavior
-for the reasons stated above. For example, MicroPython sockets are
-guaranteed to avoid short read/writes. Actually, at this time, there is
-no example of a short-operations stream class in the core, and one would
+for the reasons stated above. For example, Pycopy sockets are
+guaranteed to avoid short read/writes (for blocking operations - see below). Actually, at this time, there is
+no example of a short-operations (blocking) stream class in the core, and one would
 be a port-specific class, where such a need is governed by hardware
 peculiarities.
 
 The no-short-operations behavior gets tricky in case of non-blocking
 streams, blocking vs non-blocking behavior being another CPython dichotomy,
-fully supported by MicroPython. Non-blocking streams never wait for
+fully supported by Pycopy. Non-blocking streams never wait for
 data either to arrive or be written - they read/write whatever possible,
-or signal lack of data (or ability to write data). Clearly, this conflicts
+or signal lack of data (or lack of ability to write data). Clearly, this conflicts
 with "no-short-operations" policy, and indeed, a case of non-blocking
 buffered (and thus no-short-ops) streams is convoluted in CPython - in
 some places, such combination is prohibited, in some it's undefined or
 just not documented, in some cases it raises verbose exceptions. The
-matter is much simpler in MicroPython: non-blocking stream are important
+matter is much simpler in Pycopy: non-blocking stream are important
 for efficient asynchronous operations, so this property prevails
 the "no-short-ops" one. So, while blocking streams will avoid short
 reads/writes whenever possible (the only case to get a short read is
@@ -65,12 +66,12 @@ if the end of file is reached, or in a case of error (but errors don't
 return short data, but raise exceptions)), non-blocking streams may
 produce short data to avoid blocking the operation.
 
-The final dichotomy is binary vs text streams. MicroPython of course
+The final dichotomy is binary vs text streams. Pycopy of course
 supports these, but while in CPython text streams are inherently
-buffered, they aren't in MicroPython. (Indeed, that's one of the cases
-for which we may introduce buffering support.)
+buffered, they aren't necessarily in Pycopy. (Indeed, that's one
+of the cases for which buffering may be useful.)
 
-Note that for efficiency, MicroPython doesn't provide abstract base
+Note that for efficiency, Pycopy doesn't provide abstract base
 classes corresponding to the hierarchy above, and it's not possible
 to implement, or subclass, a stream class in pure Python.
 
@@ -87,8 +88,8 @@ described here.
     .. method:: read(size=-1)
 
         Read *size* bytes or characters from the stream, or until EOF if
-        size is -1 or not specified. Return `str` or `bytes` with
-        contents read. Return ``None`` if stream is in non-blocking mode
+        size is -1 or not specified. Return `str` or `bytes` with the
+        data read. Return ``None`` if stream is in non-blocking mode
         and no data is available.
 
     .. method:: readline(maxsize=-1)
@@ -109,7 +110,7 @@ described here.
         data. Returns number of bytes actually read. This method is
         available only for binary streams.
 
-        MicroPython extension: *buf* can be a `BytesIO` object. Data
+        Pycopy extension: *buf* can be a `BytesIO` object. Data
         will be written at the current offset of the BytesIO object, and
         up to remaining allocation size of data will be written, in other
         words, this operation will not grow the internal buffer of BytesIO
@@ -119,13 +120,13 @@ described here.
 
         Writes to the stream *data*, which should be `str` for text streams,
         or arbitrary `buffer` for binary streams. Returns number of items
-        (bytes or characters) actually written, or None if non-blocking
+        (bytes or characters) actually written, or ``None`` if non-blocking
         stream could not accept any data.
 
     .. method:: write(data, size)
                 write(data, offset, size)
 
-        MicroPython extension: write a substring of *data*, starting at *offset*
+        Pycopy extension: write a substring of *data*, starting at *offset*
         (or 0), and with the given *size*. For example,
         ``write(b'12345', 1, 2)`` will write ``b'23'`` to the stream. These
         methods are useful as an optimization when working with short-write
@@ -134,8 +135,8 @@ described here.
 
     .. method:: flush()
 
-        Flush any data or metadata, cached internally (in MicroPython
-        components) or externally (e.g. in OS) to the underlying medium.
+        Flush any data or metadata, cached internally (in Pycopy
+        objects) or externally (e.g. in OS) to the underlying medium.
         For example, for files, all data will be written to disk, for
         network streams - data will be sent over network, etc.
 
@@ -144,7 +145,7 @@ described here.
         Close the stream. No other operations on stream are possible after
         the closure (will lead to error or underfines behavior). However,
         the close() operation itself should be idempotent, i.e. it should
-        be possible to call in multiple times without an error (2nd and
+        be possible to call it multiple times without an error (2nd and
         following calls should not lead to any effect).
 
     .. method:: seek(offset, [whence])
@@ -161,7 +162,7 @@ described here.
         provided by the ``uio`` module, to minimize the code size. Instead,
         well-known values 0, 1, 2 can be used. Your application may define
         these symbolic names itself, or use ``io`` module from
-        `micropython-lib` which provides them.
+        `pycopy-lib` which provides them.
 
         This method is available only for random-access streams.
 
@@ -223,10 +224,10 @@ Classes
     to *alloc_size* number of bytes. That means that writing that amount
     of bytes won't lead to reallocation of the buffer, and thus won't hit
     out-of-memory situation or lead to memory fragmentation. These constructors
-    are a MicroPython extension and are recommended for usage only in special
+    are a Pycopy extension and are recommended for usage only in special
     cases and in system-level libraries, not for end-user applications.
 
     .. admonition:: Difference to CPython
         :class: attention
 
-        These constructors are a MicroPython extension.
+        These constructors are a Pycopy extension.
