@@ -265,7 +265,7 @@ void mp_stream_write_adaptor(void *self, const char *buf, size_t len) {
     mp_stream_write(MP_OBJ_FROM_PTR(self), buf, len, MP_STREAM_RW_WRITE);
 }
 
-STATIC mp_obj_t stream_write_method(size_t n_args, const mp_obj_t *args) {
+mp_obj_t mp_stream_write_method(size_t n_args, const mp_obj_t *args) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
     size_t max_len = (size_t)-1;
@@ -282,7 +282,7 @@ STATIC mp_obj_t stream_write_method(size_t n_args, const mp_obj_t *args) {
     bufinfo.len -= off;
     return mp_stream_write(args[0], (byte *)bufinfo.buf + off, MIN(bufinfo.len, max_len), MP_STREAM_RW_WRITE);
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_write_obj, 2, 4, stream_write_method);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_write_obj, 2, 4, mp_stream_write_method);
 
 STATIC mp_obj_t stream_write1_method(mp_obj_t self_in, mp_obj_t arg) {
     mp_buffer_info_t bufinfo;
