@@ -4,7 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014-2017 Paul Sokolovsky
+ * Copyright (c) 2014-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -222,6 +222,18 @@ STATIC mp_obj_t stringio_make_new(const mp_obj_type_t *type_in, size_t n_args, s
     return MP_OBJ_FROM_PTR(o);
 }
 
+STATIC mp_obj_t stringio_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
+    switch (op) {
+        case MP_BINARY_OP_INPLACE_ADD: {
+            mp_obj_t args[] = {lhs_in, rhs_in};
+            mp_stream_write_method(2, args);
+            return lhs_in;
+        }
+        default:
+            return MP_OBJ_NULL; // op not supported
+    }
+}
+
 STATIC const mp_rom_map_elem_t stringio_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mp_stream_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_readinto), MP_ROM_PTR(&mp_stream_readinto_obj) },
@@ -253,6 +265,7 @@ const mp_obj_type_t mp_type_stringio = {
     .make_new = stringio_make_new,
     .getiter = mp_identity_getiter,
     .iternext = mp_stream_unbuffered_iter,
+    .binary_op = stringio_binary_op,
     .protocol = &stringio_stream_p,
     .locals_dict = (mp_obj_dict_t *)&stringio_locals_dict,
 };
@@ -271,6 +284,7 @@ const mp_obj_type_t mp_type_bytesio = {
     .make_new = stringio_make_new,
     .getiter = mp_identity_getiter,
     .iternext = mp_stream_unbuffered_iter,
+    .binary_op = stringio_binary_op,
     .protocol = &bytesio_stream_p,
     .locals_dict = (mp_obj_dict_t *)&stringio_locals_dict,
 };
