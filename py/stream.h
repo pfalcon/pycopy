@@ -102,6 +102,8 @@ MP_DECLARE_CONST_FUN_OBJ_1(mp_stream_tell_obj);
 MP_DECLARE_CONST_FUN_OBJ_1(mp_stream_flush_obj);
 MP_DECLARE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_ioctl_obj);
 
+mp_obj_t mp_stream_write_method(size_t n_args, const mp_obj_t *args);
+
 // these are for mp_get_stream_raise and can be or'd together
 #define MP_STREAM_OP_READ (1)
 #define MP_STREAM_OP_WRITE (2)
