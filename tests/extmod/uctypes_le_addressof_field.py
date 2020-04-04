@@ -4,6 +4,7 @@ except ImportError:
     print("SKIP")
     raise SystemExit
 
+# fmt: off
 desc = {
     "f0": uctypes.UINT8 | 0,
     "f1": uctypes.UINT8 | 5,
@@ -15,6 +16,7 @@ desc = {
         "b1": uctypes.UINT8 | 1,
     }),
 }
+# fmt: on
 
 data = bytearray(10)
 
