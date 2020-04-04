@@ -10,6 +10,7 @@ OFFSET_MASK = (1 << OFFSET_BITS) - 1
 
 o = OrderedDict
 
+# fmt: off
 desc = o((
     ("s0", uctypes.UINT8),
     ("s1", uctypes.UINT16),
@@ -24,6 +25,7 @@ desc = o((
     ("bitf0", uctypes.BFUINT16 | 0 << uctypes.BF_POS | 8 << uctypes.BF_LEN),
     ("bitf1", uctypes.BFUINT16 | 8 << uctypes.BF_POS | 8 << uctypes.BF_LEN),
 ))
+# fmt: on
 
 offset_less1 = [(x[0] if isinstance(x, tuple) else x) & ~OFFSET_MASK for x in desc.values()]
 
