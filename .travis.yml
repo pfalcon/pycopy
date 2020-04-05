@@ -291,7 +291,7 @@ jobs:
         - NAME="unix port build with clang on OSX"
         - PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig
       install:
-        - brew install pkgconfig
+        - brew install pkgconfig || true
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - make ${MAKEOPTS} -C ports/unix submodules
