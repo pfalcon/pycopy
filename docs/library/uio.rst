@@ -210,12 +210,35 @@ Classes
     can be specified with *string* parameter (should be normal string
     for `StringIO` or bytes object for `BytesIO`). All the usual file
     methods like ``read()``, ``write()``, ``seek()``, ``flush()``,
-    ``close()`` are available on these objects, and additionally, a
-    following method:
+    ``close()`` are available on these objects, and additionally,
+    following methods:
 
     .. method:: getvalue()
 
         Get the current contents of the underlying buffer which holds data.
+
+    .. method:: __iadd__(string)
+
+        (I.e. ``+=`` operator.) This is equivalent to ``write()`` method,
+        but gives syntax similar to string ``+=`` operator. Usage example::
+
+            # Don't do it like this, it's *very* slow.
+            buf = ""
+            for i in range(50000):
+                buf += "a"
+            print(buf)
+
+            # Instead, do it like this, this is both fast and efficient of
+            # memory.
+            buf = uio.StringIO()
+            for i in range(50000):
+                buf += "a"
+            print(buf.getvalue())
+
+        .. admonition:: Difference to CPython
+            :class: attention
+
+            This method is a Pycopy extension.
 
 .. class:: StringIO(alloc_size)
 .. class:: BytesIO(alloc_size)
