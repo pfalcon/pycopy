@@ -607,6 +607,13 @@ void mp_lexer_to_next(mp_lexer_t *lex) {
                 }
             } else if (is_letter(lex) || is_digit(lex) || is_char(lex, '.')) {
                 if (is_char_or3(lex, '.', 'j', 'J')) {
+                    if (is_char(lex, '.')) {
+                        // If we deal with float/complex already, then another
+                        // dot means attribute access.
+                        if (lex->tok_kind == MP_TOKEN_FLOAT_OR_IMAG) {
+                            break;
+                        }
+                    }
                     lex->tok_kind = MP_TOKEN_FLOAT_OR_IMAG;
                 }
                 vstr_add_char(&lex->vstr, CUR_CHAR(lex));
