@@ -1,7 +1,7 @@
 Distribution packages, package management, and deploying applications
 =====================================================================
 
-Just as the "big" Python, MicroPython supports creation of "third party"
+Just as the "big" Python, Pycopy supports creation of "third party"
 packages, distributing them, and easily installing them in each user's
 environment. This chapter discusses how these actions are achieved.
 Some familiarity with Python packaging is recommended.
@@ -15,13 +15,13 @@ packages:
 1. Python modules and packages are turned into distribution package
    archives, and published at the Python Package Index (PyPI).
 2. `upip` package manager can be used to install a distribution package
-   on a `MicroPython port` with networking capabilities (for example,
+   on a `Pycopy port` with networking capabilities (for example,
    on the Unix port).
 3. For ports without networking capabilities, an "installation image"
    can be prepared on the Unix port, and transferred to a device by
    suitable means.
 4. For low-memory ports, the installation image can be frozen as the
-   bytecode into MicroPython executable, thus minimizing the memory
+   bytecode into Pycopy executable, thus minimizing the memory
    storage overheads.
 
 The sections below describe this process in details.
@@ -35,7 +35,7 @@ and downloading on demand for deployment. These archives are known as
 *distribution packages* (to differentiate them from Python packages
 (means to organize Python source code)).
 
-The MicroPython distribution package format is a well-known tar.gz
+The Pycopy distribution package format is a well-known tar.gz
 format, with some adaptations however. The Gzip compressor, used as
 an external wrapper for TAR archives, by default uses 32KB dictionary
 size, which means that to uncompress a compressed stream, 32KB of
@@ -43,42 +43,42 @@ contiguous memory needs to be allocated. This requirement may be not
 satisfiable on low-memory devices, which may have total memory available
 less than that amount, and even if not, a contiguous block like that
 may be hard to allocate due to memory fragmentation. To accommodate
-these constraints, MicroPython distribution packages use Gzip compression
+these constraints, Pycopy distribution packages use Gzip compression
 with the dictionary size of 4K, which should be a suitable compromise
 with still achieving some compression while being able to uncompressed
 even by the smallest devices.
 
-Besides the small compression dictionary size, MicroPython distribution
+Besides the small compression dictionary size, Pycopy distribution
 packages also have other optimizations, like removing any files from
 the archive which aren't used by the installation process. In particular,
 `upip` package manager doesn't execute ``setup.py`` during installation
 (see below), and thus that file is not included in the archive.
 
-At the same time, these optimizations make MicroPython distribution
+At the same time, these optimizations make Pycopy distribution
 packages not compatible with `CPython`'s package manager, ``pip``.
 This isn't considered a big problem, because:
 
 1. Packages can be installed with `upip`, and then can be used with
    CPython (if they are compatible with it).
 2. In the other direction, majority of CPython packages would be
-   incompatible with MicroPython by various reasons, first of all,
-   the reliance on features not implemented by MicroPython.
+   incompatible with Pycopy by various reasons, first of all,
+   the reliance on features not implemented by Pycopy.
 
-Summing up, the MicroPython distribution package archives are highly
-optimized for MicroPython's target environments, which are highly
+Summing up, the Pycopy distribution package archives are highly
+optimized for Pycopy's target environments, which are highly
 resource constrained devices.
 
 
 ``upip`` package manager
 ------------------------
 
-MicroPython distribution packages are intended to be installed using
+Pycopy distribution packages are intended to be installed using
 the `upip` package manager. `upip` is a Python application which is
 usually distributed (as frozen bytecode) with network-enabled
-`MicroPython ports <MicroPython port>`. At the very least,
-`upip` is available in the `MicroPython Unix port`.
+`Pycopy ports <Pycopy port>`. At the very least,
+`upip` is available in the `Pycopy Unix port`.
 
-On any `MicroPython port` providing `upip`, it can be accessed as
+On any `Pycopy port` providing `upip`, it can be accessed as
 following::
 
     import upip
@@ -94,7 +94,7 @@ location (see below).
 An example of installing a specific package and then using it::
 
     >>> import upip
-    >>> upip.install("micropython-pystone_lowmem")
+    >>> upip.install("pycopy-pystone_lowmem")
     [...]
     >>> import pystone_lowmem
     >>> pystone_lowmem.main()
@@ -104,18 +104,18 @@ package for it in general don't have to match, and oftentimes they
 don't. This is because PyPI provides a central package repository
 for all different Python implementations and versions, and thus
 distribution package names may need to be namespaced for a particular
-implementation. For example, all packages from `micropython-lib`
+implementation. For example, all packages from `pycopy-lib`
 follow this naming convention: for a Python module or package named
-``foo``, the distribution package name is ``micropython-foo``.
+``foo``, the distribution package name is ``pycopy-foo``.
 
-For the ports which run MicroPython executable from the OS command
+For the ports which run Pycopy executable from the OS command
 prompts (like the Unix port), `upip` can be (and indeed, usually is)
-run from the command line instead of MicroPython's own REPL. The
+run from the command line instead of Pycopy's own REPL. The
 commands which corresponds to the example above are::
 
-    micropython -m upip -h
-    micropython -m upip install [-p <path>] <packages>...
-    micropython -m upip install micropython-pystone_lowmem
+    pycopy -m upip -h
+    pycopy -m upip install [-p <path>] <packages>...
+    pycopy -m upip install pycopy-pystone_lowmem
 
 [TODO: Describe installation path.]
 
@@ -123,14 +123,14 @@ commands which corresponds to the example above are::
 Cross-installing packages
 -------------------------
 
-For `MicroPython ports <MicroPython port>` without native networking
+For `Pycopy ports <Pycopy port>` without native networking
 capabilities, the recommend process is "cross-installing" them into a
-"directory image" using the `MicroPython Unix port`, and then
+"directory image" using the `Pycopy Unix port`, and then
 transferring this image to a device by suitable means.
 
 Installing to a directory image involves using ``-p`` switch to `upip`::
 
-    micropython -m upip install -p install_dir micropython-pystone_lowmem
+    pycopy -m upip install -p install_dir pycopy-pystone_lowmem
 
 After this command, the package content (and contents of every dependency
 packages) will be available in the ``install_dir/`` subdirectory. You
@@ -143,7 +143,7 @@ the `upip` installation path above).
 Cross-installing packages with freezing
 ---------------------------------------
 
-For the low-memory `MicroPython ports <MicroPython port>`, the process
+For the low-memory `Pycopy ports <Pycopy port>`, the process
 described in the previous section does not provide the most efficient
 resource usage,because the packages are installed in the source form,
 so need to be compiled to the bytecome on each import. This compilation
@@ -160,7 +160,7 @@ mentioned above:
 * Filesystem is not required for frozen packages.
 
 Using frozen bytecode requires building the executable (firmware)
-for a given `MicroPython port` from the C source code. Consequently,
+for a given `Pycopy port` from the C source code. Consequently,
 the process is:
 
 1. Follow the instructions for a particular port on setting up a
@@ -168,14 +168,14 @@ the process is:
    study instructions in ``ports/esp8266/README.md`` and follow them.
    Make sure you can build the port and deploy the resulting
    executable/firmware successfully before proceeding to the next steps.
-2. Build `MicroPython Unix port` and make sure it is in your PATH and
-   you can execute ``micropython``.
+2. Build `Pycopy Unix port` and make sure it is in your PATH and
+   you can execute ``pycopy``.
 3. Change to port's directory (e.g. ``ports/esp8266/`` for ESP8266).
 4. Run ``make clean-frozen``. This step cleans up any previous
    modules which were installed for freezing (consequently, you need
    to skip this step to add additional modules, instead of starting
    from scratch).
-5. Run ``micropython -m upip install -p modules <packages>...`` to
+5. Run ``pycopy -m upip install -p modules <packages>...`` to
    install packages you want to freeze.
 6. Run ``make clean``.
 7. Run ``make``.
@@ -202,7 +202,7 @@ Few notes:
 Creating distribution packages
 ------------------------------
 
-Distribution packages for MicroPython are created in the same manner
+Distribution packages for Pycopy are created in the same manner
 as for CPython or any other Python implementation, see references at
 the end of chapter. Setuptools (instead of distutils) should be used,
 because distutils do not support dependencies and other features. "Source
@@ -222,8 +222,8 @@ appropriate argument to ``setup()`` call::
     )
 
 The sdist_upip.py module as referenced above can be found in
-`micropython-lib`:
-https://github.com/pfalcon/micropython-lib/blob/master/sdist_upip.py
+`pycopy-lib`:
+https://github.com/pfalcon/pycopy-lib/blob/master/sdist_upip.py
 
 
 Application resources
@@ -241,7 +241,7 @@ advanced approach to accessing data files. This approach is treating
 the data files as "resources", and abstracting away access to them.
 
 Python supports resource access using its "setuptools" library, using
-``pkg_resources`` module. MicroPython, following its usual approach,
+``pkg_resources`` module. Pycopy, following its usual approach,
 implements subset of the functionality of that module, specifically
 ``pkg_resources.resource_stream(package, resource)`` function.
 The idea is that an application calls this function, passing a
@@ -281,7 +281,7 @@ following calls::
     pkg_resources.resource_stream(__name__, "data/page.html")
     pkg_resources.resource_stream(__name__, "data/image.png")
 
-You can develop and debug using the `MicroPython Unix port` as usual.
+You can develop and debug using the `Pycopy Unix port` as usual.
 When time comes to make a distribution package out of it, just use
 overridden "sdist" command from sdist_upip.py module as described in
 the previous section.
@@ -299,7 +299,7 @@ If you would like to debug ``R.py`` creation, you can run::
     python3 setup.py sdist --manifest-only
 
 Alternatively, you can use ``tools/mpy_bin2res.py`` script from the
-MicroPython distribution, in which case you will need to pass paths
+Pycopy distribution, in which case you will need to pass paths
 to all resource files::
 
     mpy_bin2res.py data/page.html data/image.png
