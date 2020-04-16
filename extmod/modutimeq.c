@@ -307,4 +307,4 @@ const mp_obj_module_t mp_module_utimeq = {
     .globals = (mp_obj_dict_t *)&mp_module_utimeq_globals,
 };
 
-#endif //MICROPY_PY_UTIMEQ
+#endif // MICROPY_PY_UTIMEQ
