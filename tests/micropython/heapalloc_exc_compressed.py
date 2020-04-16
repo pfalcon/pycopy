@@ -1,3 +1,9 @@
+try:
+    set
+except NameError:
+    print("SKIP")
+    raise SystemExit
+
 import micropython
 
 # Tests both code paths for built-in exception raising.
