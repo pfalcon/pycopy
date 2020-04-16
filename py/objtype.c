@@ -1245,7 +1245,7 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
     }
     o->subscr = instance_subscr;
     o->getiter = mp_obj_instance_getiter;
-    //o->iternext = ; not implemented
+    // o->iternext = ; not implemented
     o->buffer_p.get_buffer = instance_get_buffer;
 
     if (bases_len > 0) {
