@@ -983,7 +983,7 @@ void gc_test(void) {
         mp_uint_t *p = gc_alloc(i, false);
         printf("p=%p\n", p);
         if (i & 3) {
-            //ptrs[i] = p;
+            // ptrs[i] = p;
         }
     }
 
