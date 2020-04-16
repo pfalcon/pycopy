@@ -18,10 +18,9 @@ Functions
 
 .. function:: select(rlist, wlist, xlist[, timeout])
 
-   Wait for activity on a set of objects.
-
-   This function is provided by some MicroPython ports for compatibility
-   and is not efficient. Usage of :class:`Poll` is recommended instead.
+   This function is inefficient and not supported by Pycopy. Use `poll()`
+   instead. Full ``select`` module with this function is available in
+   `pycopy-lib`.
 
 .. _class: Poll
 
@@ -45,7 +44,7 @@ Methods
 
    *eventmask* defaults to ``uselect.POLLIN | uselect.POLLOUT``.
 
-   As a MicroPython extension, an arbitrary *userdata* can be passed,
+   As a Pycopy extension, an arbitrary *userdata* can be passed,
    which will be associated with the added stream and which will be
    returned from `ipoll()` method (but NOT from `poll()` method).
 
@@ -59,7 +58,7 @@ Methods
    Unregister *obj* from polling. If *obj* was not previously registered,
    `KeyError` exception will be raised.
 
-   As a MicroPython extension, if second parameter is False, exception
+   As a Pycopy extension, if second parameter is False, exception
    will not be raised.
 
 .. method:: poll.modify(obj, eventmask)
@@ -105,16 +104,16 @@ Methods
    .. admonition:: Difference to CPython
       :class: attention
 
-      This function is a MicroPython extension.
+      This function is a Pycopy extension.
 
 Polling stream wrapper objects
 ------------------------------
 
-MicroPython supports a concept of "stream wrapper objects", where an
+Pycopy supports a concept of "stream wrapper objects", where an
 original stream object (like a file or socket) is wrapped with an object
 which provides stream API, but also some additional functionality. Examples
 include :mod:`ussl` objects, :mod:`websocket` objects, etc. Some
-MicroPython ports may allow to pass such objects to `poll.register`.
+Pycopy ports may allow to pass such objects to `poll.register`.
 However the overall API contract for them is slightly relaxed: if such
 a wrapper was returned as suitable forreading (``uselect.POLLIN``),
 reading it may still lead to the EAGAIN underlying error (and e.g.
