@@ -209,7 +209,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_utimeq_heappop_obj, mod_utimeq_heappop);
 STATIC mp_obj_t mod_utimeq_remove(mp_obj_t heap_in, mp_obj_t el_handle) {
     mp_obj_utimeq_t *heap = utimeq_get_heap(heap_in);
     if (heap->len == 0) {
-        mp_raise_IndexError("empty heap");
+        mp_raise_IndexError(MP_ERROR_TEXT("empty heap"));
     }
 
     mp_int_t idx = MP_OBJ_SMALL_INT_VALUE(el_handle);
