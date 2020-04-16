@@ -1,3 +1,9 @@
+try:
+    set
+except NameError:
+    print("SKIP")
+    raise SystemExit
+
 import micropython
 
 # Does the full test from heapalloc_exc_compressed.py but while the heap is

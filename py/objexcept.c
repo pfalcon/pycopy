@@ -141,6 +141,8 @@ STATIC void decompress_error_text_maybe(mp_obj_exception_t *o) {
             o_str->hash = qstr_compute_hash(o_str->data, o_str->len);
         }
     }
+    #else
+    (void)o;
     #endif
 }
 
