@@ -12,10 +12,10 @@ This module provides access to the BSD socket interface.
 .. admonition:: Difference to CPython
    :class: attention
 
-   For efficiency and consistency, socket objects in MicroPython implement a `stream`
+   For efficiency and consistency, socket objects in Pycopy implement a `stream`
    (file-like) interface directly. In CPython, you need to convert a socket to
    a file-like object using `makefile()` method. This method is still supported
-   by MicroPython (but is a no-op), so where compatibility with CPython matters,
+   by Pycopy (but is a no-op), so where compatibility with CPython matters,
    be sure to use it.
 
 Socket address format(s)
@@ -25,7 +25,7 @@ The native socket address format of the ``usocket`` module is an opaque data typ
 returned by `getaddrinfo` function, which must be used to resolve textual address
 (including numeric addresses)::
 
-    sockaddr = usocket.getaddrinfo('www.micropython.org', 80)[0][-1]
+    sockaddr = usocket.getaddrinfo('google.com', 80)[0][-1]
     # You must use getaddrinfo() even for numeric addresses
     sockaddr = usocket.getaddrinfo('127.0.0.1', 80)[0][-1]
     # Now you can use that address
@@ -34,11 +34,11 @@ returned by `getaddrinfo` function, which must be used to resolve textual addres
 Using `getaddrinfo` is the most efficient (both in terms of memory and processing
 power) and portable way to work with addresses.
 
-However, ``socket`` module (note the difference with native MicroPython
+However, ``socket`` module (note the difference with native Pycopy
 ``usocket`` module described here) provides CPython-compatible way to specify
 addresses using tuples, as described below. Note that depending on a
-`MicroPython port`, ``socket`` module can be builtin or need to be
-installed from `micropython-lib` (as in the case of `MicroPython Unix port`),
+`Pycopy port`, ``socket`` module can be builtin or need to be
+installed from `pycopy-lib` (as in the case of `Pycopy Unix port`),
 and some ports still accept only numeric addresses in the tuple format,
 and require to use `getaddrinfo` function to resolve domain names.
 
@@ -61,7 +61,7 @@ Tuple address format for ``socket`` module:
   must be 0. *scopeid* is the interface scope identifier for link-local
   addresses. Note the domain names are not accepted as *ipv6_address*,
   they should be resolved first using `usocket.getaddrinfo()`. Availability
-  of IPv6 support depends on a `MicroPython port`.
+  of IPv6 support depends on a `Pycopy port`.
 
 Functions
 ---------
@@ -70,7 +70,7 @@ Functions
 
    Create a new socket using the given address family, socket type and
    protocol number. Note that specifying *proto* in most cases is not
-   required (and not recommended, as some MicroPython ports may omit
+   required (and not recommended, as some Pycopy ports may omit
    ``IPPROTO_*`` constants). Instead, *type* argument will select needed
    protocol automatically::
 
@@ -97,20 +97,20 @@ Functions
       s = usocket.socket()
       # This assumes that if "type" is not specified, an address for
       # SOCK_STREAM will be returned, which may be not true
-      s.connect(usocket.getaddrinfo('www.micropython.org', 80)[0][-1])
+      s.connect(usocket.getaddrinfo('google.com', 80)[0][-1])
 
    Recommended use of filtering params::
 
       s = usocket.socket()
       # Guaranteed to return an address which can be connect'ed to for
       # stream operation.
-      s.connect(usocket.getaddrinfo('www.micropython.org', 80, 0, SOCK_STREAM)[0][-1])
+      s.connect(usocket.getaddrinfo('google.com', 80, 0, SOCK_STREAM)[0][-1])
 
    .. admonition:: Difference to CPython
       :class: attention
 
       CPython raises a ``socket.gaierror`` exception (`OSError` subclass) in case
-      of error in this function. MicroPython doesn't have ``socket.gaierror``
+      of error in this function. Pycopy doesn't have ``socket.gaierror``
       and raises OSError directly. Note that error numbers of `getaddrinfo()`
       form a separate namespace and may not match error numbers from
       the :mod:`uerrno` module. To distinguish `getaddrinfo()` errors, they are
@@ -141,7 +141,7 @@ Constants
 .. data:: AF_INET
           AF_INET6
 
-   Address family types. Availability depends on a particular `MicroPython port`.
+   Address family types. Availability depends on a particular `Pycopy port`.
 
 .. data:: SOCK_STREAM
           SOCK_DGRAM
@@ -151,7 +151,7 @@ Constants
 .. data:: IPPROTO_UDP
           IPPROTO_TCP
 
-   IP protocol numbers. Availability depends on a particular `MicroPython port`.
+   IP protocol numbers. Availability depends on a particular `Pycopy port`.
    Note that you don't need to specify these in a call to `usocket.socket()`,
    because `SOCK_STREAM` socket type automatically selects `IPPROTO_TCP`, and
    `SOCK_DGRAM` - `IPPROTO_UDP`. Thus, the only real use of these constants
@@ -160,12 +160,12 @@ Constants
 .. data:: usocket.SOL_*
 
    Socket option levels (an argument to `setsockopt()`). The exact
-   inventory depends on a `MicroPython port`.
+   inventory depends on a `Pycopy port`.
 
 .. data:: usocket.SO_*
 
    Socket options (an argument to `setsockopt()`). The exact
-   inventory depends on a `MicroPython port`.
+   inventory depends on a `Pycopy port`.
 
 Constants specific to WiPy:
 
@@ -223,7 +223,7 @@ Methods
    chunk by chunk consecutively.
 
    The behavior of this method on non-blocking sockets is undefined. Due to this,
-   on MicroPython, it's recommended to use `write()` method instead, which
+   on Pycopy, it's recommended to use `write()` method instead, which
    has the same "no short writes" policy for blocking sockets, and will return
    number of bytes sent on non-blocking sockets.
 
@@ -259,7 +259,7 @@ Methods
    completed. If zero is given, the socket is put in non-blocking mode. If None is given, the socket
    is put in blocking mode.
 
-   Not every `MicroPython port` supports this method. A more portable and
+   Not every `Pycopy port` supports this method. A more portable and
    generic solution is to use `uselect.poll` object. This allows to wait on
    multiple objects at the same time (and not just on sockets, but on generic
    `stream` objects which support polling). Example::
@@ -279,9 +279,9 @@ Methods
       :class: attention
 
       CPython raises a ``socket.timeout`` exception in case of timeout,
-      which is an `OSError` subclass. MicroPython raises an OSError directly
+      which is an `OSError` subclass. Pycopy raises an OSError directly
       instead. If you use ``except OSError:`` to catch the exception,
-      your code will work both in MicroPython and CPython.
+      your code will work both in Pycopy and CPython.
 
 .. method:: socket.setblocking(flag)
 
@@ -302,7 +302,7 @@ Methods
    .. admonition:: Difference to CPython
       :class: attention
 
-      As MicroPython doesn't support buffered streams, values of *buffering*
+      As Pycopy doesn't support buffered streams, values of *buffering*
       parameter is ignored and treated as if it was 0 (unbuffered).
 
    .. admonition:: Difference to CPython
@@ -344,10 +344,10 @@ Methods
 
 .. exception:: usocket.error
 
-   MicroPython does NOT have this exception.
+   Pycopy does NOT have this exception.
 
    .. admonition:: Difference to CPython
         :class: attention
 
         CPython used to have a ``socket.error`` exception which is now deprecated,
-        and is an alias of `OSError`. In MicroPython, use `OSError` directly.
+        and is an alias of `OSError`. In Pycopy, use `OSError` directly.
