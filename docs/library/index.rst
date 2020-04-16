@@ -5,40 +5,43 @@ Pycopy libraries
 
 .. warning::
 
-   Important summary of this section
+   Important summary of this section:
 
-   * MicroPython implements a subset of Python functionality for each module.
-   * To ease extensibility, MicroPython versions of standard Python modules
-     usually have ``u`` ("micro") prefix.
-   * Any particular MicroPython variant or port may miss any feature/function
-     described in this general documentation (due to resource constraints or
+   * Pycopy implements a subset of Python functionality for each module.
+   * To ease extensibility, Pycopy versions of standard Python modules
+     usually have ``u`` ("micro") prefix, e.g. ``utime`` instead of ``time``.
+   * Any particular `Pycopy port` or variant may miss any feature/function
+     described in the general documentation (due to resource constraints or
      other limitations).
+   * More complete and compatible with CPython modules are available via
+     the `pycopy-lib` project.
 
 
 This chapter describes modules (function and class libraries) which are built
-into MicroPython. There are a few categories of such modules:
+into Pycopy. There are a few categories of such modules:
 
 * Modules which implement a subset of standard Python functionality and are not
   intended to be extended by the user.
 * Modules which implement a subset of Python functionality, with a provision
   for extension by the user (via Python code).
-* Modules which implement MicroPython extensions to the Python standard libraries.
-* Modules specific to a particular `MicroPython port` and thus not portable.
+* Modules which implement Pycopy extensions to the Python standard libraries.
+* Modules specific to a particular `Pycopy port` and thus not portable to
+  other ports.
 
 Note about the availability of the modules and their contents: This documentation
 in general aspires to describe all modules and functions/classes which are
-implemented in MicroPython project. However, MicroPython is highly configurable, and
+implemented in Pycopy project. However, Pycopy is highly configurable, and
 each port to a particular board/embedded system makes available only a subset
-of MicroPython libraries. For officially supported ports, there is an effort
+of Pycopy libraries. For officially supported ports, there is an effort
 to either filter out non-applicable items, or mark individual descriptions
 with "Availability:" clauses describing which ports provide a given feature.
 
 With that in mind, please still be warned that some functions/classes
 in a module (or even the entire module) described in this documentation **may be
-unavailable** in a particular build of MicroPython on a particular system. The
+unavailable** in a particular build of Pycopy on a particular system. The
 best place to find general information of the availability/non-availability
 of a particular feature is the "General Information" section which contains
-information pertaining to a specific `MicroPython port`.
+information pertaining to a specific `Pycopy port`.
 
 On some ports you are able to discover the available, built-in libraries that
 can be imported by entering the following at the REPL::
@@ -46,21 +49,21 @@ can be imported by entering the following at the REPL::
     help('modules')
 
 Beyond the built-in libraries described in this documentation, many more
-modules from the Python standard library, as well as further MicroPython
-extensions to it, can be found in `micropython-lib`.
+modules from the Python standard library, as well as further Pycopy
+extensions to it, can be found in `pycopy-lib`.
 
 Python standard libraries and micro-libraries
 ---------------------------------------------
 
 The following standard Python libraries have been "micro-ified" to fit in with
-the philosophy of MicroPython.  They provide the core functionality of that
+the philosophy of Pycopy.  They provide the core functionality of that
 module and are intended to be a drop-in replacement for the standard Python
 library.  Some modules below use a standard Python name, but prefixed with "u",
 e.g. ``ujson`` instead of ``json``. This is to signify that such a module is
 micro-library, i.e. implements only a subset of CPython module functionality.
 By naming them differently, a user has a choice to write a Python-level module
 to extend functionality for better compatibility with CPython (indeed, this is
-what done by the `micropython-lib` project mentioned above).
+what done by the `pycopy-lib` project mentioned above).
 
 On some embedded platforms, where it may be cumbersome to add Python-level
 wrapper modules to achieve naming compatibility with CPython, micro-modules
@@ -98,10 +101,10 @@ it will fallback to loading the built-in ``ujson`` module.
    _thread.rst
 
 
-MicroPython-specific libraries
-------------------------------
+Pycopy-specific libraries
+-------------------------
 
-Functionality specific to the MicroPython implementation is available in
+Functionality specific to the Pycopy implementation is available in
 the following libraries.
 
 .. toctree::
@@ -132,10 +135,10 @@ To access platform-specific hardware use the appropriate library, e.g.
 Libraries specific to the Unix port
 -----------------------------------
 
-The following libraries are specific to the `MicroPython Unix port`.
+The following libraries are specific to the `Pycopy Unix port`.
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   ffi.rst
 
@@ -145,7 +148,7 @@ Libraries specific to the pyboard
 The following libraries are specific to the pyboard.
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   pyb.rst
   lcd160cr.rst
@@ -157,7 +160,7 @@ Libraries specific to the WiPy
 The following libraries and classes are specific to the WiPy.
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   wipy.rst
   machine.ADCWiPy.rst
@@ -170,7 +173,7 @@ Libraries specific to the ESP8266 and ESP32
 The following libraries are specific to the ESP8266 and ESP32.
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   esp.rst
   esp32.rst
