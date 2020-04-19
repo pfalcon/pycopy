@@ -9,24 +9,24 @@ arg names:
 ########
   bc=\\d\+ line=160
 00 MAKE_FUNCTION \.\+
-\\d\+ STORE_NAME f
+\\d\+ STORE_NAME_CONST f
 \\d\+ MAKE_FUNCTION \.\+
-\\d\+ STORE_NAME f
+\\d\+ STORE_NAME_CONST f
 \\d\+ LOAD_CONST_SMALL_INT 1
 \\d\+ BUILD_TUPLE 1
 \\d\+ LOAD_NULL
 \\d\+ MAKE_FUNCTION_DEFARGS \.\+
-\\d\+ STORE_NAME f
+\\d\+ STORE_NAME_CONST f
 \\d\+ MAKE_FUNCTION \.\+
-\\d\+ STORE_NAME f
+\\d\+ STORE_NAME_CONST f
 \\d\+ LOAD_BUILD_CLASS
 \\d\+ MAKE_FUNCTION \.\+
 \\d\+ LOAD_CONST_STRING 'Class'
 \\d\+ CALL_FUNCTION n=2 nkw=0
-\\d\+ STORE_NAME Class
+\\d\+ STORE_NAME_CONST Class
 \\d\+ DELETE_NAME Class
 \\d\+ MAKE_FUNCTION \.\+
-\\d\+ STORE_NAME f
+\\d\+ STORE_NAME_CONST f
 \\d\+ LOAD_CONST_SMALL_INT 0
 \\d\+ LOAD_CONST_STRING '*'
 \\d\+ BUILD_TUPLE 1
@@ -420,9 +420,9 @@ arg names:
 ########
   bc=13 line=150
 00 LOAD_NAME __name__ (cache=0)
-04 STORE_NAME __module__
+04 STORE_NAME_CONST __module__
 07 LOAD_CONST_STRING 'Class'
-10 STORE_NAME __qualname__
+10 STORE_NAME_CONST __qualname__
 13 LOAD_CONST_NONE
 14 RETURN_VALUE
 File cmdline/cmd_showbc.py, code block 'f' (descriptor: \.\+, bytecode @\.\+ bytes)
