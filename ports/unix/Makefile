@@ -152,12 +152,8 @@ endif
 ifeq ($(MICROPY_PY_FFI),1)
 
 ifeq ($(MICROPY_STANDALONE),1)
-LIBFFI_CFLAGS_MOD := -I$(shell ls -1d $(BUILD)/lib/libffi/out/lib/libffi-*/include)
- ifeq ($(MICROPY_FORCE_32BIT),1)
-  LIBFFI_LDFLAGS_MOD = $(BUILD)/lib/libffi/out/lib32/libffi.a
- else
-  LIBFFI_LDFLAGS_MOD = $(BUILD)/lib/libffi/out/lib/libffi.a
- endif
+LIBFFI_CFLAGS_MOD := -I$(shell ls -1d $(BUILD)/lib/libffi/out/include)
+LIBFFI_LDFLAGS_MOD = $(BUILD)/lib/libffi/.libs/libffi.a
 else
 LIBFFI_CFLAGS_MOD := $(shell pkg-config --cflags libffi)
 LIBFFI_LDFLAGS_MOD := $(shell pkg-config --libs libffi)
