@@ -1098,6 +1098,9 @@ STATIC void type_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             .is_type = true,
         };
         mp_obj_class_lookup(&lookup, self);
+        if (dest[0] == MP_OBJ_NULL) {
+            mp_obj_class_lookup(&lookup, &mp_type_object);
+        }
     } else {
         // delete/store attribute
 
