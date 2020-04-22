@@ -182,6 +182,7 @@ jobs:
 
     # unix coverage 32-bit
     - stage: test
+      dist: bionic
       env: NAME="unix coverage 32-bit build and tests"
       install:
         # Install gcc 7.x, as older version has glitchy strict alisasing warnings-as-errors
