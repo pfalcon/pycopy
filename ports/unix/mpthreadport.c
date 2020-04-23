@@ -39,6 +39,8 @@
 #include <sched.h>
 #include <semaphore.h>
 
+#include "lib/utils/gchelper.h"
+
 #define MP_THREAD_GC_SIGNAL (SIGUSR1)
 
 // This value seems to be about right for both 32-bit and 64-bit builds.
@@ -82,8 +84,7 @@ STATIC void mp_thread_gc(int signo, siginfo_t *info, void *context) {
     (void)info; // unused
     (void)context; // unused
     if (signo == MP_THREAD_GC_SIGNAL) {
-        void gc_collect_regs_and_stack(void);
-        gc_collect_regs_and_stack();
+        gc_helper_collect_regs_and_stack();
         // We have access to the context (regs, stack) of the thread but it seems
         // that we don't need the extra information, enough is captured by the
         // gc_collect_regs_and_stack function above

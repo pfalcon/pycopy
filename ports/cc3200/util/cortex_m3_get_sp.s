@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2013-2014 Damien P. George
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,20 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
+    .syntax unified
+    .cpu cortex-m3
+    .thumb
 
-#include "py/mpstate.h"
-#include "py/gc.h"
+    .section .text
+    .align  2
 
-#include "lib/utils/gchelper.h"
+    .global cortex_m3_get_sp
+    .type cortex_m3_get_sp, %function
 
-#if MICROPY_ENABLE_GC
+@ uint cortex_m3_get_sp(void)
+cortex_m3_get_sp:
+    @ return the sp
+    mov     r0, sp
+    bx      lr
 
-void gc_collect(void) {
-    //gc_dump_info();
-
-    gc_collect_start();
-    gc_helper_collect_regs_and_stack();
-    #if MICROPY_PY_THREAD
-    mp_thread_gc_others();
-    #endif
-    #if MICROPY_EMIT_NATIVE
-    mp_unix_mark_exec();
-    #endif
-    gc_collect_end();
-
-    //printf("-----\n");
-    //gc_dump_info();
-}
-
-#endif // MICROPY_ENABLE_GC
+    .size cortex_m3_get_sp, .-cortex_m3_get_sp
