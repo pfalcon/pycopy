@@ -28,26 +28,20 @@
 
 #include "py/mpstate.h"
 #include "py/gc.h"
-
 #include "lib/utils/gchelper.h"
 
 #if MICROPY_ENABLE_GC
 
-void gc_collect(void) {
-    //gc_dump_info();
+// provided by gchelper_*.s
+uintptr_t gc_helper_get_regs_and_sp(uintptr_t *regs);
 
-    gc_collect_start();
-    gc_helper_collect_regs_and_stack();
-    #if MICROPY_PY_THREAD
-    mp_thread_gc_others();
-    #endif
-    #if MICROPY_EMIT_NATIVE
-    mp_unix_mark_exec();
-    #endif
-    gc_collect_end();
+MP_NOINLINE void gc_helper_collect_regs_and_stack(void) {
+    // get the registers and the sp
+    gc_helper_regs_t regs;
+    uintptr_t sp = gc_helper_get_regs_and_sp(regs);
 
-    //printf("-----\n");
-    //gc_dump_info();
+    // trace the stack, including the registers (since they live on the stack in this function)
+    gc_collect_root((void **)sp, ((uint32_t)MP_STATE_THREAD(stack_top) - sp) / sizeof(uint32_t));
 }
 
-#endif // MICROPY_ENABLE_GC
+#endif
