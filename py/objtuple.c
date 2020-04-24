@@ -244,10 +244,17 @@ const mp_obj_type_t mp_type_tuple = {
 // the zero-length tuple
 const mp_obj_tuple_t mp_const_empty_tuple_obj = {{&mp_type_tuple}, 0};
 
+// optimize creation of empty tuple
 mp_obj_t mp_obj_new_tuple(size_t n, const mp_obj_t *items) {
     if (n == 0) {
         return mp_const_empty_tuple;
     }
+    return mp_obj_new_tuple_always(n, items);
+}
+
+// Always create a tuple, even if empty. Mostly used by tuple subclasses
+// (which need to override type field of an object).
+mp_obj_t mp_obj_new_tuple_always(size_t n, const mp_obj_t *items) {
     mp_obj_tuple_t *o = m_new_obj_var(mp_obj_tuple_t, mp_obj_t, n);
     o->base.type = &mp_type_tuple;
     o->len = n;
