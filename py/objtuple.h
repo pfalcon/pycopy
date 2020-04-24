@@ -60,5 +60,6 @@ void mp_obj_attrtuple_print_helper(const mp_print_t *print, const qstr *fields, 
 #endif
 
 mp_obj_t mp_obj_new_attrtuple(const qstr *fields, size_t n, const mp_obj_t *items);
+mp_obj_t mp_obj_new_tuple_always(size_t n, const mp_obj_t *items);
 
 #endif // MICROPY_INCLUDED_PY_OBJTUPLE_H
