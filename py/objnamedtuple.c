@@ -109,7 +109,7 @@ STATIC mp_obj_t namedtuple_make_new(const mp_obj_type_t *type_in, size_t n_args,
     }
 
     // Create a tuple and set the type to this namedtuple
-    mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(mp_obj_new_tuple(num_fields, NULL));
+    mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(mp_obj_new_tuple_always(num_fields, NULL));
     tuple->base.type = type_in;
 
     // Copy the positional args into the first slots of the namedtuple
