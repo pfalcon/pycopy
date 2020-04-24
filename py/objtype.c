@@ -119,7 +119,7 @@ mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, const mp_obj_
         const mp_obj_namedtuple_type_t *type = (const mp_obj_namedtuple_type_t *)class;
         size_t num_fields = type->n_fields;
 
-        mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(num_fields, NULL));
+        mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple_always(num_fields, NULL));
         t->base.type = class;
         return (mp_obj_instance_t *)t;
     }
