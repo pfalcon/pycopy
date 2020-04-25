@@ -29,8 +29,8 @@
 
 // Current version of Pycopy
 #define MICROPY_VERSION_MAJOR 3
-#define MICROPY_VERSION_MINOR 0
-#define MICROPY_VERSION_MICRO 8
+#define MICROPY_VERSION_MINOR 1
+#define MICROPY_VERSION_MICRO 0
 
 // Combined version as a 32-bit number for convenience
 #define MICROPY_VERSION ( \
