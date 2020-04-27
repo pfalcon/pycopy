@@ -1344,6 +1344,8 @@ STATIC void compile_if_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
         EMIT_ARG(label_assign, l_fail);
     }
 
+    bool empty_else = MP_PARSE_NODE_IS_NULL(pns->nodes[3]);
+
     // compile elif blocks (if any)
     mp_parse_node_t *pn_elif;
     int n_elif = mp_parse_node_extract_list(&pns->nodes[2], PN_if_stmt_elif_list, &pn_elif);
@@ -1364,7 +1366,7 @@ STATIC void compile_if_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
             }
 
             // optimisation: don't jump if last instruction was return
-            if (!EMIT(last_emit_was_return_value)) {
+            if (!EMIT(last_emit_was_return_value) && !(empty_else && i == n_elif - 1)) {
                 EMIT_ARG(jump, l_end);
             }
             EMIT_ARG(label_assign, l_fail);
