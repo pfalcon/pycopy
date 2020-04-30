@@ -371,6 +371,11 @@ STATIC int usage(char **argv) {
 STATIC void pre_process_options(int argc, char **argv) {
     for (int a = 1; a < argc; a++) {
         if (argv[a][0] == '-') {
+            if (strcmp(argv[a], "-m") == 0) {
+                // Anything after -m are arguments to module.
+                break;
+            }
+
             if (strcmp(argv[a], "-X") == 0) {
                 if (a + 1 >= argc) {
                     exit(usage(argv));
@@ -427,6 +432,9 @@ STATIC void pre_process_options(int argc, char **argv) {
                 }
                 a++;
             }
+        } else {
+            // Anything after script name are arguments to script.
+            break;
         }
     }
 }
