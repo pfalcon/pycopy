@@ -4,6 +4,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013-2017 Damien P. George
+ * Copyright (c) 2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -245,6 +246,11 @@ typedef struct _parser_t {
     #endif
 } parser_t;
 
+#if MICROPY_COMP_MANGLE_NAMES
+// Name of the current class scope, for name mangling purposes.
+qstr cur_class_name;
+#endif
+
 STATIC const uint16_t *get_rule_arg(uint8_t r_id) {
     size_t off = rule_arg_offset_table[r_id];
     if (r_id >= FIRST_RULE_WITH_OFFSET_ABOVE_255) {
@@ -478,11 +484,58 @@ STATIC mp_parse_node_t mp_parse_node_new_small_int_checked(parser_t *parser, mp_
     return mp_parse_node_new_small_int(val);
 }
 
+MP_ALWAYSINLINE static inline qstr mangle_name(const char *n, size_t len) {
+    #if MICROPY_COMP_MANGLE_NAMES
+    if (cur_class_name == 0) {
+        goto fallback;
+    }
+
+    if (len >= 3 && n[0] == '_' && n[1] == '_' && !(n[len - 2] == '_' && n[len - 1] == '_')) {
+        size_t clen;
+        const byte *cname = qstr_data(cur_class_name, &clen);
+        while (clen != 0) {
+            if (*cname != '_') {
+                break;
+            }
+            cname++;
+            clen--;
+        }
+
+        if (clen == 0) {
+            // Short-circuit further name processing in this class
+            cur_class_name = 0;
+            goto fallback;
+        }
+
+        char *buf = m_new(char, 1 + clen + len);
+        char *p = buf;
+        *p++ = '_';
+        memcpy(p, cname, clen);
+        p += clen;
+        memcpy(p, n, len);
+        p += len;
+        qstr id = qstr_from_strn(buf, p - buf);
+        m_del(char, buf, 1 + clen + len);
+        return id;
+    }
+
+fallback:
+    #endif
+    return qstr_from_strn(n, len);
+}
+
 STATIC void push_result_token(parser_t *parser, uint8_t rule_id) {
     mp_parse_node_t pn;
     mp_lexer_t *lex = parser->lexer;
     if (lex->tok_kind == MP_TOKEN_NAME) {
-        qstr id = qstr_from_strn(lex->vstr.buf, lex->vstr.len);
+        qstr id = mangle_name(lex->vstr.buf, lex->vstr.len);
+        #if MICROPY_COMP_MANGLE_NAMES
+        if (rule_id == RULE_classdef) {
+            // save previous class name on the stack, and set current class name
+            push_result_node(parser, mp_parse_node_new_leaf(MP_PARSE_NODE_ID, cur_class_name));
+            cur_class_name = id;
+        }
+        #endif
         #if MICROPY_COMP_CONST
         // if name is a standalone identifier, look it up in the table of dynamic constants
         mp_map_elem_t *elem;
@@ -834,6 +887,12 @@ STATIC void push_result_rule(parser_t *parser, size_t src_line, uint8_t rule_id,
     for (size_t i = num_args; i > 0; i--) {
         pn->nodes[i - 1] = pop_result(parser);
     }
+    #if MICROPY_COMP_MANGLE_NAMES
+    if (rule_id == RULE_classdef) {
+        // restore previous class name
+        cur_class_name = MP_PARSE_NODE_LEAF_ARG(pop_result(parser));
+    }
+    #endif
     push_result_node(parser, (mp_parse_node_t)pn);
 }
 

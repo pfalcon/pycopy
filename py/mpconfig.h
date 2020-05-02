@@ -382,6 +382,11 @@
 #define MICROPY_PY_BUILTINS_STR_UNICODE_DYNAMIC MICROPY_PY_BUILTINS_STR_UNICODE
 #endif
 
+// Whether to support mangling of names starting with __ in class scope
+#ifndef MICROPY_COMP_MANGLE_NAMES
+#define MICROPY_COMP_MANGLE_NAMES (1)
+#endif
+
 // Whether to enable constant folding; eg 1+2 rewritten as 3
 #ifndef MICROPY_COMP_CONST_FOLDING
 #define MICROPY_COMP_CONST_FOLDING (1)
