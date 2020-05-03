@@ -31,16 +31,16 @@ TEST_MAPPINGS = {
 # Code to allow a target MicroPython to import an .mpy from RAM
 injected_import_hook_code = """\
 import sys, uos, uio
-class __File(uio.IOBase):
+class _File(uio.IOBase):
   def __init__(self):
     self.off = 0
   def ioctl(self, request, arg):
     return 0
   def readinto(self, buf):
-    buf[:] = memoryview(__buf)[self.off:self.off + len(buf)]
+    buf[:] = memoryview(_g_buf)[self.off:self.off + len(buf)]
     self.off += len(buf)
     return len(buf)
-class __FS:
+class _FS:
   def mount(self, readonly, mkfs):
     pass
   def chdir(self, path):
@@ -51,8 +51,8 @@ class __FS:
     else:
       raise OSError(-2) # ENOENT
   def open(self, path, mode):
-    return __File()
-uos.mount(__FS(), '/__remote')
+    return _File()
+uos.mount(_FS(), '/__remote')
 uos.chdir('/__remote')
 sys.modules['{}'] = __import__('__injected')
 """
@@ -113,7 +113,7 @@ def run_tests(target_truth, target, args, stats):
         # Create full test with embedded .mpy
         try:
             with open(NATMOD_EXAMPLE_DIR + test_mpy, "rb") as f:
-                test_script = b"__buf=" + bytes(repr(f.read()), "ascii") + b"\n"
+                test_script = b"_g_buf=" + bytes(repr(f.read()), "ascii") + b"\n"
         except OSError:
             print("----  {} - mpy file not compiled".format(test_file))
             continue
