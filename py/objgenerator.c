@@ -172,6 +172,13 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
         *ret_val = MP_OBJ_STOP_ITERATION;
         return MP_VM_RETURN_NORMAL;
     }
+
+    // We set self->globals=NULL while executing, for a sentinel to ensure the generator
+    // cannot be reentered during execution
+    if (self->globals == NULL) {
+        mp_raise_ValueError(MP_ERROR_TEXT("generator already executing"));
+    }
+
     if (self->code_state.sp == self->code_state.state - 1) {
         if (send_value != mp_const_none) {
             mp_raise_TypeError(MP_ERROR_TEXT("can't send non-None value to a just-started generator"));
@@ -194,12 +201,6 @@ mp_vm_return_kind_t mp_obj_gen_resume(mp_obj_t self_in, mp_obj_t send_value, mp_
         {
             *self->code_state.sp = send_value;
         }
-    }
-
-    // We set self->globals=NULL while executing, for a sentinel to ensure the generator
-    // cannot be reentered during execution
-    if (self->globals == NULL) {
-        mp_raise_ValueError(MP_ERROR_TEXT("generator already executing"));
     }
 
     // Set up the correct globals context for the generator and execute it
