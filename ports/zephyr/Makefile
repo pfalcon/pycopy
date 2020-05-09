@@ -8,6 +8,10 @@
 # To build a "minimal" configuration, use "make-minimal" wrapper.
 
 BOARD ?= qemu_x86
+# Be wary of confusing Zephyr behavior: if CONF_FILE is not set, by
+# default prj.conf and board/$(BOARD).conf is used. But if it's set,
+# it must be explict space-separated list of configs to use.
+#CONF_FILE = prj.conf
 OUTDIR_PREFIX = $(BOARD)
 
 # Default heap size is 16KB, which is on conservative side, to let
@@ -103,9 +107,9 @@ test:
 cmake: $(Z_EXPORTS)
 
 ifneq ($(CONF_FILE),)
-CMAKE_MOD += -DCONF_FILE=$(CONF_FILE)
+CMAKE_FLAGS += -DCONF_FILE=$(CONF_FILE)
 endif
 
 $(Z_EXPORTS): $(CONF_FILE)
-	mkdir -p outdir/$(OUTDIR_PREFIX) && cmake -DBOARD=$(BOARD) $(CMAKE_MOD) -Boutdir/$(OUTDIR_PREFIX) -H.
+	mkdir -p outdir/$(OUTDIR_PREFIX) && cmake -DBOARD=$(BOARD) $(CMAKE_FLAGS) -Boutdir/$(OUTDIR_PREFIX) -H.
 	make -C outdir/$(OUTDIR_PREFIX) zephyr_generated_headers
