@@ -3,4 +3,7 @@ LDFLAGS_EXTRA = -rdynamic
 
 PROG = pycopy-dev
 
+MICROPY_SSL_AXTLS = 0
+MICROPY_SSL_MBEDTLS = 1
+
 MICROPY_VFS_FAT = 1
