@@ -32,6 +32,10 @@
 
 void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst) {
     // name adding/lookup
+    if (scope->kind == SCOPE_CLASS && qst == MP_QSTR___class__) {
+        qst = MP_QSTR___class___star_;
+    }
+
     id_info_t *id = scope_find_or_add_id(scope, qst, ID_INFO_KIND_GLOBAL_IMPLICIT);
     if (SCOPE_IS_FUNC_LIKE(scope->kind) && id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT) {
         // rebind as a local variable
@@ -44,7 +48,11 @@ void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst) {
 void mp_emit_common_id_op(emit_t *emit, const mp_emit_method_table_id_ops_t *emit_method_table, scope_t *scope, qstr qst) {
     // assumes pass is greater than 1, ie that all identifiers are defined in the scope
 
-    id_info_t *id = scope_find(scope, qst);
+    qstr qst_find = qst;
+    if (scope->kind == SCOPE_CLASS && qst == MP_QSTR___class__) {
+        qst_find = MP_QSTR___class___star_;
+    }
+    id_info_t *id = scope_find(scope, qst_find);
     assert(id != NULL);
 
     // call the emit backend with the correct code
