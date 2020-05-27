@@ -162,6 +162,9 @@ typedef struct _emit_method_table_t {
 } emit_method_table_t;
 
 static inline void mp_emit_common_get_id_for_load(scope_t *scope, qstr qst) {
+    if (scope->kind == SCOPE_CLASS && qst == MP_QSTR___class__) {
+        qst = MP_QSTR___class___star_;
+    }
     scope_find_or_add_id(scope, qst, ID_INFO_KIND_GLOBAL_IMPLICIT);
 }
 
