@@ -20,7 +20,7 @@
 	url = https://github.com/NordicSemiconductor/nrfx.git
 [submodule "lib/mbedtls"]
 	path = lib/mbedtls
-	url = https://github.com/ARMmbed/mbedtls.git
+	url = https://github.com/pfalcon/mbedtls.git
 [submodule "lib/asf4"]
 	path = lib/asf4
 	url = https://github.com/adafruit/asf4
