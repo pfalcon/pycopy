@@ -74,12 +74,12 @@ Functions and types
 
    .. classmethod:: from_bytes(bytes, byteorder)
 
-      In MicroPython, `byteorder` parameter must be positional (this is
+      In Pycopy, `byteorder` parameter must be positional (this is
       compatible with CPython).
 
    .. method:: to_bytes(size, byteorder)
 
-      In MicroPython, `byteorder` parameter must be positional (this is
+      In Pycopy, `byteorder` parameter must be positional (this is
       compatible with CPython).
 
 .. function:: isinstance()
@@ -103,7 +103,7 @@ Functions and types
 
    |see_cpython| `python:memoryview`.
 
-   .. admonition:: MicroPython extension
+   .. admonition:: Pycopy extension
       :class: note
 
       A `str` object can be passed to memoryview() constructor, in which
@@ -111,7 +111,7 @@ Functions and types
       ``memoryview("abc")`` is equivalent to ``memoryview("abc".encode())``,
       but is more memory-efficient.
 
-   .. admonition:: MicroPython extension
+   .. admonition:: Pycopy extension
       :class: note
 
       Additional *offset* and *size* parameters can be passed to constructor.
@@ -124,14 +124,14 @@ Functions and types
       Reinitialize existing `memoryview` object inplace with a new buffer,
       and optionally given *offset* and *size* into it.
 
-      .. admonition:: MicroPython extension
+      .. admonition:: Pycopy extension
          :class: note
 
-         This method is a MicroPython extension. It doesn't require memory
+         This method is a Pycopy extension. It doesn't require memory
          allocation. Just as the constructor, this method can be called
          for `str` objects too.
 
-   Example of usage of MicroPython extensions::
+   Example of usage of Pycopy extensions::
 
     # A function with zero memory allocation which can write either
     # bytes or str objects to a stream, in the presense of short writes.
@@ -146,7 +146,7 @@ Functions and types
         sz = len(bufptr)
         offset = 0
         while sz:
-            # We use another MicroPython extension, 3-argument stream
+            # We use another Pycopy extension, 3-argument stream
             # .write() method. We could use memoryview.init() method
             # to update "visible" part of underlying buffer instead.
             written = stream.write(bufptr, offset, sz)
@@ -193,7 +193,7 @@ Functions and types
 
 .. class:: str()
 
-    In MicroPython, strings are backed by Unicode UTF-8 encoding. While this
+    In Pycopy, strings are backed by Unicode UTF-8 encoding. While this
     fact doesn't have to be known by normal users, advanced users may use it
     to optimize applications/libraries.
 
@@ -233,7 +233,7 @@ Exceptions
 
 .. exception:: OSError
 
-    |see_cpython| `python:OSError`. MicroPython doesn't implement ``errno``
+    |see_cpython| `python:OSError`. Pycopy doesn't implement ``errno``
     attribute, instead use the standard way to access exception arguments:
     ``exc.args[0]``.
 
