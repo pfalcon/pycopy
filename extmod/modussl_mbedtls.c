@@ -79,6 +79,11 @@ STATIC void mbedtls_debug(void *ctx, int level, const char *file, int line, cons
 }
 #endif
 
+STATIC NORETURN void ussl_raise_error(int code) {
+    mp_obj_t args[2] = {MP_OBJ_NEW_SMALL_INT(code), MP_OBJ_NEW_QSTR(MP_QSTR_mbedTLS)};
+    nlr_raise(mp_obj_new_exception_args(&mp_type_OSError, 2, args));
+}
+
 STATIC int _mbedtls_ssl_send(void *ctx, const byte *buf, size_t len) {
     #if MOCK_SSL_SEND_WANT_WRITE
     static int mock;
@@ -210,7 +215,6 @@ STATIC mp_obj_ssl_socket_t *socket_new(mp_obj_t sock, struct ssl_args *args) {
     if (args->do_handshake.u_bool) {
         while ((ret = mbedtls_ssl_handshake(&o->ssl)) != 0) {
             if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
-                printf("mbedtls_ssl_handshake error: -0x%x\n", -ret);
                 goto cleanup;
             }
         }
@@ -234,7 +238,7 @@ cleanup:
     } else if (ret == MBEDTLS_ERR_X509_BAD_INPUT_DATA) {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid cert"));
     } else {
-        mp_raise_OSError(MP_EIO);
+        ussl_raise_error(ret);
     }
 }
 
