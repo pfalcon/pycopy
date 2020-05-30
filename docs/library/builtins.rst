@@ -233,9 +233,33 @@ Exceptions
 
 .. exception:: OSError
 
-    |see_cpython| `python:OSError`. Pycopy doesn't implement ``errno``
-    attribute, instead use the standard way to access exception arguments:
-    ``exc.args[0]``.
+    Represents system-level error, related to the operating system or hardware.
+    |see_cpython| `python:OSError` for general information.
+
+    Pycopy doesn't implement ``errno`` attribute, instead use the standard way
+    to access exception arguments: ``exc.args[0]`` (this is compatible with
+    CPython).
+
+    Pycopy doesn't implement subclasses of this exception for specific error
+    codes. E.g., instead of `python:TimeoutError`, ``OSError(ETIMEDOUT)``
+    is used directly (this is compatible with CPython).
+
+    Pycopy also uses this exception in some cases where instead of standard
+    system `errno` code, a different error code is provided (e.g. a more
+    detailed/domain specific code). In this case, OSErrno arguments are a tuple
+    of size 2, where first argument is an error code, and 2nd is first string,
+    representing namespace of the error code. Whenever possible, error codes
+    for such namespaced errors should be negative. This allows to easily
+    distinguish errors in the default `errno` namespace from namespaced
+    errors - checking ``exc.args[0]`` is then enough to distinguish system
+    error from namespaced error, and then ``exc.args[1]`` can be consulted
+    to get the namespace. Example of namespaced OSError from
+    `usocket.getaddrinfo()` function::
+
+        >>> usocket.getaddrinfo("-doesnt-exist-", 80)
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+        OSError: (-3, 'gai')
 
 .. exception:: RuntimeError
 
