@@ -64,7 +64,7 @@ jobs:
 
     # esp8266 port
     - stage: test
-      env: NAME="esp8266 port build"
+      name: "esp8266 port build"
       install:
         - export HAS_XTENSA="test -d ${XTENSA_CROSS_BINDIR}"
         - unset CC # Travis sets this due to "language: c", but it confuses autotools configure when cross-building
@@ -231,7 +231,7 @@ jobs:
 
     # unix port with mbedTLS
     - stage: test
-      env: NAME="unix port with mbedTLS build and tests"
+      name: "unix port with mbedTLS build and tests"
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - make ${MAKEOPTS} -C ports/unix submodules
@@ -240,7 +240,7 @@ jobs:
 
     # micropython-dev unix port
     - stage: test
-      env: NAME="unix port micropython-dev"
+      name: "unix port micropython-dev"
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - make ${MAKEOPTS} -C ports/unix submodules
