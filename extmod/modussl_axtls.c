@@ -54,6 +54,11 @@ struct ssl_args {
 
 STATIC const mp_obj_type_t ussl_socket_type;
 
+STATIC NORETURN void ussl_raise_error(int code) {
+    mp_obj_t args[2] = {MP_OBJ_NEW_SMALL_INT(code), MP_OBJ_NEW_QSTR(MP_QSTR_axTLS)};
+    nlr_raise(mp_obj_new_exception_args(&mp_type_OSError, 2, args));
+}
+
 STATIC mp_obj_ssl_socket_t *ussl_socket_new(mp_obj_t sock, struct ssl_args *args) {
     #if MICROPY_PY_USSL_FINALISER
     mp_obj_ssl_socket_t *o = m_new_obj_with_finaliser(mp_obj_ssl_socket_t);
@@ -107,9 +112,7 @@ STATIC mp_obj_ssl_socket_t *ussl_socket_new(mp_obj_t sock, struct ssl_args *args
             int res = ssl_handshake_status(o->ssl_sock);
 
             if (res != SSL_OK) {
-                printf("ssl_handshake_status: %d\n", res);
-                ssl_display_error(res);
-                mp_raise_OSError(MP_EIO);
+                ussl_raise_error(res);
             }
         }
 
