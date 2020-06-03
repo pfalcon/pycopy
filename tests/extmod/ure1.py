@@ -94,3 +94,14 @@ except:
 # bytes objects
 m = re.match(rb"a+?", b"ab")
 print(m.group(0))
+
+# Module functions take str/bytes/re.
+for f in (re.match, re.search):
+    print(f(".", "foo").group(0))
+    print(f(b".", b"foo").group(0))
+    print(f(re.compile("."), "foo").group(0))
+    try:
+        f(123, "a")
+    except TypeError:
+        print("TypeError")
+print("===")
