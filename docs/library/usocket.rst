@@ -81,7 +81,7 @@ Functions
 
 .. function:: getaddrinfo(host, port, af=0, type=0, proto=0, flags=0, /)
 
-   Translate the host/port argument into a sequence of 5-tuples that contain all the 
+   Translate the host/port argument into a sequence of 5-tuples that contain all the
    necessary arguments for creating a socket connected to that service. Arguments
    *af*, *type*, and *proto* (which have the same meaning as for the `socket()` function)
    can be used to filter which kind of addresses are returned. If a parameter is not
@@ -185,7 +185,7 @@ Methods
    on the socket object will fail. The remote end will receive EOF indication if
    supported by protocol.
 
-   Sockets are automatically closed when they are garbage-collected, but it is recommended 
+   Sockets are automatically closed when they are garbage-collected, but it is recommended
    to `close()` them explicitly as soon you finished working with them.
 
 .. method:: socket.bind(address)
