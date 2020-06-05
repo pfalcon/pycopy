@@ -181,33 +181,6 @@ STATIC mp_obj_t ussl_context_make_new(const mp_obj_type_t *type, size_t n_args, 
     mbedtls_ssl_conf_dbg(&o->conf, mbedtls_debug, NULL);
     #endif
 
-#if 0
-    if (args->key.u_obj != mp_const_none) {
-        size_t key_len;
-        const byte *key = (const byte *)mp_obj_str_get_data(args->key.u_obj, &key_len);
-        // len should include terminating null
-        ret = mbedtls_pk_parse_key(&o->pkey, key, key_len + 1, NULL, 0);
-        if (ret != 0) {
-            ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA; // use general error for all key errors
-            goto cleanup;
-        }
-
-        size_t cert_len;
-        const byte *cert = (const byte *)mp_obj_str_get_data(args->cert.u_obj, &cert_len);
-        // len should include terminating null
-        ret = mbedtls_x509_crt_parse(&o->cert, cert, cert_len + 1);
-        if (ret != 0) {
-            ret = MBEDTLS_ERR_X509_BAD_INPUT_DATA; // use general error for all cert errors
-            goto cleanup;
-        }
-
-        ret = mbedtls_ssl_conf_own_cert(&o->conf, &o->cert, &o->pkey);
-        if (ret != 0) {
-            goto cleanup;
-        }
-    }
-#endif
-
     return MP_OBJ_FROM_PTR(o);
 
 cleanup:
@@ -228,6 +201,33 @@ cleanup:
         mp_raise_OSError(MP_EINVAL);
     }
 }
+
+STATIC mp_obj_t ussl_context_set_cert_key(mp_obj_t self_in, mp_obj_t cert, mp_obj_t key) {
+    mp_obj_ssl_context_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_buffer_info_t bufinfo;
+
+    mp_get_buffer_raise(key, &bufinfo, MP_BUFFER_READ);
+    // len should include terminating null
+    int ret = mbedtls_pk_parse_key(&self->pkey, bufinfo.buf, bufinfo.len + 1, NULL, 0);
+    if (ret != 0) {
+        ussl_raise_error(ret);
+    }
+
+    mp_get_buffer_raise(cert, &bufinfo, MP_BUFFER_READ);
+    // len should include terminating null
+    ret = mbedtls_x509_crt_parse(&self->cert, bufinfo.buf, bufinfo.len + 1);
+    if (ret != 0) {
+        ussl_raise_error(ret);
+    }
+
+    ret = mbedtls_ssl_conf_own_cert(&self->conf, &self->cert, &self->pkey);
+    if (ret != 0) {
+        ussl_raise_error(ret);
+    }
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(ussl_context_set_cert_key_obj, ussl_context_set_cert_key);
 
 STATIC mp_obj_ssl_socket_t *socket_new(mp_obj_t sock, mp_obj_t ssl_ctx_obj, struct ssl_sock_args *args) {
     int ret;
@@ -415,6 +415,7 @@ STATIC mp_obj_t ussl_context_wrap_socket(size_t n_args, const mp_obj_t *pos_args
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(ussl_context_wrap_socket_obj, 2, ussl_context_wrap_socket);
 
 STATIC const mp_rom_map_elem_t ussl_context_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_set_cert_key), MP_ROM_PTR(&ussl_context_set_cert_key_obj) },
     { MP_ROM_QSTR(MP_QSTR_wrap_socket), MP_ROM_PTR(&ussl_context_wrap_socket_obj) },
 };
 
