@@ -1,9 +1,18 @@
 /*
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Paul Sokolovsky
+ *
+ * See below for the full license text.
+ */
+/*
  * This file is part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2019 Paul Sokolovsky
+ * Copyright (c) 2015-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,19 +43,24 @@
 
 #include "ssl.h"
 
+typedef struct _mp_obj_ssl_context_t {
+    mp_obj_base_t base;
+    SSL_CTX *ssl_ctx;
+} mp_obj_ssl_context_t;
+
 typedef struct _mp_obj_ssl_socket_t {
     mp_obj_base_t base;
     mp_obj_t sock;
-    SSL_CTX *ssl_ctx;
     SSL *ssl_sock;
     byte *buf;
     uint32_t bytes_left;
     bool blocking;
+    // We need to store context pointer if for nothing else then to preclude
+    // it to be GCed.
+    mp_obj_t ctx;
 } mp_obj_ssl_socket_t;
 
-struct ssl_args {
-    mp_arg_val_t key;
-    mp_arg_val_t cert;
+struct ssl_sock_args {
     mp_arg_val_t server_side;
     mp_arg_val_t server_hostname;
     mp_arg_val_t do_handshake;
@@ -59,46 +73,69 @@ STATIC NORETURN void ussl_raise_error(int code) {
     nlr_raise(mp_obj_new_exception_args(&mp_type_OSError, 2, args));
 }
 
-STATIC mp_obj_ssl_socket_t *ussl_socket_new(mp_obj_t sock, struct ssl_args *args) {
+STATIC mp_obj_t ussl_context_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    // Args are: protocol (CPy compat, ignored so far).
+    (void)args;
+    mp_arg_check_num(n_args, n_kw, 0, 1, false);
+
+    mp_obj_ssl_context_t *o = m_new_obj(mp_obj_ssl_context_t);
+    o->base.type = type;
+
+    uint32_t options = SSL_SERVER_VERIFY_LATER | SSL_NO_DEFAULT_KEY;
+
+    if ((o->ssl_ctx = ssl_ctx_new(options, SSL_DEFAULT_CLNT_SESS)) == NULL) {
+        mp_raise_OSError(MP_EINVAL);
+    }
+
+    return MP_OBJ_FROM_PTR(o);
+}
+
+STATIC mp_obj_t ussl_context_set_cert_key(mp_obj_t self_in, mp_obj_t cert, mp_obj_t key) {
+    mp_obj_ssl_context_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_buffer_info_t bufinfo;
+
+    mp_get_buffer_raise(key, &bufinfo, MP_BUFFER_READ);
+    int res = ssl_obj_memory_load(self->ssl_ctx, SSL_OBJ_RSA_KEY, bufinfo.buf, bufinfo.len, NULL);
+    if (res != SSL_OK) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid key"));
+    }
+
+    mp_get_buffer_raise(cert, &bufinfo, MP_BUFFER_READ);
+    res = ssl_obj_memory_load(self->ssl_ctx, SSL_OBJ_X509_CERT, bufinfo.buf, bufinfo.len, NULL);
+    if (res != SSL_OK) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid cert"));
+    }
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(ussl_context_set_cert_key_obj, ussl_context_set_cert_key);
+
+STATIC mp_obj_ssl_socket_t *ussl_socket_new(mp_obj_t sock, mp_obj_t ssl_ctx_obj, struct ssl_sock_args *args) {
     #if MICROPY_PY_USSL_FINALISER
     mp_obj_ssl_socket_t *o = m_new_obj_with_finaliser(mp_obj_ssl_socket_t);
     #else
     mp_obj_ssl_socket_t *o = m_new_obj(mp_obj_ssl_socket_t);
     #endif
     o->base.type = &ussl_socket_type;
+    o->ctx = ssl_ctx_obj;
     o->buf = NULL;
     o->bytes_left = 0;
     o->sock = sock;
     o->blocking = true;
 
-    uint32_t options = SSL_SERVER_VERIFY_LATER;
+    mp_obj_ssl_context_t *ssl_ctx = MP_OBJ_TO_PTR(ssl_ctx_obj);
+
+    // axTLS doesn't allow to set SSL_CONNECT_IN_PARTS on connection object,
+    // as makes sense, but copies this flag from ssl_ctx to the connection.
+    // So, we patch it in ssl_ctx every time.
     if (!args->do_handshake.u_bool) {
-        options |= SSL_CONNECT_IN_PARTS;
-    }
-    if (args->key.u_obj != mp_const_none) {
-        options |= SSL_NO_DEFAULT_KEY;
-    }
-    if ((o->ssl_ctx = ssl_ctx_new(options, SSL_DEFAULT_CLNT_SESS)) == NULL) {
-        mp_raise_OSError(MP_EINVAL);
-    }
-
-    if (args->key.u_obj != mp_const_none) {
-        size_t len;
-        const byte *data = (const byte *)mp_obj_str_get_data(args->key.u_obj, &len);
-        int res = ssl_obj_memory_load(o->ssl_ctx, SSL_OBJ_RSA_KEY, data, len, NULL);
-        if (res != SSL_OK) {
-            mp_raise_ValueError(MP_ERROR_TEXT("invalid key"));
-        }
-
-        data = (const byte *)mp_obj_str_get_data(args->cert.u_obj, &len);
-        res = ssl_obj_memory_load(o->ssl_ctx, SSL_OBJ_X509_CERT, data, len, NULL);
-        if (res != SSL_OK) {
-            mp_raise_ValueError(MP_ERROR_TEXT("invalid cert"));
-        }
+        ssl_ctx->ssl_ctx->options |= SSL_CONNECT_IN_PARTS;
+    } else {
+        ssl_ctx->ssl_ctx->options &= ~SSL_CONNECT_IN_PARTS;
     }
 
     if (args->server_side.u_bool) {
-        o->ssl_sock = ssl_server_new(o->ssl_ctx, (long)sock);
+        o->ssl_sock = ssl_server_new(ssl_ctx->ssl_ctx, (long)sock);
     } else {
         SSL_EXTENSIONS *ext = ssl_ext_new();
 
@@ -106,7 +143,7 @@ STATIC mp_obj_ssl_socket_t *ussl_socket_new(mp_obj_t sock, struct ssl_args *args
             ext->host_name = (char *)mp_obj_str_get_str(args->server_hostname.u_obj);
         }
 
-        o->ssl_sock = ssl_client_new(o->ssl_ctx, (long)sock, NULL, 0, ext);
+        o->ssl_sock = ssl_client_new(ssl_ctx->ssl_ctx, (long)sock, NULL, 0, ext);
 
         if (args->do_handshake.u_bool) {
             int res = ssl_handshake_status(o->ssl_sock);
@@ -196,7 +233,6 @@ STATIC mp_uint_t ussl_socket_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_t a
     mp_obj_ssl_socket_t *self = MP_OBJ_TO_PTR(o_in);
     if (request == MP_STREAM_CLOSE && self->ssl_sock != NULL) {
         ssl_free(self->ssl_sock);
-        ssl_ctx_free(self->ssl_ctx);
         self->ssl_sock = NULL;
     }
     // Pass all requests down to the underlying socket
@@ -246,30 +282,42 @@ STATIC const mp_obj_type_t ussl_socket_type = {
     .locals_dict = (void *)&ussl_socket_locals_dict,
 };
 
-STATIC mp_obj_t mod_ssl_wrap_socket(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+STATIC mp_obj_t ussl_context_wrap_socket(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     // TODO: Implement more args
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_key, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
-        { MP_QSTR_cert, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_server_side, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_server_hostname, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_do_handshake, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
     };
 
-    // TODO: Check that sock implements stream protocol
-    mp_obj_t sock = pos_args[0];
+    mp_obj_t ssl_ctx = pos_args[0];
+    mp_obj_t sock = pos_args[1];
 
-    struct ssl_args args;
-    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args,
+    struct ssl_sock_args args;
+    mp_arg_parse_all(n_args - 2, pos_args + 2, kw_args,
         MP_ARRAY_SIZE(allowed_args), allowed_args, (mp_arg_val_t *)&args);
 
-    return MP_OBJ_FROM_PTR(ussl_socket_new(sock, &args));
+    return MP_OBJ_FROM_PTR(ussl_socket_new(sock, ssl_ctx, &args));
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mod_ssl_wrap_socket_obj, 1, mod_ssl_wrap_socket);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(ussl_context_wrap_socket_obj, 2, ussl_context_wrap_socket);
+
+STATIC const mp_rom_map_elem_t ussl_context_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_set_cert_key), MP_ROM_PTR(&ussl_context_set_cert_key_obj) },
+    { MP_ROM_QSTR(MP_QSTR_wrap_socket), MP_ROM_PTR(&ussl_context_wrap_socket_obj) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(ussl_context_locals_dict, ussl_context_locals_dict_table);
+
+STATIC const mp_obj_type_t ussl_context_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_SSLContext,
+    .make_new = ussl_context_make_new,
+    .locals_dict = (void *)&ussl_context_locals_dict,
+};
 
 STATIC const mp_rom_map_elem_t mp_module_ssl_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_ussl) },
-    { MP_ROM_QSTR(MP_QSTR_wrap_socket), MP_ROM_PTR(&mod_ssl_wrap_socket_obj) },
+    { MP_ROM_QSTR(MP_QSTR_SSLContext), MP_ROM_PTR(&ussl_context_type) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_ssl_globals, mp_module_ssl_globals_table);
