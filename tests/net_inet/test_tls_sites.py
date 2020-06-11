@@ -38,8 +38,8 @@ SITES = [
     "www.google.com",
     "api.telegram.org",
     {"host": "api.pushbullet.com", "sni": True},
-    # "w9rybpfril.execute-api.ap-southeast-2.amazonaws.com",
-    {"host": "w9rybpfril.execute-api.ap-southeast-2.amazonaws.com", "sni": True},
+    # From https://docs.aws.amazon.com/iot/latest/developerguide/http.html
+    {"host": "a3qj468xinsffp-ats.iot.us-west-2.amazonaws.com", "sni": True},
 ]
 
 
