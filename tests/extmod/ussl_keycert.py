@@ -15,8 +15,8 @@ key = b"0\x82\x019\x02\x01\x00\x02A\x00\xf9\xe0}\xbd\xd7\x9cI\x18\x06\xc3\xcb\xb
 # Invalid key
 try:
     ctx.set_cert_key(None, b"!")
-except ValueError as er:
-    print(repr(er))
+except (ValueError, OSError) as er:
+    print("Invalid key detected")
 
 # Valid key, no cert
 try:
@@ -27,5 +27,5 @@ except TypeError as er:
 # Valid key, invalid cert
 try:
     ctx.set_cert_key(b"!", key)
-except ValueError as er:
-    print(repr(er))
+except (ValueError, OSError) as er:
+    print("Invalid cert detected")
