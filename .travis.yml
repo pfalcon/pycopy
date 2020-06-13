@@ -332,7 +332,10 @@ jobs:
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - git -C esp-idf checkout $(grep "ESPIDF_SUPHASH_V3 :=" ports/esp32/Makefile | cut -d " " -f 3)
-        - git -C esp-idf submodule update --init components/json/cJSON components/esp32/lib components/esptool_py/esptool components/expat/expat components/lwip/lwip components/mbedtls/mbedtls components/micro-ecc/micro-ecc components/nghttp/nghttp2 components/nimble components/bt
+        - git -C esp-idf submodule update --init components/json/cJSON components/esp32/lib components/esptool_py/esptool components/expat/expat components/lwip/lwip components/micro-ecc/micro-ecc components/nghttp/nghttp2 components/nimble components/bt
+        - (cd esp-idf/components/mbedtls/; rm -rf mbedtls; git clone -b mbedtls-2.16.5-idf-pycopy https://github.com/pfalcon/mbedtls/)
+#        - git -C esp-idf log -n1 components/mbedtls/mbedtls
+        - (cd esp-idf/components/mbedtls/mbedtls; git log -n1)
         - make ${MAKEOPTS} -C ports/esp32 submodules
         - make ${MAKEOPTS} -C ports/esp32
 
@@ -349,7 +352,10 @@ jobs:
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - git -C esp-idf checkout $(grep "ESPIDF_SUPHASH_V4 :=" ports/esp32/Makefile | cut -d " " -f 3)
-        - git -C esp-idf submodule update --init components/bt/controller/lib components/bt/host/nimble/nimble components/esp_wifi/lib_esp32 components/esptool_py/esptool components/lwip/lwip components/mbedtls/mbedtls
+        - git -C esp-idf submodule update --init components/bt/controller/lib components/bt/host/nimble/nimble components/esp_wifi/lib_esp32 components/esptool_py/esptool components/lwip/lwip
+        - (cd esp-idf/components/mbedtls/; rm -rf mbedtls; git clone -b mbedtls-2.16.5-idf-pycopy https://github.com/pfalcon/mbedtls/)
+#        - git -C esp-idf log -n1 components/mbedtls/mbedtls
+        - (cd esp-idf/components/mbedtls/mbedtls; git log -n1)
         - make ${MAKEOPTS} -C ports/esp32 submodules
         - make ${MAKEOPTS} -C ports/esp32
 
