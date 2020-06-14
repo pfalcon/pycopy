@@ -7,8 +7,14 @@ try:
 except:
     import ssl
 
-    # CPython only supports server_hostname with SSLContext
-    ssl = ssl.SSLContext()
+if hasattr(ssl, "SSLContext"):
+    # CPython and Pycopy support SSLContext, and Python API supports
+    # server_hostname only on SSLContext.
+    ctx = ssl.SSLContext()
+else:
+    # Original MicroPython API doesn't have SSLContext, but supports
+    # server_hostname param to module-global wrap_socket().
+    ctx = ssl
 
 
 def test_one(site, opts):
@@ -21,9 +27,9 @@ def test_one(site, opts):
         s.connect(addr)
 
         if "sni" in opts:
-            s = ssl.wrap_socket(s, server_hostname=opts["host"])
+            s = ctx.wrap_socket(s, server_hostname=opts["host"])
         else:
-            s = ssl.wrap_socket(s)
+            s = ctx.wrap_socket(s)
 
         s.write(b"GET / HTTP/1.0\r\nHost: %s\r\n\r\n" % bytes(site, "latin"))
         resp = s.read(4096)
