@@ -53,6 +53,7 @@
 #include "extmod/vfs.h"
 #endif
 
+#include "modmachine.h"
 #include "modzephyr.h"
 
 #ifdef TEST
@@ -179,6 +180,11 @@ soft_reset:
     }
 
     printf("soft reboot\n");
+
+    #if MICROPY_PY_MACHINE
+    machine_pin_deinit();
+    #endif
+
     goto soft_reset;
 
     return 0;
