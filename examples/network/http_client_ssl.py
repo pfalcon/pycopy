@@ -9,6 +9,7 @@ except:
 
 
 def main(use_stream=True):
+    ssl_ctx = ssl.SSLContext()
     s = _socket.socket()
 
     ai = _socket.getaddrinfo("google.com", 443)
@@ -18,16 +19,16 @@ def main(use_stream=True):
     print("Connect address:", addr)
     s.connect(addr)
 
-    s = ssl.wrap_socket(s)
+    s = ssl_ctx.wrap_socket(s)
     print(s)
 
     if use_stream:
-        # Both CPython and MicroPython SSLSocket objects support read() and
+        # Both CPython and Pycopy SSLSocket objects support read() and
         # write() methods.
         s.write(b"GET / HTTP/1.0\r\n\r\n")
         print(s.read(4096))
     else:
-        # MicroPython SSLSocket objects implement only stream interface, not
+        # Pycopy SSLSocket objects implement only stream interface, not
         # socket interface
         s.send(b"GET / HTTP/1.0\r\n\r\n")
         print(s.recv(4096))

@@ -41,11 +41,14 @@ cert = binascii.unhexlify(
 CONTENT = b"""\
 HTTP/1.0 200 OK
 
-Hello #%d from MicroPython!
+Hello #%d from Pycopy!
 """
 
 
 def main(use_stream=True):
+    ssl_ctx = ssl.SSLContext()
+    ssl_ctx.set_cert_key(cert, key)
+
     s = socket.socket()
 
     # Binding to all interfaces - server will be accessible to other hosts!
@@ -65,12 +68,11 @@ def main(use_stream=True):
         client_addr = res[1]
         print("Client address:", client_addr)
         print("Client socket:", client_s)
-        # CPython uses key keyfile/certfile arguments, but MicroPython uses key/cert
-        client_s = ssl.wrap_socket(client_s, server_side=True, key=key, cert=cert)
+        client_s = ssl_ctx.wrap_socket(client_s, server_side=True)
         print(client_s)
         print("Request:")
         if use_stream:
-            # Both CPython and MicroPython SSLSocket objects support read() and
+            # Both CPython and Pycopy SSLSocket objects support read() and
             # write() methods.
             # Browsers are prone to terminate SSL connection abruptly if they
             # see unknown certificate, etc. We must continue in such case -
@@ -87,7 +89,7 @@ def main(use_stream=True):
                 if req:
                     client_s.write(CONTENT % counter)
             except Exception as e:
-                print("Exception serving request:", e)
+                print("Exception serving request:", repr(e))
         else:
             print(client_s.recv(4096))
             client_s.send(CONTENT % counter)
