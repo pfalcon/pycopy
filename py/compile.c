@@ -3090,7 +3090,7 @@ STATIC void compile_scope(compiler_t *comp, scope_t *scope, pass_kind_t pass) {
         compile_node(comp, pns->nodes[1]); // 1 is lambda body
 
         EMIT(return_value);
-    } else if (scope->kind == SCOPE_LIST_COMP || scope->kind == SCOPE_DICT_COMP || scope->kind == SCOPE_SET_COMP || scope->kind == SCOPE_GEN_EXPR) {
+    } else if (SCOPE_IS_COMP_LIKE(scope->kind)) {
         // a bit of a hack at the moment
 
         assert(MP_PARSE_NODE_IS_STRUCT(scope->pn));
