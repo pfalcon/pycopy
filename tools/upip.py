@@ -128,6 +128,8 @@ def init_bufs():
 import ussl
 import usocket
 warn_ussl = True
+ssl_ctx = ussl.SSLContext()
+
 def url_open(url):
     global warn_ussl
 
@@ -148,7 +150,7 @@ def url_open(url):
         s.connect(ai[-1])
 
         if proto == "https:":
-            s = ussl.wrap_socket(s, server_hostname=host)
+            s = ssl_ctx.wrap_socket(s, server_hostname=host)
             if warn_ussl:
                 print("Warning: %s SSL certificate is not validated" % host)
                 warn_ussl = False
