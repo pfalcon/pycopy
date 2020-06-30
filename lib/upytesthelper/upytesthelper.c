@@ -66,6 +66,23 @@ bool upytest_is_failed(void) {
 // If mismatch happens, upytest_is_failed() returns true.
 void upytest_output(const char *str, mp_uint_t len) {
     if (!test_failed) {
+        #define WILDCARD_L "########\n"
+        while (strncmp(test_exp_output, WILDCARD_L, sizeof(WILDCARD_L) - 1) == 0) {
+            const char *p = memchr(str, '\n', len);
+            if (p == NULL) {
+                goto out;
+            }
+            p++;
+            mp_hal_stdout_tx_strn_cooked(str, p - str);
+            len -= p - str;
+            str = p;
+            test_exp_output += sizeof(WILDCARD_L) - 1;
+            test_rem_output_len -= sizeof(WILDCARD_L) - 1;
+            if (len == 0) {
+                return;
+            }
+        }
+
         if (len > test_rem_output_len) {
             test_failed = true;
         } else {
@@ -85,6 +102,7 @@ void upytest_output(const char *str, mp_uint_t len) {
             test_rem_output_len -= len;
         }
     }
+out:
     mp_hal_stdout_tx_strn_cooked(str, len);
 }
 
