@@ -482,6 +482,9 @@ typedef mp_obj_t (*mp_fun_kw_t)(size_t n, const mp_obj_t *, mp_map_t *);
 // Flags for type behaviour (mp_obj_type_t.flags)
 #define MP_TYPE_FLAG_IS_SUBCLASSED (0x0001)
 #define MP_TYPE_FLAG_HAS_SPECIAL_ACCESSORS (0x0002)
+#define MP_TYPE_FLAG_EQ_NOT_REFLEXIVE (0x0004)
+#define MP_TYPE_FLAG_EQ_CHECKS_OTHER_TYPE (0x0008)
+#define MP_TYPE_FLAG_EQ_HAS_NEQ_TEST (0x0010)
 
 typedef enum {
     PRINT_STR = 0,
