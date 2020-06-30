@@ -134,7 +134,8 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
     }
     #endif
 
-    // mp_sys_path is empty, so just use the given file name
+    // mp_sys_path is empty, so look just in frozen vpath
+    vstr_add_char(dest, FROZEN_VPATH_CHAR);
     vstr_add_strn(dest, file_str, file_len);
     return stat_dir_or_file(dest);
 }
