@@ -69,6 +69,17 @@ STATIC const uint8_t attr[] = {
 
 #if MICROPY_PY_BUILTINS_STR_UNICODE
 
+unsigned utf8_get_size(byte lead) {
+    if (!UTF8_IS_NONASCII(lead)) {
+        return 1;
+    }
+    int sz;
+    for (sz = 0; (lead & 0x80) != 0 && sz < 4; sz++) {
+        lead <<= 1;
+    }
+    return sz;
+}
+
 unichar utf8_get_char(const byte *s) {
     unichar ord = *s++;
     if (!UTF8_IS_NONASCII(ord)) {
