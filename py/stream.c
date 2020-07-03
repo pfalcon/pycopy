@@ -1,10 +1,19 @@
 /*
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Paul Sokolovsky
+ *
+ * See below for the full license text.
+ */
+/*
  * This file is part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2014 Damien P. George
- * Copyright (c) 2014-2018 Paul Sokolovsky
+ * Copyright (c) 2014-2020 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +42,7 @@
 #include "py/stream.h"
 #include "py/runtime.h"
 #include "py/binary.h"
+#include "py/unicode.h"
 
 // This file defines generic Python stream read/write methods which
 // dispatch to the underlying stream interface of an object.
@@ -475,6 +485,13 @@ STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) 
         if (*p == eol) {
             break;
         }
+        #if MICROPY_PY_BUILTINS_STR_UNICODE
+        // If we're reading from text stream, input max size is in chars,
+        // and we need to adjust max_size var for byte size of current char.
+        if (max_size != -1 && stream_p->is_text) {
+            max_size += utf8_get_size(*p) - 1;
+        }
+        #endif
     }
 
     return mp_obj_new_str_from_vstr(STREAM_CONTENT_TYPE(stream_p), &vstr);
