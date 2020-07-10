@@ -121,6 +121,9 @@ mp_obj_t mp_stream_close(mp_obj_t stream);
 mp_obj_t mp_stream_unbuffered_iter(mp_obj_t self);
 
 mp_obj_t mp_stream_write(mp_obj_t self_in, const void *buf, size_t len, byte flags);
+mp_obj_t mp_stream_read_utf8(mp_obj_t stream, mp_uint_t num);
+mp_obj_t mp_stream_readline(size_t n_args, const mp_obj_t *args, const mp_obj_type_t *strtype);
+mp_obj_t mp_stream_readall(mp_obj_t stream, const mp_obj_type_t *strtype);
 
 // C-level helper functions
 #define MP_STREAM_RW_READ  0
