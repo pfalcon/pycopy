@@ -50,8 +50,6 @@
 // TODO: should be in mpconfig.h
 #define DEFAULT_BUFFER_SIZE 256
 
-STATIC mp_obj_t stream_readall(mp_obj_t self_in);
-
 #define STREAM_CONTENT_TYPE(stream) (((stream)->is_text) ? &mp_type_str : &mp_type_bytes)
 
 // Returns error condition in *errcode, if non-zero, return value is number of bytes written
@@ -109,19 +107,8 @@ const mp_stream_p_t *mp_get_stream_raise(mp_obj_t self_in, int flags) {
     return stream_p;
 }
 
-STATIC mp_obj_t stream_read_generic(size_t n_args, const mp_obj_t *args, byte flags) {
-    // What to do if sz < -1?  Python docs don't specify this case.
-    // CPython does a readall, but here we silently let negatives through,
-    // and they will cause a MemoryError.
-    mp_int_t sz;
-    if (n_args == 1 || ((sz = mp_obj_get_int(args[1])) == -1)) {
-        return stream_readall(args[0]);
-    }
-
-    const mp_stream_p_t *stream_p = mp_get_stream(args[0]);
-
-    #if MICROPY_PY_BUILTINS_STR_UNICODE
-    if (stream_p->is_text) {
+mp_obj_t mp_stream_read_utf8(mp_obj_t stream, mp_uint_t sz) {
+// *FORMAT-OFF*
         // We need to read sz number of unicode characters.  Because we don't have any
         // buffering, and because the stream API can only read bytes, we must read here
         // in units of bytes and must never over read.  If we want sz chars, then reading
@@ -138,7 +125,7 @@ STATIC mp_obj_t stream_read_generic(size_t n_args, const mp_obj_t *args, byte fl
         while (more_bytes > 0) {
             char *p = vstr_add_len(&vstr, more_bytes);
             int error;
-            mp_uint_t out_sz = mp_stream_read_exactly(args[0], p, more_bytes, &error);
+            mp_uint_t out_sz = mp_stream_read_exactly(stream, p, more_bytes, &error);
             if (error != 0) {
                 vstr_cut_tail_bytes(&vstr, more_bytes);
                 if (mp_is_nonblocking_error(error)) {
@@ -203,6 +190,23 @@ STATIC mp_obj_t stream_read_generic(size_t n_args, const mp_obj_t *args, byte fl
         }
 
         return mp_obj_new_str_from_vstr(&mp_type_str, &vstr);
+// *FORMAT-ON*
+}
+
+STATIC mp_obj_t stream_read_generic(size_t n_args, const mp_obj_t *args, byte flags) {
+    // What to do if sz < -1?  Python docs don't specify this case.
+    // CPython does a readall, but here we silently let negatives through,
+    // and they will cause a MemoryError.
+    mp_int_t sz;
+    const mp_stream_p_t *stream_p = mp_get_stream(args[0]);
+
+    if (n_args == 1 || ((sz = mp_obj_get_int(args[1])) == -1)) {
+        return mp_stream_readall(args[0], STREAM_CONTENT_TYPE(stream_p));
+    }
+
+    #if MICROPY_PY_BUILTINS_STR_UNICODE
+    if (stream_p->is_text) {
+        return mp_stream_read_utf8(args[0], (mp_uint_t)sz);
     }
     #endif
 
@@ -353,7 +357,7 @@ STATIC mp_obj_t stream_readinto(size_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_readinto_obj, 2, 3, stream_readinto);
 
-STATIC mp_obj_t stream_readall(mp_obj_t self_in) {
+mp_obj_t mp_stream_readall(mp_obj_t self_in, const mp_obj_type_t *strtype) {
     const mp_stream_p_t *stream_p = mp_get_stream(self_in);
 
     mp_uint_t total_size = 0;
@@ -393,7 +397,7 @@ STATIC mp_obj_t stream_readall(mp_obj_t self_in) {
     }
 
     vstr.len = total_size;
-    return mp_obj_new_str_from_vstr(STREAM_CONTENT_TYPE(stream_p), &vstr);
+    return mp_obj_new_str_from_vstr(strtype, &vstr);
 }
 
 #if MICROPY_PY_STRUCT
@@ -425,7 +429,7 @@ MP_DEFINE_CONST_FUN_OBJ_2(mp_stream_readbin_obj, stream_readbin);
 #endif
 
 // Unbuffered, inefficient implementation of readline() for raw I/O files.
-STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) {
+mp_obj_t mp_stream_readline(size_t n_args, const mp_obj_t *args, const mp_obj_type_t *strtype) {
     const mp_stream_p_t *stream_p = mp_get_stream(args[0]);
 
     mp_int_t max_size = -1;
@@ -488,13 +492,18 @@ STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) 
         #if MICROPY_PY_BUILTINS_STR_UNICODE
         // If we're reading from text stream, input max size is in chars,
         // and we need to adjust max_size var for byte size of current char.
-        if (max_size != -1 && stream_p->is_text) {
+        if (max_size != -1 && strtype == &mp_type_str) {
             max_size += utf8_get_size(*p) - 1;
         }
         #endif
     }
 
-    return mp_obj_new_str_from_vstr(STREAM_CONTENT_TYPE(stream_p), &vstr);
+    return mp_obj_new_str_from_vstr(strtype, &vstr);
+}
+
+STATIC mp_obj_t stream_unbuffered_readline(size_t n_args, const mp_obj_t *args) {
+    const mp_stream_p_t *stream_p = mp_get_stream(args[0]);
+    return mp_stream_readline(n_args, args, STREAM_CONTENT_TYPE(stream_p));
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_stream_unbuffered_readline_obj, 1, 3, stream_unbuffered_readline);
 
