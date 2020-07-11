@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#include <string.h>
 #include "py/runtime.h"
 
 mp_obj_t mp_call_function_1_protected(mp_obj_t fun, mp_obj_t arg) {
@@ -49,4 +50,11 @@ mp_obj_t mp_call_function_2_protected(mp_obj_t fun, mp_obj_t arg1, mp_obj_t arg2
         mp_obj_print_exception(&mp_plat_print, MP_OBJ_FROM_PTR(nlr.ret_val));
         return MP_OBJ_NULL;
     }
+}
+
+mp_obj_t mp_call_method_by_name_n_kw(mp_obj_t obj, qstr meth_name, size_t n_args, size_t n_kw, const mp_obj_t *meth_args) {
+    mp_obj_t dest[2 + n_args + 2 * n_kw];
+    mp_load_method(obj, meth_name, dest);
+    memcpy(dest + 2, meth_args, (n_args + 2 * n_kw) * sizeof(*meth_args));
+    return mp_call_method_n_kw(n_args, n_kw, dest);
 }
