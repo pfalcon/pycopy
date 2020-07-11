@@ -33,6 +33,7 @@
 #include "py/objtextio.h"
 
 #define MICROPY_PY_IO_TEXTIOBASE (1)
+#define MICROPY_PY_IO_TEXTIOBASE_FILENO (1)
 #define MICROPY_PY_IO_TEXTIOBASE_WRITE (0)
 
 #if MICROPY_PY_IO_TEXTIOBASE
@@ -76,11 +77,22 @@ mp_obj_t textio_write(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(textio_write_obj, 2, 4, textio_write);
 #endif
 
+#if MICROPY_PY_IO_TEXTIOBASE_FILENO
+STATIC mp_obj_t textio_fileno(mp_obj_t self_in) {
+    mp_obj_textio_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_call_method_by_name_n_kw(self->stream, MP_QSTR_fileno, 0, 0, NULL);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(textio_fileno_obj, textio_fileno);
+#endif
+
 STATIC const mp_rom_map_elem_t textio_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&textio_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_readline), MP_ROM_PTR(&textio_readline_obj) },
     #if MICROPY_PY_IO_TEXTIOBASE_WRITE
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&textio_write_obj) },
+    #endif
+    #if MICROPY_PY_IO_TEXTIOBASE_FILENO
+    { MP_ROM_QSTR(MP_QSTR_fileno), MP_ROM_PTR(&textio_fileno_obj) },
     #endif
 };
 
