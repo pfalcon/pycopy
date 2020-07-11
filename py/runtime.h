@@ -118,6 +118,8 @@ mp_obj_t mp_call_function_n_kw(mp_obj_t fun, size_t n_args, size_t n_kw, const m
 mp_obj_t mp_call_method_n_kw(size_t n_args, size_t n_kw, const mp_obj_t *args);
 mp_obj_t mp_call_method_n_kw_var(bool have_self, size_t n_args_n_kw, const mp_obj_t *args);
 mp_obj_t mp_call_method_self_n_kw(mp_obj_t meth, mp_obj_t self, size_t n_args, size_t n_kw, const mp_obj_t *args);
+// meth_args doesn't include self, only actual method params
+mp_obj_t mp_call_method_by_name_n_kw(mp_obj_t obj, qstr meth_name, size_t n_args, size_t n_kw, const mp_obj_t *meth_args);
 // Call function and catch/dump exception - for Python callbacks from C code
 // (return MP_OBJ_NULL in case of exception).
 mp_obj_t mp_call_function_1_protected(mp_obj_t fun, mp_obj_t arg);
