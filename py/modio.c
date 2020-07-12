@@ -34,6 +34,7 @@
 #include "py/binary.h"
 #include "py/objarray.h"
 #include "py/objstringio.h"
+#include "py/objtextio.h"
 #include "py/stream.h"
 #include "py/frozenmod.h"
 
@@ -271,6 +272,7 @@ STATIC const mp_rom_map_elem_t mp_module_io_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_FileIO), MP_ROM_PTR(&mp_type_fileio) },
     #if MICROPY_CPYTHON_COMPAT
     { MP_ROM_QSTR(MP_QSTR_TextIOWrapper), MP_ROM_PTR(&mp_type_textio) },
+    { MP_ROM_QSTR(MP_QSTR_TextIOBase), MP_ROM_PTR(&mp_type_textiobase) },
     #endif
     #endif
     { MP_ROM_QSTR(MP_QSTR_StringIO), MP_ROM_PTR(&mp_type_stringio) },
