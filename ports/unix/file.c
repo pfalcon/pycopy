@@ -35,6 +35,7 @@
 
 #include "py/runtime.h"
 #include "py/stream.h"
+#include "py/objtextio.h"
 #include "py/builtin.h"
 #include "py/mphal.h"
 #include "py/mpthread.h"
@@ -296,8 +297,10 @@ mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) 
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
 
-const mp_obj_fdfile_t mp_sys_stdin_obj = { .base = {&mp_type_textio}, .fd = STDIN_FILENO };
-const mp_obj_fdfile_t mp_sys_stdout_obj = { .base = {&mp_type_textio}, .fd = STDOUT_FILENO };
-const mp_obj_fdfile_t mp_sys_stderr_obj = { .base = {&mp_type_textio}, .fd = STDERR_FILENO };
+const mp_obj_fdfile_t mp_sys_stdin_raw_obj = { .base = {&mp_type_fileio}, .fd = STDIN_FILENO };
+const mp_obj_fdfile_t mp_sys_stdout_obj = { .base = {&mp_type_fileio}, .fd = STDOUT_FILENO };
+const mp_obj_fdfile_t mp_sys_stderr_obj = { .base = {&mp_type_fileio}, .fd = STDERR_FILENO };
+
+const mp_obj_textio_t mp_sys_stdin_obj = { .base = {&mp_type_textiobase}, .rom_stream = MP_ROM_PTR((void *)&mp_sys_stdin_raw_obj) };
 
 #endif // MICROPY_PY_IO && !MICROPY_VFS
