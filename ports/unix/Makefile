@@ -152,13 +152,15 @@ endif
 ifeq ($(MICROPY_PY_BLUETOOTH),1)
 CFLAGS_MOD += -DMICROPY_PY_BLUETOOTH=1
 CFLAGS_MOD += -DMICROPY_PY_BLUETOOTH_ENABLE_CENTRAL_MODE=1
-CFLAGS_MOD += -DMICROPY_PY_BLUETOOTH_GATTS_ON_READ_CALLBACK=1
+# Runs in a thread, cannot make calls into the VM.
+CFLAGS_MOD += -DMICROPY_PY_BLUETOOTH_GATTS_ON_READ_CALLBACK=0
 
 MICROPY_BLUETOOTH_BTSTACK ?= 1
 MICROPY_BLUETOOTH_BTSTACK_USB ?= 1
 endif
 
 ifeq ($(MICROPY_BLUETOOTH_BTSTACK),1)
+GIT_SUBMODULES += lib/btstack
 include $(TOP)/extmod/btstack/btstack.mk
 endif
 
@@ -203,7 +205,9 @@ SRC_C = \
 	alloc.c \
 	coverage.c \
 	fatfs_port.c \
-	btstack_usb.c \
+	mpbtstackport_common.c \
+	mpbtstackport_usb.c \
+	mpnimbleport.c \
 	$(SRC_MOD) \
 	$(wildcard $(VARIANT_DIR)/*.c)
 
