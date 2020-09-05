@@ -540,6 +540,9 @@ def run_tests(pyb, tests, args, base_path="."):
     print("{} tests performed ({} individual testcases)".format(test_count, testcase_count))
     print("{} tests passed".format(passed_count))
 
+    skipped_tests.sort()
+    failed_tests.sort()
+
     if len(skipped_tests) > 0:
         print("{} tests skipped: {}".format(len(skipped_tests), ' '.join(skipped_tests)))
     if len(failed_tests) > 0:
