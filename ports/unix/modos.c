@@ -69,6 +69,10 @@ STATIC mp_obj_t mod_os_stat(size_t n_args, const mp_obj_t *args) {
     t->items[4] = mp_obj_new_int_from_uint(sb.st_uid);
     t->items[5] = mp_obj_new_int_from_uint(sb.st_gid);
     t->items[6] = mp_obj_new_int_from_uint(sb.st_size);
+    // These aren't exactly correct, as time_t type is usually signed.
+    // Assuming it's done that way with the idea that, in case of
+    // sign overflow, it's better to support datest >2038, than those
+    // <1970. TODO: Consider using mp_obj_new_int_from_ll().
     t->items[7] = mp_obj_new_int_from_uint(sb.st_atime);
     t->items[8] = mp_obj_new_int_from_uint(sb.st_mtime);
     t->items[9] = mp_obj_new_int_from_uint(sb.st_ctime);
