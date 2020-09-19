@@ -618,7 +618,7 @@ the last matching regex is used:
     cmd_parser.add_argument('--heapsize', help='heapsize to use (use default if not specified)')
     cmd_parser.add_argument('--via-mpy', action='store_true', help='compile .py files to .mpy first')
     cmd_parser.add_argument('--mpy-cross-flags', default='-mcache-lookup-bc', help='flags to pass to mpy-cross')
-    cmd_parser.add_argument('--keep-path', action='store_true', help='do not clear MICROPYPATH when running tests')
+    cmd_parser.add_argument('--keep-path', action='store_true', help='do not clear PYCOPYPATH when running tests')
     cmd_parser.add_argument('files', nargs='*', help='input test files')
     cmd_parser.add_argument('--print-failures', action='store_true', help='print the diff of expected vs. actual output for failed tests and exit')
     cmd_parser.add_argument('--clean-failures', action='store_true', help='delete the .exp and .out files from failed tests and exit')
@@ -682,7 +682,7 @@ the last matching regex is used:
 
     if not args.keep_path:
         # clear search path to make sure tests use only builtin modules and those in extmod
-        os.environ['MICROPYPATH'] = os.pathsep + base_path('../extmod')
+        os.environ['PYCOPYPATH'] = os.pathsep + base_path('../extmod')
 
     try:
         os.makedirs(args.result_dir, exist_ok=True)
