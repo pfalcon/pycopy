@@ -67,7 +67,7 @@ void prompt_read_history(void) {
     if (home != NULL) {
         vstr_t vstr;
         vstr_init(&vstr, 50);
-        vstr_printf(&vstr, "%s/.micropython.history", home);
+        vstr_printf(&vstr, "%s/.pycopy.history", home);
         int fd = open(vstr_null_terminated_str(&vstr), O_RDONLY);
         if (fd != -1) {
             vstr_reset(&vstr);
@@ -105,7 +105,7 @@ void prompt_write_history(void) {
     if (home != NULL) {
         vstr_t vstr;
         vstr_init(&vstr, 50);
-        vstr_printf(&vstr, "%s/.micropython.history", home);
+        vstr_printf(&vstr, "%s/.pycopy.history", home);
         int fd = open(vstr_null_terminated_str(&vstr), O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (fd != -1) {
             for (int i = MP_ARRAY_SIZE(MP_STATE_PORT(readline_hist)) - 1; i >= 0; i--) {
