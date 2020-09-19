@@ -524,12 +524,12 @@ MP_NOINLINE int main_(int argc, char **argv) {
     #endif
 
     char *home = getenv("HOME");
-    char *path = getenv("MICROPYPATH");
+    char *path = getenv("PYCOPYPATH");
     if (path == NULL) {
         #ifdef MICROPY_PY_SYS_PATH_DEFAULT
         path = MICROPY_PY_SYS_PATH_DEFAULT;
         #else
-        path = "~/.micropython/lib:/usr/lib/micropython";
+        path = "~/.pycopy/lib:/usr/lib/pycopy";
         #endif
     }
     size_t path_num = 1; // [0] is for current dir (or base dir of the script)
