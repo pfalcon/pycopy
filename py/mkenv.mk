@@ -58,7 +58,7 @@ AR = $(CROSS_COMPILE)ar
 
 MAKE_MANIFEST = $(PYTHON) $(TOP)/tools/makemanifest.py
 MAKE_FROZEN = $(PYTHON) $(TOP)/tools/make-frozen.py
-MPY_CROSS = $(TOP)/mpy-cross/mpy-cross
+MPY_CROSS = $(TOP)/mpy-cross/pycopy-cross
 MPY_TOOL = $(PYTHON) $(TOP)/tools/mpy-tool.py
 
 MPY_LIB_DIR = $(TOP)/../micropython-lib

@@ -232,7 +232,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
                 a += 1;
             } else if (strcmp(argv[a], "--version") == 0) {
                 printf("Pycopy " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
-                    "; mpy-cross emitting mpy v" MP_STRINGIFY(MPY_VERSION) "\n");
+                    "; pycopy-cross emitting mpy v" MP_STRINGIFY(MPY_VERSION) "\n");
                 return 0;
             } else if (strcmp(argv[a], "-v") == 0) {
                 mp_verbose_flag++;
