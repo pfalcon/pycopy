@@ -236,7 +236,7 @@ def main():
 
     # Get paths to tools
     MAKE_FROZEN = VARS["MPY_DIR"] + "/tools/make-frozen.py"
-    MPY_CROSS = VARS["MPY_DIR"] + "/mpy-cross/mpy-cross"
+    MPY_CROSS = VARS["MPY_DIR"] + "/mpy-cross/pycopy-cross"
     if sys.platform == "win32":
         MPY_CROSS += ".exe"
     MPY_CROSS = os.getenv("MICROPY_MPYCROSS", MPY_CROSS)
