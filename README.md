@@ -112,13 +112,13 @@ You will also need bash, gcc, and Python 3.3+ available as the command `python3`
 (if your system only has Python 2.7 then invoke make with the additional option
 `PYTHON=python2`).
 
-The cross-compiler, mpy-cross
------------------------------
+The cross-compiler, pycopy-cross
+--------------------------------
 
 Most ports require the Pycopy cross-compiler to be built first.  This
-program, called mpy-cross, is used to pre-compile Python scripts to .mpy
+program, called pycopy-cross, is used to pre-compile Python scripts to .mpy
 files which can then be included (frozen) into the firmware/executable for
-a port.  To build mpy-cross use:
+a port.  To build pycopy-cross use:
 
     $ cd mpy-cross
     $ make
