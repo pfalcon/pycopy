@@ -1,7 +1,7 @@
 #
 # upip - Package manager for Pycopy https://github.com/pfalcon/pycopy
 #
-# Copyright (c) 2015-2019 Paul Sokolovsky
+# Copyright (c) 2015-2020 Paul Sokolovsky
 #
 # Licensed under the MIT license.
 #
@@ -288,7 +288,7 @@ Usage: pycopy -m upip install [-p <path>] <package>... | -r <requirements.txt>
 import upip; upip.install(package_or_list, [<path>])
 
 If <path> is not given, packages will be installed into sys.path[1]
-(can be set from MICROPYPATH environment variable, if current system
+(can be set from PYCOPYPATH environment variable, if current system
 supports that).""")
     print("Current value of sys.path[1]:", sys.path[1])
     print("""\
