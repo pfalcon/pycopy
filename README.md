@@ -244,26 +244,8 @@ and the [Code Conventions](https://github.com/pfalcon/pycopy/blob/master/CODECON
 Note that Pycopy is licenced under the MIT license, and all contributions
 should follow this license.
 
-Fork FAQ
-========
-
-Q: Why fork?
-
-A: I was a co-maintainer of MicroPython from 2013-12-29 till 2017-12-27,
-and authored 2779 commits during that time, that's more than 30% of commits
-at that timeframe
-([prooflink](https://github.com/pfalcon/pycopy/graphs/contributors?from=2013-12-29&to=2017-12-27)).
-Many MicroPython's modules and subsystems were designed and implemented by
-me. After I lost commit access to the main repository, I continue my work
-here.
-
-Q: Relation to the upstream?
-
-A: I rebase on the upstream regularly. However, I revert/skip commits which
-are going in wrong direction with respect to Pycopy's goals (see "Zen" above),
-or not implemented thoroughly enough. I no longer contribute to upstream
-directly, due to upstream's failure to recognize me as a major contributor
-and uphold my copyright accordingly.
+Project FAQ
+===========
 
 Q: Focus of the project?
 
