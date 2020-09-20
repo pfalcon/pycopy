@@ -1,6 +1,6 @@
 .. _unix_quickref:
 
-Quick reference for the UNIX and Windows ports
+Quick reference for the Unix and Windows ports
 ==============================================
 
 Command line options
@@ -8,8 +8,15 @@ Command line options
 
 Usage::
 
-    micropython [ -i ] [ -O<level> ] [ -v ] [ -X <option> ] [ -c <command> | -m <module> | <script> ] [ <args> ]
+    pycopy [ -i ] [ -O<level> ] [ -v ] [ -X <option> ] [ -c <command> | -m <module> | <script> ] [ <args> ]
+    pycopy-dev [ -i ] [ -O<level> ] [ -v ] [ -X <option> ] [ -c <command> | -m <module> | <script> ] [ <args> ]
 
+``pycopy`` executable provides native Pycopy environment and API. It is
+recommended for developing native Pycopy software, which can run on the
+wide range of target platforms (including low-end). ``pycopy-dev`` is
+a version with various additional features and extensibility enabled,
+offering better CPython compatibility at the expense of being larger
+and slower.
 
 Invocation options:
 
@@ -23,10 +30,9 @@ Invocation options:
 
 .. option:: <script>
 
-   Runs the file ``<script>``. The script must be a valid MicroPython source
-   code file.
+   Runs the file ``<script>``.
 
-If none of the 3 options above are given, then MicroPython is run in an
+If none of the 3 options above are given, then interpreter is run in an
 interactive REPL mode.
 
 
@@ -40,10 +46,9 @@ General options:
 
 .. option:: -i
 
-    Enables inspection. When this flag is set, MicroPython will enter the
+    Enables inspection. When this flag is set, interpreter will enter the
     interactive REPL mode after the command, module or script has finished.
     This can be useful for debugging the state after an unhandled exception.
-    Also see the :envvar:`MICROPYINSPECT` environment variable.
 
 .. option:: -O | -O<level> | -OO...
 
@@ -55,7 +60,7 @@ General options:
 
     Increases the verbosity level. This option can be given multiple times.
     This option only has an effect if ``MICROPY_DEBUG_PRINTERS`` was enabled
-    when MicroPython itself was compiled.
+    when Pycopy itself was compiled.
 
 .. option:: -X <option>
 
@@ -64,21 +69,26 @@ General options:
     - ``-X compile-only`` compiles the command, module or script but does not
       run it.
     - ``-X emit={bytecode,native,viper}`` sets the default code emitter. Native
-      emitters may not be available depending on the settings when MicroPython
+      emitters may not be available depending on the settings when Pycopy
       itself was compiled.
-    - ``-X heapsize=<n>[w][K|M]`` sets the heap size for the garbage collector.
-      The suffix ``w`` means words instead of bytes. ``K`` means x1024 and ``M``
-      means x1024x1024.
+    - ``-X heapsize=<n>[w][K|M]`` sets the heap size, i.e. maximum amount of memory
+      a Python application can use, in bytes. Suffixes ``K`` and ``M`` mean kilobytes
+      and megabytes respectively. If after the number, but before ``K`` or ``M``
+      there's a suffix ``w``, it means adjust the specified size for word size of
+      the machine, taking 32-bit word size as the base. E.g., ``-X heapsize=10wK``
+      will create a heap which may contain about the same number of objects on
+      both 32-bit and 64-bit machines (the actual size will be 10K on 32-bit machines
+      and 20K on 64-bit machines).
 
 
 
 Environment variables
 ---------------------
 
-.. envvar:: MICROPYPATH
+.. envvar:: PYCOPYPATH
 
-    Overrides the default search path for MicroPython libraries. ``MICROPYPATH``
-    should be set to a colon separated list of directories. If ``MICROPYPATH`` is
-    not defined, the search path will be ``~/.micropython/lib:/usr/lib/micropython``
+    Overrides the default search path for Pycopy libraries. ``PYCOPYPATH``
+    should be set to a colon separated list of directories. If ``PYCOPYPATH`` is
+    not defined, the search path will be ``~/.pycopy/lib:/usr/lib/pycopy``
     or the value of the ``MICROPY_PY_SYS_PATH_DEFAULT`` option if it was set
-    when MicroPython itself was compiled.
+    when Pycopy itself was compiled.
