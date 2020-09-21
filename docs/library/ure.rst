@@ -17,7 +17,10 @@ Supported operators and special sequences are:
 
 ``[...]``
    Match set of characters. Individual characters and ranges are supported,
-   including negated sets (e.g. ``[^a-c]``).
+   including negated sets (e.g. ``[^a-c]``). To include ``]`` in the set,
+   it should be escaped, e.g.: ``r"[\]]"`` or ``"[\\]]"``. No other escapes
+   are supported (will lead to error). To include ``-`` in the set, it should
+   be listed as the first item, e.g. ``[^-0-9]``.
 
 ``^``
    Match the start of the string.
