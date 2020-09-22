@@ -77,17 +77,16 @@
 
 const byte *mp_showbc_code_start;
 const mp_uint_t *mp_showbc_const_table;
-char opcode_buf[40], *opcode_buf_ptr;
 
-static void dump_bytes(const byte *ip, mp_uint_t len) {
+static void dump_bytes(const mp_print_t *print, const byte *ip, mp_uint_t len) {
     mp_uint_t i;
 
     for (i = 0; i < len; i++) {
-        printf("%02x ", ip[i]);
+        mp_printf(print, "%02x ", ip[i]);
     }
 
     while (i++ < 4) {
-        printf("   ");
+        mp_printf(print, "   ");
     }
 }
 
@@ -164,26 +163,9 @@ void mp_bytecode_print(const mp_print_t *print, const void *descr, const byte *i
     mp_bytecode_print2(print, ip, len - prelude_size, const_table);
 }
 
-static void mp_printf_opcode(const mp_print_t *print, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    size_t remaining = opcode_buf + sizeof(opcode_buf) - opcode_buf_ptr;
-    size_t ret = vsnprintf(opcode_buf_ptr, remaining, fmt, ap);
-    if (ret > remaining) {
-        ret = remaining;
-    }
-    opcode_buf_ptr += ret;
-    va_end(ap);
-}
-
-#undef mp_printf
-#define mp_printf(...) mp_printf_opcode(__VA_ARGS__)
-
 const byte *mp_bytecode_print_str(const mp_print_t *print, const byte *ip) {
     mp_uint_t unum;
     qstr qst;
-
-    opcode_buf_ptr = opcode_buf;
 
     switch (*ip++) {
         case MP_BC_LOAD_CONST_FALSE:
@@ -575,14 +557,17 @@ const byte *mp_bytecode_print_str(const mp_print_t *print, const byte *ip) {
 void mp_bytecode_print2(const mp_print_t *print, const byte *ip, size_t len, const mp_uint_t *const_table) {
     mp_showbc_code_start = ip;
     mp_showbc_const_table = const_table;
+    vstr_t vstr;
+    mp_print_t str_pr;
     while (ip < len + mp_showbc_code_start) {
         const byte *org_ip = ip;
         mp_printf(print, "%02u ", (uint)(ip - mp_showbc_code_start));
-        ip = mp_bytecode_print_str(print, ip);
+        vstr_init_print(&vstr, 16, &str_pr);
+        ip = mp_bytecode_print_str(&str_pr, ip);
         if (mp_verbose_flag >= 4) {
-            dump_bytes(org_ip, ip - org_ip);
+            dump_bytes(print, org_ip, ip - org_ip);
         }
-        mp_printf(print, opcode_buf);
+        mp_printf(print, "%s", vstr_null_terminated_str(&vstr));
         mp_printf(print, "\n");
     }
 }
