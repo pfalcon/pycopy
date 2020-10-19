@@ -71,7 +71,9 @@ are available both by their u-name, and also by their non-u-name.  The
 non-u-name can be overridden by a file of that name in your library path (``sys.path``).
 For example, ``import json`` will first search for a file ``json.py`` (or package
 directory ``json``) and load that module if it is found.  If nothing is found,
-it will fallback to loading the built-in ``ujson`` module.
+it will fallback to loading the built-in ``ujson`` module. This behavior is
+deprecated and not compatible with other platforms on which Pycopy runs.
+Please do not rely on it.
 
 .. toctree::
    :maxdepth: 1
