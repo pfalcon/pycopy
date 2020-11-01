@@ -42,6 +42,8 @@
 #define MP_LEXER_EOF ((unichar)MP_READER_EOF)
 #define CUR_CHAR(lex) ((lex)->chr0)
 
+bool mp_lexer_first_file = true;
+
 STATIC bool is_end(mp_lexer_t *lex) {
     return lex->chr0 == MP_LEXER_EOF;
 }
@@ -435,8 +437,21 @@ STATIC bool skip_whitespace(mp_lexer_t *lex, bool stop_at_newline) {
             next_char(lex);
         } else if (is_char(lex, '#')) {
             next_char(lex);
+            bool capture_line = false;
+            if (mp_lexer_first_file && lex->line <= 2 && vstr_len(&lex->vstr) == 0) {
+                capture_line = true;
+            }
             while (!is_end(lex) && !is_physical_newline(lex)) {
+                if (capture_line) {
+                    vstr_add_char(&lex->vstr, CUR_CHAR(lex));
+                }
                 next_char(lex);
+            }
+            if (capture_line) {
+                if (strstr(vstr_null_terminated_str(&lex->vstr), "-X strict") != NULL) {
+                    mp_strict_mode = true;
+                }
+                vstr_reset(&lex->vstr);
             }
             // had_physical_newline will be set on next loop
         } else if (is_char_and(lex, '\\', '\n')) {
@@ -765,6 +780,7 @@ void mp_lexer_free(mp_lexer_t *lex) {
         vstr_clear(&lex->vstr);
         m_del(uint16_t, lex->indent_level, lex->alloc_indent_level);
         m_del_obj(mp_lexer_t, lex);
+        mp_lexer_first_file = false;
     }
 }
 
