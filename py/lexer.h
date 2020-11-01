@@ -198,4 +198,6 @@ mp_lexer_t *mp_lexer_new_from_file(const char *filename);
 mp_lexer_t *mp_lexer_new_from_fd(qstr filename, int fd, bool close_fd);
 #endif
 
+extern bool mp_lexer_first_file;
+
 #endif // MICROPY_INCLUDED_PY_LEXER_H
