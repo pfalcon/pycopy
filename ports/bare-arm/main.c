@@ -119,6 +119,9 @@ char *strcat(char *dest, const char *src) {
 char *strchr(const char *dest, int c) {
     return NULL;
 }
+char *strstr(const char *where, const char *what) {
+    return NULL;
+}
 #include <stdarg.h>
 int vprintf(const char *format, va_list ap) {
     return 0;
