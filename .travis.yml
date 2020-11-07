@@ -115,6 +115,7 @@ jobs:
         - PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig
       install:
         - brew install pkgconfig || true
+        - brew install autoconf automake libtool
       script:
         - make ${MAKEOPTS} -C mpy-cross
         - make ${MAKEOPTS} -C ports/unix submodules
