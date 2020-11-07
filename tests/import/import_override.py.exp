@@ -1,0 +1,3 @@
+overriden import: import1b None 0
+123
+overriden import: pkg.mod ('foo',) 0
