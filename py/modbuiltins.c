@@ -196,7 +196,8 @@ STATIC mp_obj_t mp_builtin_dir(size_t n_args, const mp_obj_t *args) {
             if (dest[0] != MP_OBJ_NULL) {
                 #if MICROPY_PY_ALL_SPECIAL_METHODS
                 // Support for __dir__: see if we can dispatch to this special method
-                // This relies on MP_QSTR__dir__ being first after MP_QSTR_
+                // This relies on MP_QSTR__dir__ being first valid method name
+                // (i.e. identifier).
                 if (i == MP_QSTR___dir__ && dest[1] != MP_OBJ_NULL) {
                     return mp_call_method_n_kw(0, 0, dest);
                 }
