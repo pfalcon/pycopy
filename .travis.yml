@@ -134,7 +134,7 @@ jobs:
         # need newer gcc version for Cortex-M7 support
         - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
         - sudo apt-get update -qq || true
-        - sudo apt-get install gcc-arm-embedded libnewlib-arm-none-eabi
+        - sudo apt-get install gcc-arm-embedded
         - arm-none-eabi-gcc --version
       script:
         - make ${MAKEOPTS} -C mpy-cross
@@ -399,7 +399,6 @@ jobs:
         - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
         - sudo apt-get update -qq || true
         - sudo apt-get install gcc-arm-embedded
-        - sudo apt-get install libnewlib-arm-none-eabi
         - arm-none-eabi-gcc --version
       script:
         - ports/nrf/drivers/bluetooth/download_ble_stack.sh s140_nrf52_6_1_1
