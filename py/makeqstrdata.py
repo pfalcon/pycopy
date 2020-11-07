@@ -56,12 +56,12 @@ codepoint2name[ord("~")] = "tilde"
 
 static_qstr_list = [
     "",
-    "__dir__",  # Put __dir__ after empty qstr for builtin dir() to work
     "\n",
     " ",
     "*",
     "/",
     "<module>",
+    "__dir__",  # __dir__ must be first among identifier qstr's for builtin dir() to work
     "_",
     "__call__",
     "__class__",
