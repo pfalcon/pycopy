@@ -10,8 +10,8 @@ cache:
 env:
   global:
     - MAKEOPTS="-j4"
-    - XTENSA_CROSS_ROOT="${HOME}/persist/toolchain-xtensa"
-    - XTENSA_CROSS_BINDIR="${XTENSA_CROSS_ROOT}/bin"
+    - XTENSA_CROSS_ROOT="~/persist/toolchain-xtensa"
+    - XTENSA_CROSS_BINDIR="~/persist/toolchain-xtensa/bin"
 git:
   submodules: false
 
@@ -66,15 +66,21 @@ jobs:
     # esp8266 port
     - stage: test
       name: "esp8266 port build"
-      install:
+      before_install:
+        - sudo apt-get install bison flex gperf help2man libexpat-dev libtool libtool-bin python-serial texinfo
         - export HAS_XTENSA="test -d ${XTENSA_CROSS_BINDIR}"
+      install:
+        - set -x
+        # Expand variables (Github Actions don't do that)
+        - XTENSA_CROSS_ROOT=$(eval echo ${XTENSA_CROSS_ROOT})
+        - echo ${XTENSA_CROSS_ROOT}
         - unset CC # Travis sets this due to "language: c", but it confuses autotools configure when cross-building
         - ${HAS_XTENSA} || git clone --recursive https://github.com/pfalcon/esp-open-sdk.git
-        - ${HAS_XTENSA} || cd esp-open-sdk
-        - ${HAS_XTENSA} || sed -r -i 's%TOOLCHAIN ?=.*%TOOLCHAIN=${XTENSA_CROSS_ROOT}%' Makefile
-        - ${HAS_XTENSA} || make
+        - ${HAS_XTENSA} || echo "CT_LOG_PROGRESS_BAR=n" >> esp-open-sdk/crosstool-config-overrides
+        - ${HAS_XTENSA} || make -C esp-open-sdk TOOLCHAIN=${XTENSA_CROSS_ROOT}
       script:
-        - cd ${TRAVIS_BUILD_DIR}
+        # Expand variables (Github Actions don't do that)
+        - XTENSA_CROSS_BINDIR=$(eval echo ${XTENSA_CROSS_BINDIR})
         - make ${MAKEOPTS} -C mpy-cross
         - make -C ports/esp8266 submodules
         - PATH=${XTENSA_CROSS_BINDIR}:${PATH} make -C ports/esp8266
