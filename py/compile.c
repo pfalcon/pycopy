@@ -1999,7 +1999,35 @@ STATIC void compile_async_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
 }
 #endif
 
+// If a node is a call of function named "qst" with a *single* arg, return
+// this arg.
+STATIC mp_parse_node_t get_fun_call_1arg(mp_parse_node_t node, qstr qst) {
+    if (MP_PARSE_NODE_IS_STRUCT(node)) {
+        mp_parse_node_struct_t *pns = (mp_parse_node_struct_t *)node;
+        if (MP_PARSE_NODE_IS_ID(pns->nodes[0])
+            && MP_PARSE_NODE_LEAF_ARG(pns->nodes[0]) == qst) {
+
+            if (MP_PARSE_NODE_IS_NULL(pns->nodes[1])) {
+                return MP_PARSE_NODE_NULL;
+            }
+
+            // get the array of trailers (known to be an array of PARSE_NODE_STRUCT)
+            //size_t num_trail = 1;
+            mp_parse_node_struct_t **pns_trail = (mp_parse_node_struct_t **)&pns->nodes[1];
+            if (MP_PARSE_NODE_STRUCT_KIND(pns_trail[0]) == PN_atom_expr_trailers) {
+                return false;
+                //num_trail = MP_PARSE_NODE_STRUCT_NUM_NODES(pns_trail[0]);
+                //pns_trail = (mp_parse_node_struct_t**)&pns_trail[0]->nodes[0];
+            }
+
+            return pns_trail[0]->nodes[0];
+        }
+    }
+    return MP_PARSE_NODE_NULL;
+}
+
 STATIC void compile_expr_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
+    assign_kind_t assign_kind = ASSIGN_STORE;
     mp_parse_node_t pn_rhs = pns->nodes[1];
     if (MP_PARSE_NODE_IS_NULL(pn_rhs)) {
         if (comp->is_repl && comp->scope_cur->kind == SCOPE_MODULE) {
@@ -2035,6 +2063,10 @@ STATIC void compile_expr_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
                 }
             } else {
                 // an assigned annotation of the form "x: y = z"
+                if (MP_PARSE_NODE_IS_ID(pns1->nodes[0])
+                    && MP_PARSE_NODE_LEAF_ARG(pns1->nodes[0]) == MP_QSTR_const) {
+                    assign_kind = ASSIGN_STORE_CONST;
+                }
                 pn_rhs = pns1->nodes[1];
                 goto plain_assign;
             }
@@ -2106,8 +2138,15 @@ STATIC void compile_expr_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
             }
             #endif
 
+            {
+                mp_parse_node_t const_arg = get_fun_call_1arg(pn_rhs, MP_QSTR_const);
+                if (!MP_PARSE_NODE_IS_NULL(const_arg)) {
+                    pn_rhs = const_arg;
+                    assign_kind = ASSIGN_STORE_CONST;
+                }
+            }
             compile_node(comp, pn_rhs); // rhs
-            c_assign(comp, pns->nodes[0], ASSIGN_STORE); // lhs store
+            c_assign(comp, pns->nodes[0], assign_kind); // lhs store
         }
     } else {
         goto plain_assign;
