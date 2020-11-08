@@ -212,7 +212,7 @@ jobs:
         - PYCOPYPATH=examples/natmod/features2 ./ports/unix/pycopy-coverage -m features2
         - (cd tests && ./run-natmodtests.py extmod/{btree*,framebuf*,uheapq*,ure*,uzlib*}.py)
         # run coveralls coverage analysis (try to, even if some builds/tests failed)
-        - (cd ports/unix && coveralls --root ../.. --build-root . --gcov $(which gcov) --gcov-options '\-o build-coverage/' --include py --include extmod)
+#        - (cd ports/unix && coveralls --root ../.. --build-root . --gcov $(which gcov) --gcov-options '\-o build-coverage/' --include py --include extmod)
       after_failure:
         - tests/run-tests --print-failures
 
