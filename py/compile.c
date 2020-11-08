@@ -2141,7 +2141,9 @@ STATIC void compile_expr_stmt(compiler_t *comp, mp_parse_node_struct_t *pns) {
             {
                 mp_parse_node_t const_arg = get_fun_call_1arg(pn_rhs, MP_QSTR_const);
                 if (!MP_PARSE_NODE_IS_NULL(const_arg)) {
+                    #if MICROPY_COMP_CONST // This is effectively workaround for build with MICROPY_PY_SYS_SETTRACE
                     pn_rhs = const_arg;
+                    #endif
                     assign_kind = ASSIGN_STORE_CONST;
                 }
             }
