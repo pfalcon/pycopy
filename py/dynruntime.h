@@ -168,8 +168,8 @@ static inline mp_obj_t mp_obj_len_dyn(mp_obj_t o) {
 #define mp_load_attr(base, attr)          (mp_fun_table.load_attr((base), (attr)))
 #define mp_load_method(base, attr, dest)  (mp_fun_table.load_method((base), (attr), (dest)))
 #define mp_load_super_method(attr, dest)  (mp_fun_table.load_super_method((attr), (dest)))
-#define mp_store_name(qst, obj)           (mp_fun_table.store_name((qst), (obj)))
-#define mp_store_global(qst, obj)         (mp_fun_table.store_global((qst), (obj)))
+#define mp_store_name(qst, obj)           (mp_fun_table.store_name((qst), (obj), false))
+#define mp_store_global(qst, obj)         (mp_fun_table.store_global((qst), (obj), false))
 #define mp_store_attr(base, attr, val)    (mp_fun_table.store_attr((base), (attr), (val)))
 
 #define mp_unary_op(op, obj)        (mp_fun_table.unary_op((op), (obj)))
