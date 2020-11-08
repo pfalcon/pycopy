@@ -1697,6 +1697,9 @@ STATIC void emit_native_store_global(emit_t *emit, qstr qst, int kind) {
             ASM_MOV_REG_REG(emit->as, REG_ARG_2, REG_RET);
         }
     }
+
+    // is_const = false
+    ASM_MOV_REG_IMM(emit->as, REG_ARG_3, 0);
     emit_call_with_qstr_arg(emit, MP_F_STORE_NAME + kind, qst, REG_ARG_1); // arg1 = name
     emit_post(emit);
 }
