@@ -97,6 +97,10 @@ jobs:
   unix-port-build-with-clang-on-OSX:
     runs-on: macos-10.15
     steps:
+    - name: Use CPython3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
     - name: Clone
       uses: actions/checkout@v2
     - name: Add ~/bin:~/.local/bin to PATH
