@@ -61,10 +61,41 @@ bool mp_handle_store_ns_strict(mp_map_t *map, mp_obj_t attr, mp_obj_t val, bool 
                 }
                 // Otherwise, overriding non-const slot with non-const value
             } else {
+                bool dest_is_mod = mp_obj_is_type(elem->value, &mp_type_module);
                 if (MP_MAP_QSTR_KEY_IS_CONST(elem->key)) {
-                    mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                    if (is_const && elem->value == val) {
+                        // Can happen during import, e.g. imports of submodules of the same package:
+                        //      import pkg.foo
+                        //      import pkg.bar
+                        // We clearly don't want to throw warning here.
+                        // !dest_is_mod case can happen with multiple "from ... import *",
+                        // note that these multiples can be spread around different modules
+                        // (i.e. m2 does "from m1 import *", then m3 has both "from m1 import *"
+                        // and "from m2 import *", the m2 case will re-import m1's symbols again
+                        // (as stored in m2 namespace)). __all__ is a good means to prevent
+                        // sych re-imports, but we should work reasonably without it too.
+                    } else {
+                        mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                    }
                 } else if (is_const) {
-                    mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding var with func");
+                    if (dest_is_mod) {
+                        // Can happen during import:
+                        //      from .foo import foo
+                        // - will override submodule "foo" with symbol from it
+                        // "foo". At first it seems that warning is warranted,
+                        // we want to encourage users to choose different names
+                        // for modules vs their contents in such cases. But that
+                        // may adversely affect external API. E.g., in pycopy-lib
+                        // we have individual "collections" submodules, which can
+                        // be used like:
+                        //      from collections.defaultdict import defaultdict
+                        // Clearly, we can't easily rename submodule to e.g.,
+                        // _defaultdict, without making API ugly. So, don't issue
+                        // any warnings.
+                        //mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (sub)module");
+                    } else {
+                        mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding var with func");
+                    }
                 }
             }
         }
