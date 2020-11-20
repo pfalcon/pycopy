@@ -13,7 +13,8 @@
     -e async -e intbig -e int_big -e builtin_help -e memstats -e bytes_compare3 -e class_reverse_op \
     -e /set -e '_set\.' -e frozenset -e complex -e const -e native -e viper \
     -e 'float_divmod\.' -e float_parse_doubleprec -e float/true_value -e float/types \
-    -e extmod/vfs_fat_ramdisklarge \
+    -e inf_nan_arith \
+    -e vfs_fat_ramdisklarge -e vfs_fat_mtime -e vfs_lfs_mtime \
     -e usocket_udp_nonblock \
     | ../tools/tinytest-codegen.py --stdin) > bin-testsuite.c
 
