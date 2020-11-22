@@ -1,0 +1,4 @@
+mod
+\.\*Warning: strict mode: overriding (monkey-patching) const name\.\* with a variable
+foo
+my_foo
