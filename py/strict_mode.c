@@ -75,7 +75,17 @@ bool mp_handle_store_ns_strict(mp_map_t *map, mp_obj_t attr, mp_obj_t val, bool 
                         // (as stored in m2 namespace)). __all__ is a good means to prevent
                         // sych re-imports, but we should work reasonably without it too.
                     } else {
-                        mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                        if (!is_const) {
+                            mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o' with a variable", attr);
+                            // This is needed to keep promise that "semantics at
+                            // import-time is that of standard Python". We should
+                            // be able to override, at import time, a const slot
+                            // with variable slot, to let run-time later to assign
+                            // to it freely.
+                            elem->key = MP_MAP_QSTR_KEY_UNCONST(attr);
+                        } else {
+                            mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                        }
                     }
                 } else if (is_const) {
                     if (dest_is_mod) {
