@@ -601,6 +601,8 @@ MP_NOINLINE int main_(int argc, char **argv) {
         } else {
             // No _boot module, not a problem.
         }
+        // Reset status, look for pragma comments in main application module.
+        mp_lexer_first_file = true;
     }
     #endif
 
