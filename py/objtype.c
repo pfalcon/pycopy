@@ -1298,7 +1298,7 @@ mp_obj_t mp_obj_new_type(qstr name, mp_obj_t bases_tuple, mp_obj_t locals_dict) 
         for (size_t i = 0; i < o->locals_dict->map.alloc; i++) {
             if (mp_map_slot_is_filled(&o->locals_dict->map, i)) {
                 const mp_map_elem_t *elem = &o->locals_dict->map.table[i];
-                if (check_for_special_accessors(elem->key, elem->value)) {
+                if (check_for_special_accessors(MP_MAP_NS_KEY(elem->key), elem->value)) {
                     o->flags |= MP_TYPE_FLAG_HAS_SPECIAL_ACCESSORS;
                     break;
                 }
