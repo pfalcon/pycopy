@@ -1468,9 +1468,25 @@ void mp_import_all(mp_obj_t module) {
             // Entry in module global scope may be generated programmatically
             // (and thus be not a qstr for longer names). Avoid turning it in
             // qstr if it has '_' and was used exactly to save memory.
-            const char *name = mp_obj_str_get_str(map->table[i].key);
+
+            // In general, a key in a module namespace dict may be even of other
+            // type than str/qstr (by implanting a "wrong" key using globals()).
+            // And this possibility actually conflicts with ability to store
+            // const bit in dict's keys. Here, we try to handle the situation
+            // as gracefully as we can, but the right and correct solution
+            // would be for globals() to return a proxy dictionary, which would
+            // disallow non-str keys in the first place.
+            mp_obj_t key = map->table[i].key;
+            if (!mp_obj_is_obj(key)) {
+                key = MP_MAP_NS_KEY(key);
+                if (!mp_obj_is_qstr(key)) {
+                    mp_raise_TypeError(NULL);
+                }
+            }
+
+            const char *name = mp_obj_str_get_str(key);
             if (*name != '_') {
-                qstr qname = mp_obj_str_get_qstr(map->table[i].key);
+                qstr qname = mp_obj_str_get_qstr(key);
                 mp_store_name(qname, map->table[i].value, true);
             }
         }
