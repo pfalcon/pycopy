@@ -614,7 +614,11 @@ MP_DEFINE_CONST_FUN_OBJ_2(mp_builtin_hasattr_obj, mp_builtin_hasattr);
 
 #if MICROPY_PY_BUILTINS_GLOBALS
 STATIC mp_obj_t mp_builtin_globals(void) {
-    return MP_OBJ_FROM_PTR(mp_globals_get());
+    mp_obj_dict_t *globals = mp_globals_get();
+    if (mp_strict_runtime) {
+        globals->map.is_fixed = true;
+    }
+    return MP_OBJ_FROM_PTR(globals);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_builtin_globals_obj, mp_builtin_globals);
 #endif
