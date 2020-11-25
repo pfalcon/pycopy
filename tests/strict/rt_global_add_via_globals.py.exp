@@ -1,0 +1,5 @@
+gvar 1
+in __main__
+gvar 1
+gvar 2
+Exception1
