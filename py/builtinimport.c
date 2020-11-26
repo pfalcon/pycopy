@@ -469,6 +469,7 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
             }
             if (outer_module_obj != MP_OBJ_NULL) {
                 qstr s = qstr_from_strn(mod_str + last, i - last);
+                // TODO: Operate directly on module __dict__.
                 mp_store_attr(outer_module_obj, s, module_obj);
             }
             outer_module_obj = module_obj;

@@ -102,7 +102,9 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             mp_obj_dict_delete(MP_OBJ_FROM_PTR(dict), MP_OBJ_NEW_QSTR(attr));
         } else {
             // store attribute
-            if (mp_handle_store_ns_strict(&dict->map, MP_OBJ_NEW_QSTR(attr), dest[1], false)) {
+            bool dest_is_mod = mp_obj_is_type(dest[1], &mp_type_module);
+            // modules are const implicitly
+            if (mp_handle_store_ns_strict(&dict->map, MP_OBJ_NEW_QSTR(attr), dest[1], dest_is_mod)) {
                 dest[0] = MP_OBJ_NULL; // indicate success
                 return;
             }
