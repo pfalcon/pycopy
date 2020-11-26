@@ -168,6 +168,7 @@ jobs:
 
     # install
     - run: |
+        sudo apt-get update -qq || true
         sudo apt-get install gcc-arm-none-eabi libnewlib-arm-none-eabi qemu-system
         arm-none-eabi-gcc --version
         qemu-system-arm --version
