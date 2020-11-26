@@ -84,7 +84,10 @@ bool mp_handle_store_ns_strict(mp_map_t *map, mp_obj_t attr, mp_obj_t val, bool 
                             // to it freely.
                             elem->key = MP_MAP_QSTR_KEY_UNCONST(attr);
                         } else {
-                            mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                            // Don't warn on "import foo.bar".
+                            if (!dest_is_mod) {
+                                mp_warning(MP_WARN_CAT(RuntimeWarning), "strict mode: overriding (monkey-patching) const name '%o'", attr);
+                            }
                         }
                     }
                 } else if (is_const) {
