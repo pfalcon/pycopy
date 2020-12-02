@@ -1160,6 +1160,11 @@ typedef double mp_float_t;
 #define MICROPY_PY_BUILTINS_HELP_MODULES (0)
 #endif
 
+// Whether to honor __all__ of imported modules
+#ifndef MICROPY_PY___ALL__
+#define MICROPY_PY___ALL__ (1)
+#endif
+
 // Whether to set __file__ for imported modules
 #ifndef MICROPY_PY___FILE__
 #define MICROPY_PY___FILE__ (1)

@@ -1461,8 +1461,23 @@ mp_obj_t mp_import_from(mp_obj_t module, qstr name) {
 void mp_import_all(mp_obj_t module) {
     DEBUG_printf("import all %p\n", module);
 
-    // TODO: Support __all__
     mp_map_t *map = &mp_obj_module_get_globals(module)->map;
+
+    #if MICROPY_PY___ALL__
+    mp_map_elem_t *all_slot = mp_map_lookup(map, MP_OBJ_NEW_QSTR(MP_QSTR___all__), MP_MAP_LOOKUP);
+    if (all_slot != NULL) {
+        const mp_obj_dict_t *dict = mp_obj_module_get_globals(module);
+        mp_int_t len = mp_obj_get_int(mp_obj_len(all_slot->value));
+        for (int i = 0; i < len; i++) {
+            mp_obj_t attr = mp_obj_subscr(all_slot->value, MP_OBJ_NEW_SMALL_INT(i), MP_OBJ_SENTINEL);
+            mp_obj_t val = mp_obj_dict_get(MP_OBJ_FROM_PTR(dict), attr);
+            qstr qname = mp_obj_str_get_qstr(attr);
+            mp_store_name(qname, val, true);
+        }
+        return;
+    }
+    #endif
+
     for (size_t i = 0; i < map->alloc; i++) {
         if (mp_map_slot_is_filled(map, i)) {
             // Entry in module global scope may be generated programmatically
