@@ -262,7 +262,7 @@ def main():
 
     # set search path so that test scripts find the test modules (and no other ones)
     os.environ["PYTHONPATH"] = TESTPATH
-    os.environ["MICROPYPATH"] = TESTPATH
+    os.environ["PYCOPYPATH"] = TESTPATH
 
     files = readfiles()
     results = run_tests(files)
