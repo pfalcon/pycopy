@@ -313,29 +313,6 @@ Sample code::
 import
 ------
 
-.. _cpydiff_core_import___all__:
-
-__all__ attribute of modules/packages isn't processed by Pycopy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Cause:** Pycopy employs simplified model, where ``from mod import *`` imports all names, except those starting with an underscore. This handling is compatible with CPython.
-
-**Workaround:** Don't rely on __all__. For symbols which you don't want to be imported with ``from mod import *``, start their names with ``_``. You can still import such a symbol explicitly with ``from mod import _sym``.
-
-Sample code::
-
-    from modules.modall import *
-    
-    print([name for name in dir() if "foo" in name])
-
-+-----------------------+----------------------+
-| CPy output:           | uPy output:          |
-+-----------------------+----------------------+
-| ::                    | ::                   |
-|                       |                      |
-|     ['_foo3', 'foo1'] |     ['foo1', 'foo2'] |
-+-----------------------+----------------------+
-
 .. _cpydiff_core_import_path:
 
 __path__ attribute of a package has a different type (single string instead of list of strings) in Pycopy
