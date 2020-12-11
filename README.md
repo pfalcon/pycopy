@@ -3,6 +3,8 @@
 The Pycopy project
 ==================
 
+[Web site](https://pycopy.github.io/) | [Documentation](https://pycopy.readthedocs.io/)
+
 Pycopy aims to develop and maintain a **minimalist**, lightweight,
 and extensible implementation of Python(-compatible) language.
 Pycopy to CPython is a similar thing as
