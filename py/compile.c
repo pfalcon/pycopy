@@ -3453,10 +3453,18 @@ STATIC void scope_compute_things(scope_t *scope) {
             id_info_t *id = &scope->id_info[i];
             if (id->flags & ID_FLAG_IS_STAR_PARAM) {
                 if (id_param != NULL) {
+                    #if 0
                     // swap star param with last param
                     id_info_t temp = *id_param;
                     *id_param = *id;
                     *id = temp;
+                    #else
+                    // move star param to the end, for compatibility with
+                    // pycopy-lib compiler
+                    id_info_t temp = *id;
+                    memmove(id, id + 1, (id_param - id) * sizeof(*id));
+                    *id_param = temp;
+                    #endif
                 }
                 break;
             } else if (id_param == NULL && id->flags == ID_FLAG_IS_PARAM) {
