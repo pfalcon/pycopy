@@ -2159,6 +2159,15 @@ STATIC void compile_test_if_expr(compiler_t *comp, mp_parse_node_struct_t *pns) 
     assert(MP_PARSE_NODE_IS_STRUCT_KIND(pns->nodes[1], PN_test_if_else));
     mp_parse_node_struct_t *pns_test_if_else = (mp_parse_node_struct_t *)pns->nodes[1];
 
+    if (mp_parse_node_is_const_true(pns_test_if_else->nodes[0])) {
+        compile_node(comp, pns->nodes[0]); // success value
+        return;
+    }
+    if (mp_parse_node_is_const_false(pns_test_if_else->nodes[0])) {
+        compile_node(comp, pns_test_if_else->nodes[1]); // failure value
+        return;
+    }
+
     uint l_fail = comp_next_label(comp);
     uint l_end = comp_next_label(comp);
     c_if_cond(comp, pns_test_if_else->nodes[0], false, l_fail); // condition
