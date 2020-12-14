@@ -1,0 +1,114 @@
+File bytecode/optimizations.py, code block '<module>' (descriptor: \.\+, bytecode @\.\+ 29 bytes)
+Raw bytecode (code_info_size=12, bytecode_size=17):
+########
+arg names:
+(N_STATE 1)
+(N_EXC_STACK 0)
+  bc=0 line=1
+  bc=0 line=4
+  bc=5 line=27
+  bc=10 line=38
+00 MAKE_FUNCTION \.\+
+02 STORE_NAME_CONST if_const
+05 MAKE_FUNCTION \.\+
+07 STORE_NAME_CONST if_parens
+10 MAKE_FUNCTION \.\+
+12 STORE_NAME_CONST if_tuple
+15 LOAD_CONST_NONE
+16 RETURN_VALUE
+File bytecode/optimizations.py, code block 'if_const' (descriptor: \.\+, bytecode @\.\+ 50 bytes)
+Raw bytecode (code_info_size=23, bytecode_size=27):
+########
+arg names:
+(N_STATE 1)
+(N_EXC_STACK 0)
+  bc=0 line=1
+  bc=0 line=4
+  bc=0 line=5
+  bc=0 line=6
+  bc=5 line=7
+  bc=5 line=9
+  bc=5 line=10
+  bc=10 line=11
+  bc=10 line=13
+  bc=10 line=14
+  bc=15 line=15
+  bc=15 line=17
+  bc=15 line=18
+  bc=20 line=19
+  bc=20 line=21
+  bc=20 line=22
+  bc=25 line=23
+00 LOAD_GLOBAL a1 (cache=0)
+04 POP_TOP
+05 LOAD_GLOBAL a3 (cache=0)
+09 POP_TOP
+10 LOAD_GLOBAL a5 (cache=0)
+14 POP_TOP
+15 LOAD_GLOBAL a7 (cache=0)
+19 POP_TOP
+20 LOAD_GLOBAL a9 (cache=0)
+24 POP_TOP
+25 LOAD_CONST_NONE
+26 RETURN_VALUE
+File bytecode/optimizations.py, code block 'if_parens' (descriptor: \.\+, bytecode @\.\+ 52 bytes)
+Raw bytecode (code_info_size=14, bytecode_size=38):
+########
+arg names:
+(N_STATE 1)
+(N_EXC_STACK 0)
+  bc=0 line=1
+  bc=0 line=28
+  bc=7 line=29
+  bc=12 line=30
+  bc=19 line=31
+  bc=24 line=32
+  bc=31 line=33
+00 LOAD_GLOBAL a (cache=0)
+04 POP_JUMP_IF_FALSE 12
+07 LOAD_GLOBAL b1 (cache=0)
+11 POP_TOP
+12 LOAD_GLOBAL a (cache=0)
+16 POP_JUMP_IF_FALSE 24
+19 LOAD_GLOBAL b2 (cache=0)
+23 POP_TOP
+24 LOAD_GLOBAL a (cache=0)
+28 POP_JUMP_IF_FALSE 36
+31 LOAD_GLOBAL b3 (cache=0)
+35 POP_TOP
+36 LOAD_CONST_NONE
+37 RETURN_VALUE
+File bytecode/optimizations.py, code block 'if_tuple' (descriptor: \.\+, bytecode @\.\+ 49 bytes)
+Raw bytecode (code_info_size=14, bytecode_size=35):
+########
+arg names:
+(N_STATE 2)
+(N_EXC_STACK 0)
+  bc=0 line=1
+  bc=0 line=39
+  bc=5 line=40
+  bc=10 line=41
+  bc=16 line=42
+  bc=21 line=43
+  bc=28 line=44
+00 BUILD_TUPLE 0
+02 POP_JUMP_IF_FALSE 10
+05 LOAD_GLOBAL a1 (cache=0)
+09 POP_TOP
+10 LOAD_CONST_SMALL_INT 1
+11 BUILD_TUPLE 1
+13 POP_JUMP_IF_FALSE 21
+16 LOAD_GLOBAL a2 (cache=0)
+20 POP_TOP
+21 LOAD_CONST_SMALL_INT 1
+22 LOAD_CONST_SMALL_INT 2
+23 BUILD_TUPLE 2
+25 POP_JUMP_IF_FALSE 33
+28 LOAD_GLOBAL a3 (cache=0)
+32 POP_TOP
+33 LOAD_CONST_NONE
+34 RETURN_VALUE
+mem: total=\.\+, current=\.\+, peak=\.\+
+stack: \.\+ out of \.\+
+GC: total: \.\+, used: \.\+, free: \.\+
+ No. of \.\+-blocks: \.\+, \.\+-blocks: \.\+, max blk sz: \.\+, max free sz: \.\+
