@@ -72,6 +72,8 @@ def run_micropython(pyb, args, test_file, is_special=False):
         if test_file.startswith(('cmdline/', base_path('feature_check/'))) or test_file in special_tests:
             # special handling for tests of the unix cmdline program
             is_special = True
+        elif test_file.startswith('bytecode/'):
+            is_special = True
 
         if is_special:
             # check for any cmdline options needed for this test
@@ -670,7 +672,7 @@ the last matching regex is used:
                 test_dirs += ('wipy',)
             elif args.target == 'unix':
                 # run PC tests
-                test_dirs += ('strict', 'float', 'import', 'io', 'stress', 'unicode', 'unix', 'cmdline',)
+                test_dirs += ('strict', 'float', 'import', 'io', 'stress', 'unicode', 'unix', 'cmdline', 'bytecode')
             elif args.target == 'qemu-arm':
                 if not args.write_exp:
                     raise ValueError('--target=qemu-arm must be used with --write-exp')
