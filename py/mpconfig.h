@@ -1770,6 +1770,10 @@ typedef double mp_float_t;
 #endif
 #endif // INT_FMT
 
+#ifndef SIZE_T_FMT
+#define SIZE_T_FMT UINT_FMT
+#endif // SIZE_T_FMT
+
 // Modifier for function which doesn't return
 #ifndef NORETURN
 #define NORETURN __attribute__((noreturn))
