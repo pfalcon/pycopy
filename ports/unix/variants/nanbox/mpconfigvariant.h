@@ -43,3 +43,4 @@ typedef int64_t mp_int_t;
 typedef uint64_t mp_uint_t;
 #define UINT_FMT "%llu"
 #define INT_FMT "%lld"
+#define SIZE_T_FMT "%lu"
