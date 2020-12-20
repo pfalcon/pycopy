@@ -809,10 +809,17 @@ MP_DEFINE_CONST_FUN_OBJ_2(uctypes_struct_bytearray_at_obj, uctypes_struct_bytear
 /// Capture memory at given address of given size as bytes. Memory is
 /// captured by value, i.e. copied. Use bytearray_at() to capture by reference
 /// ("zero copy").
-STATIC mp_obj_t uctypes_struct_bytes_at(mp_obj_t ptr, mp_obj_t size) {
-    return mp_obj_new_bytes((void *)(uintptr_t)mp_obj_int_get_truncated(ptr), mp_obj_int_get_truncated(size));
+STATIC mp_obj_t uctypes_struct_bytes_at(size_t n_args, const mp_obj_t *args) {
+    const void *ptr = (void *)(uintptr_t)mp_obj_int_get_truncated(args[0]);
+    size_t size;
+    if (n_args == 1) {
+        size = strlen(ptr);
+    } else {
+        size = mp_obj_int_get_truncated(args[1]);
+    }
+    return mp_obj_new_bytes(ptr, size);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(uctypes_struct_bytes_at_obj, uctypes_struct_bytes_at);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(uctypes_struct_bytes_at_obj, 1, 2, uctypes_struct_bytes_at);
 
 
 STATIC const mp_obj_type_t uctypes_struct_type = {
