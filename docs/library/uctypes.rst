@@ -262,12 +262,13 @@ Module contents
    other object supporting buffer protocol (and address of this buffer
    is what actually returned).
 
-.. function:: bytes_at(addr, size)
+.. function:: bytes_at(addr, [size])
 
-   Capture memory at the given address and size as bytes object. As bytes
-   object is immutable, memory is actually duplicated and copied into
-   bytes object, so if memory contents change later, created object
-   retains original value.
+   Capture memory at the given address and size as a bytes object. If *size*
+   is not specified, capture a zero-terminated C string (still as a bytes
+   object). As bytes object is immutable, the memory is actually duplicated
+   and copied into bytes object, so if memory contents at the given address
+   change later, the created object retains the original value.
 
 .. function:: bytearray_at(addr, size)
 
