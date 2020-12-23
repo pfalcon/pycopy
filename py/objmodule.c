@@ -114,9 +114,16 @@ STATIC void module_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 }
 
+STATIC mp_obj_t module_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    (void)type;
+    mp_arg_check_num(n_args, n_kw, 1, 1, false);
+    return mp_obj_new_module(mp_obj_str_get_qstr(args[0]));
+}
+
 const mp_obj_type_t mp_type_module = {
     { &mp_type_type },
     .name = MP_QSTR_module,
+    .make_new = module_make_new,
     .print = module_print,
     .attr = module_attr,
 };
