@@ -31,6 +31,7 @@
 
 #include "py/compile.h"
 #include "py/objmodule.h"
+#include "py/objstr.h"
 #include "py/persistentcode.h"
 #include "py/runtime.h"
 #include "py/builtin.h"
@@ -47,6 +48,12 @@
 #if MICROPY_ENABLE_EXTERNAL_IMPORT
 
 #define PATH_SEP_CHAR '/'
+
+typedef struct _mp_import_info_t {
+    vstr_t *path;  // Buffer to construct FS path of import.
+    mp_obj_t module_name;  // Original import module name requested.
+    mp_obj_t module_from_hook;  // Module created by import hook is passed ia this field.
+} mp_import_info_t;
 
 bool mp_obj_is_package(mp_obj_t module) {
     mp_obj_t dest[2];
@@ -65,7 +72,23 @@ STATIC mp_import_stat_t mp_import_stat_any(const char *path) {
     return mp_import_stat(path);
 }
 
-STATIC mp_import_stat_t stat_file_py_or_mpy(vstr_t *path) {
+STATIC mp_import_stat_t stat_file_py_or_mpy(mp_import_info_t *imp) {
+    vstr_t *path = imp->path;
+
+    #if MICROPY_IMPORT_HOOK
+    // not a directory, try file-level import hook
+    if (MP_STATE_VM(import_hook) != mp_const_none) {
+        mp_obj_t path_obj = mp_obj_new_str_copy(&mp_type_str, (byte *)vstr_str(path), vstr_len(path));
+        mp_obj_t mod = mp_call_function_2(MP_STATE_VM(import_hook), imp->module_name, path_obj);
+        if (mod != mp_const_none) {
+            imp->module_from_hook = mod;
+            return MP_IMPORT_STAT_EXTERNAL;
+        }
+    }
+    #endif
+
+    vstr_add_str(path, ".py");
+
     mp_import_stat_t stat = mp_import_stat_any(vstr_null_terminated_str(path));
     if (stat == MP_IMPORT_STAT_FILE) {
         return stat;
@@ -82,19 +105,19 @@ STATIC mp_import_stat_t stat_file_py_or_mpy(vstr_t *path) {
     return MP_IMPORT_STAT_NO_EXIST;
 }
 
-STATIC mp_import_stat_t stat_dir_or_file(vstr_t *path) {
+STATIC mp_import_stat_t stat_dir_or_file(mp_import_info_t *imp) {
+    vstr_t *path = imp->path;
     mp_import_stat_t stat = mp_import_stat_any(vstr_null_terminated_str(path));
     DEBUG_printf("stat %s: %d\n", vstr_str(path), stat);
     if (stat == MP_IMPORT_STAT_DIR) {
         return stat;
     }
 
-    // not a directory, add .py and try as a file
-    vstr_add_str(path, ".py");
-    return stat_file_py_or_mpy(path);
+    return stat_file_py_or_mpy(imp);
 }
 
-STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *dest) {
+STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, mp_import_info_t *imp) {
+    vstr_t *dest = imp->path;
     #if MICROPY_PY_SYS
     // extract the list of paths
     size_t path_num;
@@ -107,7 +130,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
         // Iteration #0, virtual path for frozen modules
         vstr_add_char(dest, FROZEN_VPATH_CHAR);
         vstr_add_strn(dest, file_str, file_len);
-        stat = stat_dir_or_file(dest);
+        stat = stat_dir_or_file(imp);
         if (stat != MP_IMPORT_STAT_NO_EXIST) {
             return stat;
         }
@@ -123,7 +146,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
                 vstr_add_char(dest, PATH_SEP_CHAR);
             }
             vstr_add_strn(dest, file_str, file_len);
-            stat = stat_dir_or_file(dest);
+            stat = stat_dir_or_file(imp);
             if (stat != MP_IMPORT_STAT_NO_EXIST) {
                 return stat;
             }
@@ -137,7 +160,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
     // mp_sys_path is empty, so look just in frozen vpath
     vstr_add_char(dest, FROZEN_VPATH_CHAR);
     vstr_add_strn(dest, file_str, file_len);
-    return stat_dir_or_file(dest);
+    return stat_dir_or_file(imp);
 }
 
 #if MICROPY_MODULE_FROZEN_STR || MICROPY_ENABLE_COMPILER
@@ -372,6 +395,8 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
 
     uint last = 0;
     VSTR_FIXED(path, MICROPY_ALLOC_PATH_MAX)
+    mp_import_info_t imp;
+    imp.path = &path;
     module_obj = MP_OBJ_NULL;
     mp_obj_t top_module_obj = MP_OBJ_NULL;
     mp_obj_t outer_module_obj = MP_OBJ_NULL;
@@ -382,17 +407,26 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
             qstr mod_name = qstr_from_strn(mod_str, i);
             DEBUG_printf("Processing module: %s\n", qstr_str(mod_name));
             DEBUG_printf("Previous path: =%.*s=\n", vstr_len(&path), vstr_str(&path));
+            imp.module_name = MP_OBJ_NEW_QSTR(mod_name);
+            // If that's the last component, and we load for "-m" option,
+            // proactively set its name to __main__. Note that this applies
+            // to modules only. If the last component turns out to be a
+            // package, we reset its name to normal, before loading its
+            // __init__.py.
+            if (fromtuple == mp_const_false && i == mod_len) {
+                imp.module_name = MP_OBJ_NEW_QSTR(MP_QSTR___main__);
+            }
 
             // find the file corresponding to the module name
             mp_import_stat_t stat;
             if (vstr_len(&path) == 0) {
                 // first module in the dotted-name; search for a directory or file
-                stat = find_file(mod_str, i, &path);
+                stat = find_file(mod_str, i, &imp);
             } else {
                 // latter module in the dotted-name; append to path
                 vstr_add_char(&path, PATH_SEP_CHAR);
                 vstr_add_strn(&path, mod_str + last, i - last);
-                stat = stat_dir_or_file(&path);
+                stat = stat_dir_or_file(&imp);
             }
             DEBUG_printf("Current path: %.*s\n", vstr_len(&path), vstr_str(&path));
 
@@ -416,6 +450,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                     mp_raise_msg_varg(&mp_type_ImportError, MP_ERROR_TEXT("no module named '%q'"), mod_name);
                     #endif
                 }
+            #if MICROPY_IMPORT_HOOK
+            } else if (stat == MP_IMPORT_STAT_EXTERNAL) {
+                module_obj = imp.module_from_hook;
+                mp_module_register(mod_name, module_obj);
+            #endif
             } else {
                 // found the file, so get the module
                 module_obj = mp_module_get(mod_name);
@@ -454,9 +493,15 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                     mp_store_attr(module_obj, MP_QSTR___path__, mp_obj_new_str(vstr_str(&path), vstr_len(&path)));
                     size_t orig_path_len = path.len;
                     vstr_add_char(&path, PATH_SEP_CHAR);
-                    vstr_add_str(&path, "__init__.py");
-                    if (stat_file_py_or_mpy(&path) != MP_IMPORT_STAT_FILE) {
+                    vstr_add_str(&path, "__init__");
+                    // package's __init__ is not loaded as __main__, so make
+                    // sure to reset possible __main__ assigned above.
+                    imp.module_name = MP_OBJ_NEW_QSTR(mod_name);
+                    stat = stat_file_py_or_mpy(&imp);
+                    if (stat == MP_IMPORT_STAT_NO_EXIST) {
                         //mp_warning("%s is imported as namespace package", vstr_str(&path));
+                    } else if (stat == MP_IMPORT_STAT_EXTERNAL) {
+                        module_obj = imp.module_from_hook;
                     } else {
                         do_load(module_obj, &path);
                     }

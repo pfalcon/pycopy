@@ -90,6 +90,10 @@ void mp_init(void) {
     #endif
     #endif
 
+    #if MICROPY_IMPORT_HOOK
+    MP_STATE_VM(import_hook) = mp_const_none;
+    #endif
+
     // init global module dict
     mp_obj_dict_init(&MP_STATE_VM(mp_loaded_modules_dict), 3);
 
