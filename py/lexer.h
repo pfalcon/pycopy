@@ -189,6 +189,7 @@ typedef enum {
     MP_IMPORT_STAT_NO_EXIST,
     MP_IMPORT_STAT_DIR,
     MP_IMPORT_STAT_FILE,
+    MP_IMPORT_STAT_EXTERNAL, // Module from external hook
 } mp_import_stat_t;
 
 mp_import_stat_t mp_import_stat(const char *path);
