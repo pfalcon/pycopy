@@ -197,6 +197,15 @@ STATIC mp_obj_t mp_sys_maybe_intern(mp_obj_t str_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_maybe_intern_obj, mp_sys_maybe_intern);
 #endif
 
+#if MICROPY_IMPORT_HOOK
+STATIC mp_obj_t mp_sys_setimphook(mp_obj_t obj, mp_obj_t exts) {
+    mp_obj_t old = MP_STATE_VM(import_hook);
+    MP_STATE_VM(import_hook) = obj;
+    return old;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(mp_sys_setimphook_obj, mp_sys_setimphook);
+#endif
+
 #if MICROPY_PY_SYS_STDFILES_OVERRIDE
 STATIC MP_NS_DICT mp_obj_dict_t mp_module_sys_globals;
 
@@ -301,6 +310,9 @@ STATIC MP_SYS_STDIO_ATTR mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_print_exception), MP_ROM_PTR(&mp_sys_print_exception_obj) },
     #if MICROPY_PY_SYS_ROPROXY
     { MP_ROM_QSTR(MP_QSTR_roproxy), MP_ROM_PTR(&mp_type_roproxy) },
+    #endif
+    #if MICROPY_IMPORT_HOOK
+    { MP_ROM_QSTR(MP_QSTR_setimphook), MP_ROM_PTR(&mp_sys_setimphook_obj) },
     #endif
 };
 
