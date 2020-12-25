@@ -33,6 +33,7 @@
 #define MICROPY_FLOAT_HIGH_QUALITY_HASH (1)
 #define MICROPY_ENABLE_DOC_STRING      (1)
 #define MICROPY_ENABLE_SCHEDULER       (1)
+#define MICROPY_IMPORT_HOOK            (1)
 #define MICROPY_READER_VFS             (1)
 #define MICROPY_WARNINGS_CATEGORY      (1)
 #define MICROPY_WARNINGS_LOC           (1)
