@@ -41,7 +41,7 @@ function ci_code_size_setup {
 function ci_code_size_build {
     # starts off at either the ref/pull/N/merge FETCH_HEAD, or the current branch HEAD
     git checkout -b pull_request # save the current location
-    git remote add upstream https://github.com/micropython/micropython.git
+    git remote add upstream https://github.com/pfalcon/pycopy.git
     git fetch --depth=100 upstream
     # build reference, save to size0
     # ignore any errors with this build, in case master is failing
@@ -259,12 +259,12 @@ function ci_unix_run_tests_full_helper {
     variant=$1
     shift
     if [ $variant = standard ]; then
-        micropython=micropython
+        pycopy=pycopy
     else
-        micropython=micropython-$variant
+        pycopy=pycopy-$variant
     fi
     make -C ports/unix VARIANT=$variant "$@" test_full
-    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/$micropython ./run-multitests.py multi_net/*.py)
+    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/$pycopy ./run-multitests.py multi_net/*.py)
 }
 
 function ci_native_mpy_modules_build {
@@ -292,7 +292,7 @@ function ci_unix_minimal_build {
 }
 
 function ci_unix_minimal_run_tests {
-    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/micropython-minimal ./run-tests -e exception_chain -e self_type_check -e subclass_native_init -d basics)
+    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy-minimal ./run-tests -e exception_chain -e self_type_check -e subclass_native_init -e class_slots_ -d basics)
 }
 
 function ci_unix_standard_build {
@@ -304,7 +304,7 @@ function ci_unix_standard_run_tests {
 }
 
 function ci_unix_standard_run_perfbench {
-    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/micropython ./run-perfbench.py 1000 1000)
+    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy ./run-perfbench.py 1000 1000)
 }
 
 function ci_unix_coverage_setup {
@@ -324,7 +324,7 @@ function ci_unix_coverage_run_tests {
 }
 
 function ci_unix_coverage_run_native_mpy_tests {
-    MICROPYPATH=examples/natmod/features2 ./ports/unix/micropython-coverage -m features2
+    PYCOPYPATH=examples/natmod/features2 ./ports/unix/pycopy-coverage -m features2
     (cd tests && ./run-natmodtests.py "$@" extmod/{btree*,framebuf*,uheapq*,ure*,uzlib*}.py)
 }
 
