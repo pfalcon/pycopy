@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Update package list
+      run: sudo apt-get update -qq || true
     - name: Install packages
       run: source tools/ci.sh && ci_code_size_setup
     - name: Build
