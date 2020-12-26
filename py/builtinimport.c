@@ -424,7 +424,9 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
             if (module_obj == MP_OBJ_NULL) {
                 // module not already loaded, so load it!
 
+                assert(mp_module_get(mod_name) == MP_OBJ_NULL);
                 module_obj = mp_obj_new_module(mod_name);
+                mp_module_register(mod_name, module_obj);
 
                 // if args[3] (fromtuple) has magic value False, set up
                 // this module for command-line "-m" option (set module's
