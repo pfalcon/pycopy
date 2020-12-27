@@ -43,7 +43,7 @@ STATIC const mp_obj_type_t mp_type_code = {
     .name = MP_QSTR_code,
 };
 
-STATIC mp_obj_t code_execute(mp_obj_code_t *self, mp_obj_dict_t *globals, mp_obj_dict_t *locals) {
+STATIC mp_obj_t code_execute(mp_obj_t func, mp_obj_dict_t *globals, mp_obj_dict_t *locals) {
     // save context and set new context
     mp_obj_dict_t *old_globals = mp_globals_get();
     mp_obj_dict_t *old_locals = mp_locals_get();
@@ -52,15 +52,19 @@ STATIC mp_obj_t code_execute(mp_obj_code_t *self, mp_obj_dict_t *globals, mp_obj
 
     // a bit of a hack: fun_bc will re-set globals, so need to make sure it's
     // the correct one
-    if (mp_obj_is_type(self->module_fun, &mp_type_fun_bc)) {
-        mp_obj_fun_bc_t *fun_bc = MP_OBJ_TO_PTR(self->module_fun);
+    if (mp_obj_is_type(func, &mp_type_fun_bc)
+        #if MICROPY_EMIT_NATIVE
+        || mp_obj_is_type(func, &mp_type_fun_native)
+        #endif
+        ) {
+        mp_obj_fun_bc_t *fun_bc = MP_OBJ_TO_PTR(func);
         fun_bc->globals = globals;
     }
 
     // execute code
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
-        mp_obj_t ret = mp_call_function_0(self->module_fun);
+        mp_obj_t ret = mp_call_function_0(func);
         nlr_pop();
         mp_globals_set(old_globals);
         mp_locals_set(old_locals);
@@ -132,7 +136,11 @@ STATIC mp_obj_t eval_exec_helper(size_t n_args, const mp_obj_t *args, mp_parse_i
 
     #if MICROPY_PY_BUILTINS_COMPILE
     if (mp_obj_is_type(args[0], &mp_type_code)) {
-        return code_execute(MP_OBJ_TO_PTR(args[0]), globals, locals);
+        mp_obj_code_t *code = MP_OBJ_TO_PTR(args[0]);
+        return code_execute(code->module_fun, globals, locals);
+    }
+    if (mp_obj_is_callable(args[0])) {
+        return code_execute(args[0], globals, locals);
     }
     #endif
 
