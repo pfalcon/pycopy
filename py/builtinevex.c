@@ -124,10 +124,15 @@ STATIC mp_obj_t eval_exec_helper(size_t n_args, const mp_obj_t *args, mp_parse_i
     mp_obj_dict_t *locals = mp_locals_get();
     for (size_t i = 1; i < 3 && i < n_args; ++i) {
         if (args[i] != mp_const_none) {
-            if (!mp_obj_is_type(args[i], &mp_type_dict)) {
+            mp_obj_t ns = args[i];
+            if (mp_obj_is_type(ns, &mp_type_module)) {
+                ns = MP_OBJ_FROM_PTR(mp_obj_module_get_globals(ns));
+            }
+
+            if (!mp_obj_is_type(ns, &mp_type_dict)) {
                 mp_raise_TypeError(NULL);
             }
-            locals = MP_OBJ_TO_PTR(args[i]);
+            locals = MP_OBJ_TO_PTR(ns);
             if (i == 1) {
                 globals = locals;
             }
