@@ -14,7 +14,7 @@ def my_import(*args):
     # CPython3.5 and MicroPython doesn't have such an artifact. So, to make
     # test pass on CPython3.5-, just don't print calls with less than 5 args
     if len(args) == 5:
-        print("overriden import:", args[0], args[3], args[4])
+        print("overriden import:", args[0], type(args[1]), type(args[2]), args[3], args[4])
     return org_import(*args)
 
 
