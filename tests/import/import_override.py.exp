@@ -1,3 +1,9 @@
 overriden import: import1b <class 'dict'> <class 'dict'> None 0
 123
 overriden import: pkg.mod <class 'dict'> <class 'dict'> ('foo',) 0
+overriden import: pkg6 <class 'dict'> <class 'dict'> None 0
+overriden import: x <class 'dict'> <class 'dict'> ('*',) 1
+overriden import: y <class 'dict'> <class 'dict'> ('*',) 1
+y
+x
+init

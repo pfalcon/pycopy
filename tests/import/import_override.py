@@ -33,3 +33,5 @@ import import1b
 print(import1b.var)
 
 from pkg.mod import foo
+
+import pkg6
