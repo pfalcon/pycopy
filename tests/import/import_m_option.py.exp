@@ -1,0 +1,5 @@
+import_m: __main__
+pkg_m: pkg_m
+pkg_m.pkg2: pkg_m.pkg2
+pkg_m.pkg2.__main__: __main__
+pkg_m.pkg2.mod: __main__
