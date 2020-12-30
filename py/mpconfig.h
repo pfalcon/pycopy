@@ -1182,6 +1182,12 @@ typedef double mp_float_t;
 #define MICROPY_PY_MICROPYTHON_FUNCTION (0)
 #endif
 
+// Whether to provide pycopy.icast() function to, whenever possible,
+// cast an object to another type inplace.
+#ifndef MICROPY_PY_MICROPYTHON_ICAST
+#define MICROPY_PY_MICROPYTHON_ICAST (1)
+#endif
+
 // Whether to provide mem-info related functions in micropython module
 #ifndef MICROPY_PY_MICROPYTHON_MEM_INFO
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (0)
