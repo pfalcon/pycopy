@@ -195,6 +195,8 @@ STATIC void do_execute_raw_code(mp_obj_t module_obj, mp_raw_code_t *raw_code, co
     mp_globals_set(mod_globals);
     mp_locals_set(mod_globals);
 
+    mp_strict_update_main_name();
+
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         mp_obj_t module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
