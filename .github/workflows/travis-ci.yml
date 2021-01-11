@@ -601,22 +601,22 @@ jobs:
         make ${MAKEOPTS} -C ports/samd submodules
         make ${MAKEOPTS} -C ports/samd
 
-  teensy-port-build:
-    runs-on: ubuntu-16.04
-    steps:
-    - name: Clone
-      uses: actions/checkout@v2
-    - name: Add ~/bin:~/.local/bin to PATH
-      run: |
-        echo ~/bin >> $GITHUB_PATH
-        echo ~/.local/bin >> $GITHUB_PATH
-
-    # install
-    - run: |
-        sudo apt-get install gcc-arm-none-eabi libnewlib-arm-none-eabi
-    # script
-    - run: |
-        make ${MAKEOPTS} -C ports/teensy
+#  teensy-port-build:
+#    runs-on: ubuntu-16.04
+#    steps:
+#    - name: Clone
+#      uses: actions/checkout@v2
+#    - name: Add ~/bin:~/.local/bin to PATH
+#      run: |
+#        echo ~/bin >> $GITHUB_PATH
+#        echo ~/.local/bin >> $GITHUB_PATH
+#
+#    # install
+#    - run: |
+#        sudo apt-get install gcc-arm-none-eabi libnewlib-arm-none-eabi
+#    # script
+#    - run: |
+#        make ${MAKEOPTS} -C ports/teensy
 
   powerpc-port-build:
     runs-on: ubuntu-16.04
