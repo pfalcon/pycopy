@@ -1,8 +1,8 @@
-:mod:`micropython` -- access and control MicroPython internals
-==============================================================
+:mod:`pycopy` -- access and control Pycopy internals
+====================================================
 
-.. module:: micropython
-   :synopsis: access and control MicroPython internals
+.. module:: pycopy
+   :synopsis: access and control Pycopy internals
 
 Functions
 ---------
@@ -12,7 +12,7 @@ Functions
    Used to declare that the expression is a constant so that the compile can
    optimise it.  The use of this function should be as follows::
 
-    from micropython import const
+    from pycopy import const
 
     CONST_X = const(123)
     CONST_Y = const(2 * CONST_X + 1)
@@ -22,9 +22,9 @@ Functions
    begins with an underscore then it is hidden, it is not available as a global
    variable, and does not take up any memory during execution.
 
-   This `const` function is recognised directly by the MicroPython parser and is
-   provided as part of the :mod:`micropython` module mainly so that scripts can be
-   written which run under both CPython and MicroPython, by following the above
+   This `const` function is recognised directly by the Pycopy parser and is
+   provided as part of the :mod:`pycopy` module mainly so that scripts can be
+   written which run under both CPython and Pycopy, by following the above
    pattern.
 
 .. function:: opt_level([level])
@@ -81,8 +81,8 @@ Functions
    should be used to compute differences in stack usage at different points.
 
 .. function:: heap_lock()
-.. function:: heap_unlock()
-.. function:: heap_locked()
+   function:: heap_unlock()
+   function:: heap_locked()
 
    Lock or unlock the heap.  When locked no memory allocation can occur and a
    `MemoryError` will be raised if any heap allocation is attempted.
@@ -117,7 +117,7 @@ Functions
 
    Schedule the function *func* to be executed "very soon".  The function
    is passed the value *arg* as its single argument.  "Very soon" means that
-   the MicroPython runtime will do its best to execute the function at the
+   the Pycopy runtime will do its best to execute the function at the
    earliest possible time, given that it is also trying to be efficient, and
    that the following conditions hold:
 
