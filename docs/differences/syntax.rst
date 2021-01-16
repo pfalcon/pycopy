@@ -3,6 +3,33 @@
 Syntax
 ======
 
+Operators
+---------
+
+.. _cpydiff_syntax_assign_expr:
+
+MicroPython allows using := to assign to the variable of a comprehension, CPython raises a SyntaxError.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** MicroPython is optimised for code size and doesn't check this case.
+
+**Workaround:** Do not rely on this behaviour if writing CPython compatible code.
+
+Sample code::
+
+    print([i := -1 for i in range(4)])
+
++--------------------------------------------+----------------------+
+| CPy output:                                | uPy output:          |
++--------------------------------------------+----------------------+
+| ::                                         | ::                   |
+|                                            |                      |
+|       File "<stdin>", line 7               |     [-1, -1, -1, -1] |
+|         print([i := -1 for i in range(4)]) |                      |
+|                  ^                         |                      |
+|     SyntaxError: invalid syntax            |                      |
++--------------------------------------------+----------------------+
+
 Spaces
 ------
 
