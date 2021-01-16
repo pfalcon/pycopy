@@ -131,7 +131,7 @@ Functions
    string for first position which matches regex (which still may be
    0 if regex is anchored).
 
-.. function:: sub(regex_str, replace, string, count=0, flags=0, /)
+.. function:: sub(regex_str, replace, string, count=0, /)
 
    Compile *regex_str* and search for it in *string*, replacing all matches
    with *replace*, and returning the new string.
@@ -139,18 +139,18 @@ Functions
    *replace* can be a string or a function.  If it is a string then escape
    sequences of the form ``\<number>`` and ``\g<number>`` can be used to
    expand to the corresponding group (or an empty string for unmatched groups).
-   If *replace* is a function then it must take a single argument (the match)
-   and should return a replacement string.
+   If *replace* is a function then it must take a single argument (the match
+   object) and should return a replacement string.
 
    If *count* is specified and non-zero then substitution will stop after
-   this many substitutions are made.  The *flags* argument is ignored.
+   this many substitutions are made.
 
-   Note: availability of this function depends on :term:`MicroPython port`.
+   Note: availability of this function depends on :term:`Pycopy port`.
 
 .. data:: DEBUG
 
    Flag value, display debug information about compiled expression.
-   (Availability depends on :term:`MicroPython port`.)
+   (Availability depends on :term:`Pycopy port`.)
 
 
 .. _regex:
@@ -163,7 +163,7 @@ Compiled regular expression. Instances of this class are created using
 
 .. method:: regex.match(string)
             regex.search(string)
-            regex.sub(replace, string, count=0, flags=0, /)
+            regex.sub(replace, string, count=0, /)
 
    Similar to the module-level functions :meth:`match`, :meth:`search`
    and :meth:`sub`.
@@ -187,11 +187,12 @@ to the replacement function in `sub()`.
    Return matching (sub)string. *index* is 0 for entire match,
    1 and above for each capturing group. Only numeric groups are supported.
 
-.. method:: match.groups()
+..
+   method:: match.groups()
 
    Return a tuple containing all the substrings of the groups of the match.
 
-   Note: availability of this method depends on :term:`MicroPython port`.
+   Note: availability of this method depends on :term:`Pycopy port`.
 
 .. method:: match.start([index])
             match.end([index])
@@ -200,10 +201,11 @@ to the replacement function in `sub()`.
    substring group that was matched.  *index* defaults to the entire
    group, otherwise it will select a group.
 
-   Note: availability of these methods depends on :term:`MicroPython port`.
+   Note: availability of these methods depends on :term:`Pycopy port`.
 
-.. method:: match.span([index])
+..
+   method:: match.span([index])
 
    Returns the 2-tuple ``(match.start(index), match.end(index))``.
 
-   Note: availability of this method depends on :term:`MicroPython port`.
+   Note: availability of this method depends on :term:`Pycopy port`.
