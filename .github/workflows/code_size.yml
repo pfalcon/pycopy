@@ -14,9 +14,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 100
     - name: Update package list
       run: sudo apt-get update -qq || true
     - name: Install packages
