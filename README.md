@@ -249,7 +249,39 @@ should follow this license.
 Project FAQ
 ===========
 
-Q: Focus of the project?
+Q: How Pycopy differs from other Python implementations?
+
+A: Pycopy is intended to be a small, minimalist implementation of the
+"core of the Python language" (in some definition of the "core"). Beyond
+that,cthe aim is to be extensible, to be able to support features of other
+Python implementations. Pycopy is particularly intended to write software
+(and extensions just mentioned) in Python. This may sounds as oxymoron, but
+it's a matter of fact that other implementations have too much of their
+functionality implemented in other languages (e.g., in C for CPython). This
+is a discouraged approach for Pycopy. Instead, for interfacing with non-Python
+libraries, it encourages the use of FFI (Foreign Function Interface) and
+flexible import extensions.
+
+Q: How Pycopy differs from other *small* Python implementations?
+
+A: Please see previous question for general information on how Pycopy
+differs from other Python implementations. Regarding small Python
+implementations specifically, a common issue with them is that they
+structure and represent themselves as niche, special-purpose systems,
+and oftentimes implement very bare subset of Python. Pycopy isn't
+just "Python for microcontrollers" or "Python to embed in other
+application". First and foremost, Pycopy is a general, and
+general-purpose, language, suitable for developing any kind of software.
+Which can be even used on microcontrollers and embedded in other
+applications (without growing them too much), but it's not limited
+to that in any way. Pycopy strives to cover as many systems as possible -
+from clouds down to tiny IoT devices. And project's attention and focus
+is also shared among them according to the functionality and value
+particular areas may offer. For example, microcontrollers are neat cute
+things, but you can do only so much with them, so they represent maybe
+20% of the project focus.
+
+Q: Current focus of the project?
 
 A:
 * Code optimizations.
