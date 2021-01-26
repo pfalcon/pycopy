@@ -1,9 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2021 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,6 +80,16 @@ STATIC void closure_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_
 }
 #endif
 
+#if MICROPY_PY_FUNCTION_ATTRS
+STATIC void closure_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+    const mp_obj_closure_t *self = MP_OBJ_TO_PTR(self_in);
+    const mp_obj_type_t *fun_type = mp_obj_get_type(self->fun);
+    if (fun_type->attr != NULL) {
+        fun_type->attr(self->fun, attr, dest);
+    }
+}
+#endif
+
 const mp_obj_type_t closure_type = {
     { &mp_type_type },
     .name = MP_QSTR_closure,
@@ -85,6 +97,9 @@ const mp_obj_type_t closure_type = {
     .print = closure_print,
     #endif
     .call = closure_call,
+    #if MICROPY_PY_FUNCTION_ATTRS
+    .attr = closure_attr,
+    #endif
 };
 
 mp_obj_t mp_obj_new_closure(mp_obj_t fun, size_t n_closed_over, const mp_obj_t *closed) {
