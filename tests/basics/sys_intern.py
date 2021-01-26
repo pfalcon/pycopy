@@ -10,7 +10,8 @@ except AttributeError:
 s1 = "long long long long long long"
 s2 = "long long long" + " long long long"
 
-print(id(s1) == id(s2))
+# The result varies across CPython versions, e.g. 3.6 vs 3.8.
+#print(id(s1) == id(s2))
 
 i1 = sys.intern(s1)
 i2 = sys.intern(s2)
