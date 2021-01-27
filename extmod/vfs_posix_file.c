@@ -163,6 +163,12 @@ STATIC mp_uint_t vfs_posix_file_write(mp_obj_t o_in, const void *buf, mp_uint_t 
 
 STATIC mp_uint_t vfs_posix_file_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_t arg, int *errcode) {
     mp_obj_vfs_posix_file_t *o = MP_OBJ_TO_PTR(o_in);
+
+    // It should be possible to close already closed file without error.
+    if (request == MP_STREAM_CLOSE && o->fd == -1) {
+        return 0;
+    }
+
     check_fd_is_open(o);
     switch (request) {
         case MP_STREAM_FLUSH: {
