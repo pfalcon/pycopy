@@ -287,12 +287,18 @@ STATIC mp_obj_t vfs_posix_rmdir(mp_obj_t self_in, mp_obj_t path_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_rmdir_obj, vfs_posix_rmdir);
 
-STATIC mp_obj_t vfs_posix_stat(mp_obj_t self_in, mp_obj_t path_in) {
+STATIC mp_obj_t vfs_posix_stat(size_t n_args, const mp_obj_t *args) {
+    mp_obj_t self_in = args[0];
+    mp_obj_t path_in = args[1];
+    bool follow_symlinks = true;
+    if (n_args > 2) {
+        follow_symlinks = mp_obj_is_true(args[2]);
+    }
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
     struct stat sb;
     const char *path = vfs_posix_get_path_str(self, path_in);
     int ret;
-    MP_HAL_RETRY_SYSCALL(ret, stat(path, &sb), mp_raise_OSError(err));
+    MP_HAL_RETRY_SYSCALL(ret, (follow_symlinks ? stat : lstat)(path, &sb), mp_raise_OSError(err));
     mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
     t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.st_mode);
     t->items[1] = mp_obj_new_int_from_uint(sb.st_ino);
@@ -306,7 +312,7 @@ STATIC mp_obj_t vfs_posix_stat(mp_obj_t self_in, mp_obj_t path_in) {
     t->items[9] = mp_obj_new_int_from_uint(sb.st_ctime);
     return MP_OBJ_FROM_PTR(t);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_stat_obj, vfs_posix_stat);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(vfs_posix_stat_obj, 2, 3, vfs_posix_stat);
 
 #ifdef __ANDROID__
 #define USE_STATFS 1
