@@ -474,9 +474,13 @@ mp_obj_t mp_vfs_rmdir(mp_obj_t path_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(mp_vfs_rmdir_obj, mp_vfs_rmdir);
 
-mp_obj_t mp_vfs_stat(mp_obj_t path_in) {
-    mp_obj_t path_out;
-    mp_vfs_mount_t *vfs = lookup_path(path_in, &path_out);
+mp_obj_t mp_vfs_stat(size_t n_args, const mp_obj_t *args) {
+    mp_obj_t path_in = args[0];
+    mp_obj_t args_out[2];
+    if (n_args > 1) {
+        args_out[1] = args[1];
+    }
+    mp_vfs_mount_t *vfs = lookup_path(path_in, &args_out[0]);
     if (vfs == MP_VFS_ROOT) {
         mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
         t->items[0] = MP_OBJ_NEW_SMALL_INT(MP_S_IFDIR); // st_mode
@@ -485,9 +489,9 @@ mp_obj_t mp_vfs_stat(mp_obj_t path_in) {
         }
         return MP_OBJ_FROM_PTR(t);
     }
-    return mp_vfs_proxy_call(vfs, MP_QSTR_stat, 1, &path_out);
+    return mp_vfs_proxy_call(vfs, MP_QSTR_stat, n_args, &args_out[0]);
 }
-MP_DEFINE_CONST_FUN_OBJ_1(mp_vfs_stat_obj, mp_vfs_stat);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_vfs_stat_obj, 1, 2, mp_vfs_stat);
 
 mp_obj_t mp_vfs_statvfs(mp_obj_t path_in) {
     mp_obj_t path_out;
