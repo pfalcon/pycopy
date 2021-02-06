@@ -41,7 +41,6 @@
 #if MICROPY_PY_IO
 
 extern const mp_obj_type_t mp_type_fileio;
-extern const mp_obj_type_t mp_type_textio;
 extern const mp_obj_type_t mp_type_bufreader;
 
 #if MICROPY_PY_IO_IOBASE
@@ -271,7 +270,7 @@ STATIC const mp_rom_map_elem_t mp_module_io_globals_table[] = {
     #if MICROPY_PY_IO_FILEIO
     { MP_ROM_QSTR(MP_QSTR_FileIO), MP_ROM_PTR(&mp_type_fileio) },
     #if MICROPY_CPYTHON_COMPAT
-    { MP_ROM_QSTR(MP_QSTR_TextIOWrapper), MP_ROM_PTR(&mp_type_textio) },
+    { MP_ROM_QSTR(MP_QSTR_TextIOWrapper), MP_ROM_PTR(&mp_type_textiobase) },
     { MP_ROM_QSTR(MP_QSTR_TextIOBase), MP_ROM_PTR(&mp_type_textiobase) },
     #endif
     #endif
