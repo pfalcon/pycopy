@@ -1,12 +1,16 @@
 try:
-    import uio
-    uio.TextIOBase
+    import uio as io
+    io.TextIOWrapper
 except:
-    print('SKIP')
-    raise SystemExit
+    try:
+        import io
+        io.TextIOWrapper
+    except:
+        print('SKIP')
+        raise SystemExit
 
 
-s = uio.TextIOBase(uio.BytesIO(b"123привет"))
+s = io.TextIOWrapper(io.BytesIO("123привет".encode()))
 print(s.read(1))
 print(s.read(3))
 print(s.read(1))
