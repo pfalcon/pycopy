@@ -115,6 +115,7 @@ static inline const mp_stream_p_t *mp_get_stream(mp_const_obj_t self) {
 }
 
 const mp_stream_p_t *mp_get_stream_raise(mp_obj_t self_in, int flags);
+mp_obj_t mp_stream_flush(mp_obj_t stream);
 mp_obj_t mp_stream_close(mp_obj_t stream);
 
 // Iterator which uses mp_stream_unbuffered_readline_obj
