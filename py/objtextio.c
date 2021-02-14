@@ -83,6 +83,22 @@ STATIC mp_obj_t textio_write(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(textio_write_obj, 2, 4, textio_write);
 #endif
 
+// We define these as Python-level methods instead of ->ioctl(), because
+// TextIOBase instances aren't intended to be used with C code (as they
+// don't work with nice bytes, but instead with characters).
+
+STATIC mp_obj_t textio_flush(mp_obj_t self_in) {
+    mp_obj_textio_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_stream_flush(self->stream);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(textio_flush_obj, textio_flush);
+
+STATIC mp_obj_t textio_close(mp_obj_t self_in) {
+    mp_obj_textio_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_stream_close(self->stream);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(textio_close_obj, textio_close);
+
 #if MICROPY_PY_IO_TEXTIOBASE_FILENO
 STATIC mp_obj_t textio_fileno(mp_obj_t self_in) {
     mp_obj_textio_t *self = MP_OBJ_TO_PTR(self_in);
@@ -97,6 +113,8 @@ STATIC const mp_rom_map_elem_t textio_locals_dict_table[] = {
     #if MICROPY_PY_IO_TEXTIOBASE_WRITE
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&textio_write_obj) },
     #endif
+    { MP_ROM_QSTR(MP_QSTR_flush), MP_ROM_PTR(&textio_flush_obj) },
+    { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&textio_close_obj) },
     #if MICROPY_PY_IO_TEXTIOBASE_FILENO
     { MP_ROM_QSTR(MP_QSTR_fileno), MP_ROM_PTR(&textio_fileno_obj) },
     #endif
