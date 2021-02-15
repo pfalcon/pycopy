@@ -7,10 +7,6 @@
 #include <stdint.h>
 #include <alloca.h>
 
-#if !MICROPY_ESP_IDF_4
-#include "rom/ets_sys.h"
-#endif
-
 // object representation and NLR handling
 #define MICROPY_OBJ_REPR                    (MICROPY_OBJ_REPR_A)
 #define MICROPY_NLR_SETJMP                  (1)
