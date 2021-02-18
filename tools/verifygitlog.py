@@ -59,8 +59,8 @@ def verify(sha):
     very_verbose("subject_line", subject_line)
     if not re.match(r"^[^!]+: [A-Z]+.+ .+\.$", subject_line):
         error("Subject line should contain ': ' and end in '.': " + subject_line)
-    if len(subject_line) >= 73:
-        error("Subject line should be 72 or less characters: " + subject_line)
+    if len(subject_line) > 79:
+        error("Subject line should be 79 or less characters: " + subject_line)
 
     # Second one divides subject and body.
     if len(raw_body) > 1 and raw_body[1]:
@@ -68,8 +68,8 @@ def verify(sha):
 
     # Message body lines.
     for line in raw_body[2:]:
-        if len(line) >= 76:
-            error("Message lines should be 75 or less characters: " + line)
+        if len(line) > 79:
+            error("Message lines should be 79 or less characters: " + line)
 
     if not raw_body[-1].startswith("Signed-off-by: ") or "@" not in raw_body[-1]:
         warning("Message should be signed-off")
