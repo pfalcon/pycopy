@@ -1,6 +1,6 @@
 name: Check commit message formatting
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
