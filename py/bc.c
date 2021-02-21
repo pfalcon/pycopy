@@ -104,6 +104,15 @@ STATIC void dump_args(const mp_obj_t *a, size_t sz) {
 #define dump_args(...) (void)0
 #endif
 
+// Raise exception, making it look as originating from function represented
+// by code_state.
+STATIC NORETURN void raise_from_func(mp_code_state_t *code_state, mp_obj_t exc) {
+    mp_source_loc_t loc;
+    mp_decode_cur_lineno(code_state, &loc);
+    mp_obj_exception_add_traceback(exc, loc.source_file, loc.source_line, loc.block_name);
+    nlr_raise(exc);
+}
+
 // On entry code_state should be allocated somewhere (stack/heap) and
 // contain the following valid entries:
 //    - code_state->fun_bc should contain a pointer to the function object
@@ -203,8 +212,9 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
             for (size_t j = 0; j < n_pos_args + n_kwonly_args; j++) {
                 if (wanted_arg_name == arg_names[j]) {
                     if (code_state->state[n_state - 1 - j] != MP_OBJ_NULL) {
-                        mp_raise_msg_varg(&mp_type_TypeError,
+                        mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                             MP_ERROR_TEXT("function got multiple values for argument '%q'"), MP_OBJ_QSTR_VALUE(wanted_arg_name));
+                        raise_from_func(code_state, exc);
                     }
                     code_state->state[n_state - 1 - j] = kwargs[2 * i + 1];
                     goto continue2;
@@ -213,11 +223,14 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
             // Didn't find name match with positional args
             if ((scope_flags & MP_SCOPE_FLAG_VARKEYWORDS) == 0) {
                 #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
-                mp_raise_TypeError(MP_ERROR_TEXT("unexpected keyword argument"));
+                mp_obj_t exc = mp_obj_new_exception_msg(&mp_type_TypeError,
+                    MP_ERROR_TEXT("unexpected keyword argument"));
                 #else
-                mp_raise_msg_varg(&mp_type_TypeError,
-                    MP_ERROR_TEXT("unexpected keyword argument '%q'"), MP_OBJ_QSTR_VALUE(wanted_arg_name));
+                mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+                    MP_ERROR_TEXT("unexpected keyword argument '%q'"),
+                    MP_OBJ_QSTR_VALUE(wanted_arg_name));
                 #endif
+                raise_from_func(code_state, exc);
             }
             mp_obj_dict_store(dict, kwargs[2 * i], kwargs[2 * i + 1]);
         continue2:;
@@ -241,8 +254,9 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
         // Check that all mandatory positional args are specified
         while (d < &code_state->state[n_state]) {
             if (*d++ == MP_OBJ_NULL) {
-                mp_raise_msg_varg(&mp_type_TypeError,
+                mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                     MP_ERROR_TEXT("function missing required positional argument #%d"), &code_state->state[n_state] - d);
+                raise_from_func(code_state, exc);
             }
         }
 
@@ -257,8 +271,9 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
                 if (elem != NULL) {
                     code_state->state[n_state - 1 - n_pos_args - i] = elem->value;
                 } else {
-                    mp_raise_msg_varg(&mp_type_TypeError,
+                    mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                         MP_ERROR_TEXT("function missing required keyword argument '%q'"), MP_OBJ_QSTR_VALUE(arg_names[n_pos_args + i]));
+                    raise_from_func(code_state, exc);
                 }
             }
         }
@@ -266,7 +281,9 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
     } else {
         // no keyword arguments given
         if (n_kwonly_args != 0) {
-            mp_raise_TypeError(MP_ERROR_TEXT("function missing keyword-only argument"));
+            mp_obj_t exc = mp_obj_new_exception_msg(&mp_type_TypeError,
+                MP_ERROR_TEXT("function missing keyword-only argument"));
+            raise_from_func(code_state, exc);
         }
         if ((scope_flags & MP_SCOPE_FLAG_VARKEYWORDS) != 0) {
             *var_pos_kw_args = mp_obj_new_dict(0);
@@ -310,6 +327,9 @@ void mp_decode_cur_lineno(const mp_code_state_t *code_state, mp_source_loc_t *lo
     bytecode_start = MP_ALIGN(bytecode_start, sizeof(mp_uint_t));
     #endif
     size_t bc = code_state->ip - bytecode_start;
+    if (MP_UNLIKELY((ptrdiff_t)bc < 0)) {
+        bc = 0;
+    }
     #if MICROPY_PERSISTENT_CODE
     qstr block_name = ip[0] | (ip[1] << 8);
     qstr source_file = ip[2] | (ip[3] << 8);
