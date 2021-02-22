@@ -1007,12 +1007,21 @@ STATIC mp_obj_t checked_fun_call(mp_obj_t self_in, size_t n_args, size_t n_kw, c
     if (n_args > 0) {
         const mp_obj_type_t *arg0_type = mp_obj_get_type(args[0]);
         if (arg0_type != self->type) {
-            #if MICROPY_ERROR_REPORTING != MICROPY_ERROR_REPORTING_DETAILED
-            mp_raise_TypeError(MP_ERROR_TEXT("argument has wrong type"));
-            #else
-            mp_raise_msg_varg(&mp_type_TypeError,
-                MP_ERROR_TEXT("argument should be a '%q' not a '%q'"), self->type->name, arg0_type->name);
-            #endif
+            // Maybe user subclass of native type.
+            mp_obj_t native_obj = mp_obj_cast_to_native_base(args[0], MP_OBJ_FROM_PTR(self->type));
+            if (native_obj != MP_OBJ_NULL) {
+                // Override inplace, we assume that args come from bytecode
+                // function value stack.
+                mp_obj_t *args_ = (mp_obj_t *)args;
+                args_[0] = native_obj;
+            } else {
+                #if MICROPY_ERROR_REPORTING != MICROPY_ERROR_REPORTING_DETAILED
+                mp_raise_TypeError(MP_ERROR_TEXT("argument has wrong type"));
+                #else
+                mp_raise_msg_varg(&mp_type_TypeError,
+                    MP_ERROR_TEXT("argument should be a '%q' not a '%q'"), self->type->name, arg0_type->name);
+                #endif
+            }
         }
     }
     return mp_call_function_n_kw(self->fun, n_args, n_kw, args);
