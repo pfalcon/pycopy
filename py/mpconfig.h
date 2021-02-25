@@ -940,6 +940,13 @@ typedef double mp_float_t;
 #define MICROPY_PY_STR_BYTES_CMP_WARN (0)
 #endif
 
+// Whether to support __init__ methods for native types (list, dict, etc.)
+// These may be needed when subclassing native types (and not needed
+// otherwise).
+#ifndef MICROPY_PY_NATIVE_TYPE_INIT_METHODS
+#define MICROPY_PY_NATIVE_TYPE_INIT_METHODS (1)
+#endif
+
 // Whether str object is proper unicode
 #ifndef MICROPY_PY_BUILTINS_STR_UNICODE
 #define MICROPY_PY_BUILTINS_STR_UNICODE (0)
