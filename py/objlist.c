@@ -1,9 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
+ * Copyright (c) 2014-2021 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +35,7 @@
 
 STATIC mp_obj_t mp_obj_new_list_iterator(mp_obj_t list, size_t cur, mp_obj_iter_buf_t *iter_buf);
 STATIC mp_obj_list_t *list_new(size_t n);
+STATIC mp_obj_t list_clear(mp_obj_t self_in);
 STATIC mp_obj_t list_extend(mp_obj_t self_in, mp_obj_t arg_in);
 STATIC mp_obj_t list_pop(size_t n_args, const mp_obj_t *args);
 
@@ -84,6 +87,18 @@ STATIC mp_obj_t list_make_new(const mp_obj_type_t *type_in, size_t n_args, size_
         }
     }
 }
+
+#if MICROPY_PY_NATIVE_TYPE_INIT_METHODS
+STATIC mp_obj_t list_init(size_t n_args, const mp_obj_t *args) {
+    if (n_args > 1) {
+        const mp_obj_t self = args[0];
+        list_clear(self);
+        list_extend_from_iter(self, args[1]);
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(list_init_obj, 1, 2, list_init);
+#endif
 
 STATIC mp_obj_t list_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
     mp_obj_list_t *self = MP_OBJ_TO_PTR(self_in);
@@ -443,6 +458,9 @@ STATIC const mp_rom_map_elem_t list_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&list_remove_obj) },
     { MP_ROM_QSTR(MP_QSTR_reverse), MP_ROM_PTR(&list_reverse_obj) },
     { MP_ROM_QSTR(MP_QSTR_sort), MP_ROM_PTR(&list_sort_obj) },
+    #if MICROPY_PY_NATIVE_TYPE_INIT_METHODS
+    { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&list_init_obj) },
+    #endif
 };
 
 STATIC MP_DEFINE_CONST_DICT(list_locals_dict, list_locals_dict_table);
