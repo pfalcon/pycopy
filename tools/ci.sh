@@ -294,7 +294,9 @@ function ci_unix_minimal_build {
 }
 
 function ci_unix_minimal_run_tests {
-    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy-minimal ./run-tests -e exception_chain -e self_type_check -e subclass_native_init -e class_slots_ -d basics)
+    (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy-minimal ./run-tests \
+        -e exception_chain -e self_type_check -e subclass_native_init -e subclass_native6 \
+        -e class_slots_ -d basics)
 }
 
 function ci_unix_standard_build {
