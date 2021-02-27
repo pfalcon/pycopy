@@ -1,10 +1,11 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Pycopy project, https://github.com/pfalcon/pycopy
+ * This file was part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014-2016 Paul Sokolovsky
+ * Copyright (c) 2014-2021 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -235,6 +236,17 @@ mp_obj_t mp_obj_exception_make_new(const mp_obj_type_t *type, size_t n_args, siz
     return MP_OBJ_FROM_PTR(o_exc);
 }
 
+STATIC mp_obj_t exception_init(size_t n_args, const mp_obj_t *args) {
+    mp_obj_exception_t *self = MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t args_t = mp_const_empty_tuple;
+    if (n_args > 1) {
+        args_t = mp_obj_new_tuple(n_args - 1, args + 1);
+    }
+    self->args = MP_OBJ_TO_PTR(args_t);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(exception_init_obj, 1, MP_OBJ_FUN_ARGS_MAX, exception_init);
+
 // Get exception "value" - that is, first argument, or None
 mp_obj_t mp_obj_exception_get_value(mp_obj_t self_in) {
     mp_obj_exception_t *self = MP_OBJ_TO_PTR(self_in);
@@ -270,12 +282,19 @@ void mp_obj_exception_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 }
 
+STATIC MP_NS_DICT_TABLE mp_rom_map_elem_t exception_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&exception_init_obj) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(exception_locals_dict, exception_locals_dict_table);
+
 const mp_obj_type_t mp_type_BaseException = {
     { &mp_type_type },
     .name = MP_QSTR_BaseException,
     .print = mp_obj_exception_print,
     .make_new = mp_obj_exception_make_new,
     .attr = mp_obj_exception_attr,
+    .locals_dict = (mp_obj_dict_t *)&exception_locals_dict,
 };
 
 // *FORMAT-OFF*
