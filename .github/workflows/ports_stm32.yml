@@ -23,6 +23,7 @@ jobs:
       run: source tools/ci.sh && ci_stm32_pyb_build
 
   build_nucleo:
+    if: false  # Overflows flash
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
