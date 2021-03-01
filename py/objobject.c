@@ -57,7 +57,7 @@ STATIC mp_obj_t object___new__(mp_obj_t cls) {
     // TODO: This is a hack, should be resolved along the lines of
     // https://github.com/micropython/micropython/issues/606#issuecomment-43685883
     const mp_obj_type_t *native_base;
-    return MP_OBJ_FROM_PTR(mp_obj_new_instance(MP_OBJ_TO_PTR(cls), &native_base));
+    return MP_OBJ_FROM_PTR(mp_obj_new_instance(MP_OBJ_TO_PTR(cls), 0, 0, NULL, &native_base));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(object___new___fun_obj, object___new__);
 STATIC MP_DEFINE_CONST_STATICMETHOD_OBJ(object___new___obj, MP_ROM_PTR(&object___new___fun_obj));

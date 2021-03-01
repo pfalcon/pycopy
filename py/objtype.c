@@ -106,7 +106,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(native_base_init_wrapper_obj, 1, MP_O
 #if !MICROPY_CPYTHON_COMPAT
 STATIC
 #endif
-mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, const mp_obj_type_t **native_base) {
+mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, size_t n_args, size_t n_kw, const mp_obj_t *args, const mp_obj_type_t **native_base) {
     size_t num_native_bases = instance_count_native_bases(class, native_base);
     mp_obj_instance_t *o;
 
@@ -322,7 +322,7 @@ mp_obj_t mp_obj_instance_make_new(const mp_obj_type_t *self, size_t n_args, size
     if (init_fn[0] == MP_OBJ_NULL || init_fn[0] == MP_OBJ_SENTINEL) {
         // Either there is no __new__() method defined or there is a native
         // constructor.  In both cases create a blank instance.
-        o = mp_obj_new_instance(self, &native_base);
+        o = mp_obj_new_instance(self, n_args, n_kw, args, &native_base);
 
         // Since type->make_new() implements both __new__() and __init__() in
         // one go, of which the latter may be overridden by the Python subclass,
