@@ -1381,11 +1381,6 @@ STATIC void super_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
         .is_type = mp_obj_is_type(self->obj, &mp_type_type),
     };
 
-    // Allow a call super().__init__() to reach any native base classes
-    if (attr == MP_QSTR___init__) {
-        lookup.meth_offset = offsetof(mp_obj_type_t, make_new);
-    }
-
     if (type->parent == NULL) {
         // no parents, do nothing
     #if MICROPY_MULTIPLE_INHERITANCE
@@ -1411,17 +1406,21 @@ STATIC void super_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 
     if (dest[0] != MP_OBJ_NULL) {
+        #if 0
         if (dest[0] == MP_OBJ_SENTINEL) {
             // Looked up native __init__ so defer to it
             dest[0] = MP_OBJ_FROM_PTR(&native_base_init_wrapper_obj);
             dest[1] = self->obj;
         }
+        #endif
         return;
     }
 
+    #if 0
     // Reset meth_offset so we don't look up any native methods in object,
     // because object never takes up the native base-class slot.
     lookup.meth_offset = 0;
+    #endif
 
     mp_obj_class_lookup(&lookup, &mp_type_object);
 }
