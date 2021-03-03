@@ -92,6 +92,7 @@ STATIC int instance_count_native_bases(const mp_obj_type_t *type, const mp_obj_t
     }
 }
 
+#if 0
 // This wrapper function is allows a subclass of a native type to call the
 // __init__() method (corresponding to type->make_new) of the native type.
 STATIC mp_obj_t native_base_init_wrapper(size_t n_args, const mp_obj_t *args) {
@@ -102,6 +103,7 @@ STATIC mp_obj_t native_base_init_wrapper(size_t n_args, const mp_obj_t *args) {
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(native_base_init_wrapper_obj, 1, MP_OBJ_FUN_ARGS_MAX, native_base_init_wrapper);
+#endif
 
 #if !MICROPY_CPYTHON_COMPAT
 STATIC
@@ -133,7 +135,7 @@ mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, size_t n_args
     // object.  It doesn't matter which object, so long as it can be uniquely
     // distinguished from a native class that is initialised.
     if (num_native_bases != 0) {
-        o->subobj[0] = MP_OBJ_FROM_PTR(&native_base_init_wrapper_obj);
+        o->subobj[0] = (*native_base)->make_new(*native_base, n_args, n_kw /*| MP_ONLY_NEW*/, args);
     }
     return o;
 }
@@ -385,11 +387,13 @@ mp_obj_t mp_obj_instance_make_new(const mp_obj_type_t *self, size_t n_args, size
         }
     }
 
+    #if 0
     // If the type had a native base that was not explicitly initialised
     // (constructed) by the Python __init__() method then construct it now.
     if (native_base != NULL && o->subobj[0] == MP_OBJ_FROM_PTR(&native_base_init_wrapper_obj)) {
         o->subobj[0] = native_base->make_new(native_base, n_args, n_kw, args);
     }
+    #endif
 
     return MP_OBJ_FROM_PTR(o);
 }
