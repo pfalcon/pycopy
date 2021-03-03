@@ -103,6 +103,7 @@ set(SOURCE_PY
     ${MPY_PY_DIR}/objstr.c
     ${MPY_PY_DIR}/objstringio.c
     ${MPY_PY_DIR}/objstrunicode.c
+    ${MPY_PY_DIR}/objtextio.c
     ${MPY_PY_DIR}/objtuple.c
     ${MPY_PY_DIR}/objtype.c
     ${MPY_PY_DIR}/objzip.c
@@ -127,6 +128,7 @@ set(SOURCE_PY
     ${MPY_PY_DIR}/smallint.c
     ${MPY_PY_DIR}/stackctrl.c
     ${MPY_PY_DIR}/stream.c
+    ${MPY_PY_DIR}/strict_mode.c
     ${MPY_PY_DIR}/unicode.c
     ${MPY_PY_DIR}/vm.c
     ${MPY_PY_DIR}/vstr.c
