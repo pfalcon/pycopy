@@ -188,7 +188,11 @@ void mp_obj_exception_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kin
 }
 
 mp_obj_t mp_obj_exception_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    mp_arg_check_num(n_args, n_kw, 0, MP_OBJ_FUN_ARGS_MAX, false);
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    // BaseException.__new__ accepts (and ignores) kwargs, while .__init__ - doesn't accept.
+    if (!only_new) {
+        mp_arg_check_num(n_args, n_kw, 0, MP_OBJ_FUN_ARGS_MAX, false);
+    }
 
     // Try to allocate memory for the exception, with fallback to emergency exception object
     mp_obj_exception_t *o_exc = m_new_obj_maybe(mp_obj_exception_t);
@@ -199,6 +203,9 @@ mp_obj_t mp_obj_exception_make_new(const mp_obj_type_t *type, size_t n_args, siz
     // Populate the exception object
     o_exc->base.type = type;
     o_exc->traceback_data = NULL;
+
+    // CPython actually captures positional args in __new__, so we keep
+    // running for both only_new & only_init.
 
     mp_obj_tuple_t *o_tuple;
     if (n_args == 0) {
