@@ -32,6 +32,17 @@
 void mp_arg_check_num_sig(size_t n_args, size_t n_kw, uint32_t sig) {
     // TODO maybe take the function name as an argument so we can print nicer error messages
 
+    // If this flag gets here, it means that ->make_new() doesn't support
+    // proper subclassing, because otherwise it should have filtered the
+    // flag before calling this function.
+    if (n_kw & MP_ONLY_NEW) {
+        #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("native base doesn't support subclassing"));
+        #else
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("called constructor for native base which doesn't support subclassing"));
+        #endif
+    }
+
     // The reverse of MP_OBJ_FUN_MAKE_SIG
     bool takes_kw = sig & 1;
     size_t n_args_min = sig >> 17;

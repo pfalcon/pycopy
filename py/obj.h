@@ -510,6 +510,43 @@ typedef void (*mp_attr_fun_t)(mp_obj_t self_in, qstr attr, mp_obj_t *dest);
 typedef mp_obj_t (*mp_subscr_fun_t)(mp_obj_t self_in, mp_obj_t index, mp_obj_t value);
 typedef mp_obj_t (*mp_getiter_fun_t)(mp_obj_t self_in, mp_obj_iter_buf_t *iter_buf);
 
+// Flags for mp_make_new_fun_t (->make_new virtual methods).
+// MP_ONLY_NEW - perform only __new__ action. (Otherwise both __new__
+// and __init__ should be performed). For a native type to be properly
+// subclassable from Python, type's ->make_new should properly implement
+// this request (using MP_MAKE_NEW_GET_ONLY_FLAGS() macro below).
+#define MP_ONLY_NEW 0x80000000
+
+// Native types which support subclassing from Python should call
+// this macro as the first line in there ->make_new vmethod. It relies
+// on the standard naming of arguments to ->make_new, and makes
+// available the "only_new" bool variable. If "only_new" is not
+// set, then both __new__ and __init__ handling should be run.
+// Common differences to account in only_new vs !only_new
+// handling:
+// * Argument checking - commonly, the signatures of __new__ and
+//   __init__ are different (__new__ is usually more relaxed).
+// * If only_new is set, full initialization based on the arguments
+//   passed usually should not be performed, and function should
+//   return early. But it must still return a fully initialized
+//   object which could be accessed from the Python side, e.g.
+//   there should be no NULL pointers, but instead None or empty
+//   tuple. Note that it may be tempting, to simplify code of
+//   the ->make_new, to not perform such "default" initialization
+//   and return early, but run initialization code unconditionally.
+//   The problem with this approach is argument validation -
+//   arguments as seen by __new__ are generally destined to
+//   user subclass' __init__ method (because __new__ and __init__
+//   are called with the same args, and as a user subclass usually
+//   doesn't override __new__, those arguments first reach base
+//   class __new__, and then user class __init__. __new__ is intended
+//   to be used for immutable types like tuple, normal classes
+//   usually should not perform any arguments-based initialization
+//   in __new__, and only perform default (no-arguments) initialization).
+#define MP_MAKE_NEW_GET_ONLY_FLAGS() \
+    const bool only_new = n_kw & MP_ONLY_NEW; \
+    n_kw &= ~MP_ONLY_NEW
+
 // Buffer protocol
 typedef struct _mp_buffer_info_t {
     void *buf;      // can be NULL if len == 0
