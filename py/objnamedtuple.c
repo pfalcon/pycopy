@@ -92,6 +92,9 @@ STATIC void namedtuple_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
 }
 
 STATIC mp_obj_t namedtuple_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
+
     const mp_obj_namedtuple_type_t *type = (const mp_obj_namedtuple_type_t *)type_in;
     size_t num_fields = type->n_fields;
     if (n_args + n_kw != num_fields) {
