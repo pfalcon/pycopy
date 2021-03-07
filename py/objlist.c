@@ -70,20 +70,28 @@ STATIC mp_obj_t list_extend_from_iter(mp_obj_t list, mp_obj_t iterable) {
 }
 
 STATIC mp_obj_t list_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
     (void)type_in;
-    mp_arg_check_num(n_args, n_kw, 0, 1, false);
+    if (!only_new) {
+        // __new__ doesn't check params.
+        mp_arg_check_num(n_args, n_kw, 0, 1, false);
+    }
+
+    mp_obj_t o = mp_obj_new_list(0, NULL);
+    if (only_new) {
+        return o;
+    }
 
     switch (n_args) {
         case 0:
             // return a new, empty list
-            return mp_obj_new_list(0, NULL);
+            return o;
 
         case 1:
         default: {
             // make list from iterable
             // TODO: optimize list/tuple
-            mp_obj_t list = mp_obj_new_list(0, NULL);
-            return list_extend_from_iter(list, args[0]);
+            return list_extend_from_iter(o, args[0]);
         }
     }
 }
