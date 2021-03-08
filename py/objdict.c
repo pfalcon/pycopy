@@ -102,6 +102,7 @@ STATIC void dict_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_
 }
 
 mp_obj_t mp_obj_dict_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
     mp_obj_t dict_out = mp_obj_new_dict(0);
     mp_obj_dict_t *dict = MP_OBJ_TO_PTR(dict_out);
     dict->base.type = type;
@@ -110,7 +111,7 @@ mp_obj_t mp_obj_dict_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
         dict->map.is_ordered = 1;
     }
     #endif
-    if (n_args > 0 || n_kw > 0) {
+    if (!only_new && (n_args > 0 || n_kw > 0)) {
         mp_obj_t args2[2] = {dict_out, args[0]}; // args[0] is always valid, even if it's not a positional arg
         mp_map_t kwargs;
         mp_map_init_fixed_table(&kwargs, n_kw, args + n_args);
