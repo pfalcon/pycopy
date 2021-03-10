@@ -5,7 +5,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2014-2018 Paul Sokolovsky
+ * Copyright (c) 2014-2021 Paul Sokolovsky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -134,6 +134,9 @@ STATIC void str_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t
 }
 
 mp_obj_t mp_obj_str_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
+
     #if MICROPY_CPYTHON_COMPAT
     if (n_kw != 0) {
         mp_arg_error_unimpl_kw();
@@ -203,6 +206,8 @@ mp_obj_t mp_obj_str_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
 }
 
 STATIC mp_obj_t bytes_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     (void)type_in;
 
     #if MICROPY_CPYTHON_COMPAT
