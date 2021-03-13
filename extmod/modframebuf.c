@@ -264,11 +264,18 @@ STATIC void fill_rect(const mp_obj_framebuf_t *fb, int x, int y, int w, int h, u
 }
 
 STATIC mp_obj_t framebuf_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    mp_arg_check_num(n_args, n_kw, 4, 5, false);
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    // __new__ ignores args.
+    if (!only_new) {
+        mp_arg_check_num(n_args, n_kw, 4, 5, false);
+    }
 
     mp_obj_framebuf_t *o = m_new_obj(mp_obj_framebuf_t);
     o->base.type = type;
     o->buf_obj = args[0];
+    if (only_new) {
+        return MP_OBJ_FROM_PTR(o);
+    }
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_WRITE);
