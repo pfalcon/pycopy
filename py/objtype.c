@@ -122,7 +122,7 @@ mp_obj_instance_t *mp_obj_new_instance(const mp_obj_type_t *class, size_t n_args
     // object.  It doesn't matter which object, so long as it can be uniquely
     // distinguished from a native class that is initialised.
     if (num_native_bases != 0) {
-        o->subobj[0] = (*native_base)->make_new(*native_base, n_args, n_kw /*| MP_ONLY_NEW*/, args);
+        o->subobj[0] = (*native_base)->make_new(*native_base, n_args, n_kw | MP_ONLY_NEW, args);
     }
     return o;
 }
