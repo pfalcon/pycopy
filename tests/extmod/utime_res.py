@@ -6,6 +6,16 @@ except ImportError:
     print("SKIP")
     raise SystemExit
 
+import sys
+
+reduced = False
+try:
+    # MacOSX regularly fails tests due to lower resolution.
+    if sys.platform == "darwin":
+        reduced = True
+except:
+    pass
+
 
 def gmtime_time():
     return utime.gmtime(utime.time())
@@ -24,8 +34,20 @@ def test():
         ("localtime", 3),
         ("gmtime_time", 3),
         ("localtime_time", 3),
-        ("ticks_ms", 15),
-        ("ticks_us", 15),
+    )
+
+    if reduced:
+        EXPECTED_MAP += (
+            ("ticks_ms", 12),
+            ("ticks_us", 12),
+        )
+    else:
+        EXPECTED_MAP += (
+            ("ticks_ms", 15),
+            ("ticks_us", 15),
+        )
+
+    EXPECTED_MAP += (
         ("ticks_ns", 15),
         ("ticks_cpu", 15),
     )
