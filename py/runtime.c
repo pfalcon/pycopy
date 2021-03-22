@@ -1122,9 +1122,7 @@ void mp_load_method_maybe(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
     } else if (type->attr != NULL) {
         // this type can do its own load, so call it
         type->attr(obj, attr, dest);
-        if (dest[0] != MP_OBJ_NULL) {
-            return;
-        }
+        return;
 
     }
 
