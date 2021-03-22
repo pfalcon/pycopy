@@ -1141,6 +1141,21 @@ void mp_load_method_maybe(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
     }
 }
 
+void mp_load_method_maybe_from_locals_dict(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
+    const mp_obj_type_t *type = mp_obj_get_type(obj);
+    if (type->locals_dict != NULL) {
+        // generic method lookup in a type
+        // note that this applies only to native types, instance types
+        // implement more complex lookup via their ->attr().
+        assert(type->locals_dict->base.type == &mp_type_dict);
+        mp_map_t *locals_map = &type->locals_dict->map;
+        mp_map_elem_t *elem = mp_map_lookup(locals_map, MP_OBJ_NEW_QSTR(attr), MP_MAP_LOOKUP);
+        if (elem != NULL) {
+            mp_convert_member_lookup(obj, type, elem->value, dest);
+        }
+    }
+}
+
 void mp_load_method(mp_obj_t base, qstr attr, mp_obj_t *dest) {
     DEBUG_OP_printf("load method %p.%s\n", base, qstr_str(attr));
 
