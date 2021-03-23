@@ -206,7 +206,10 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
         // but some attributes of native types may be handled using .load_attr method,
         // so make sure we try to lookup those too.
         if (lookup->obj != NULL && !lookup->is_type && mp_obj_is_native_type(type) && type != &mp_type_object /* object is not a real type */) {
-            mp_load_method_maybe(lookup->obj->subobj[0], lookup->attr, lookup->dest);
+            const mp_obj_type_t *subobj_type = mp_obj_get_type(lookup->obj->subobj[0]);
+            if (subobj_type->attr) {
+                subobj_type->attr(lookup->obj->subobj[0], lookup->attr, lookup->dest);
+            }
             if (lookup->dest[0] != MP_OBJ_NULL) {
                 return;
             }
