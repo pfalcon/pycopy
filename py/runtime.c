@@ -1115,6 +1115,7 @@ void mp_load_method_maybe(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
     }
     #endif
 
+loop:
     if (attr == MP_QSTR___next__ && type->iternext != NULL) {
         dest[0] = MP_OBJ_FROM_PTR(&mp_builtin_next_obj);
         dest[1] = obj;
@@ -1137,6 +1138,12 @@ void mp_load_method_maybe(mp_obj_t obj, qstr attr, mp_obj_t *dest) {
         if (elem != NULL) {
             mp_convert_member_lookup(obj, type, elem->value, dest);
         }
+    }
+
+    if (type->parent != NULL) {
+        DEBUG_printf("mp_load_method_maybe: Looked for: %q in: %r, continuing with: %r\n", attr, type, type->parent);
+        type = type->parent;
+        goto loop;
     }
 }
 
