@@ -42,11 +42,13 @@ STATIC mp_obj_t object_make_new(const mp_obj_type_t *type, size_t n_args, size_t
 }
 
 #if MICROPY_CPYTHON_COMPAT
-STATIC mp_obj_t object___init__(mp_obj_t self) {
-    (void)self;
+STATIC mp_obj_t object___init__(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
+    (void)n_args;
+    (void)args;
+    (void)kwargs;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(object___init___obj, object___init__);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(object___init___obj, 1, object___init__);
 
 STATIC mp_obj_t object___new__(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
     size_t n_kw = kwargs->used;
