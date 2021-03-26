@@ -149,11 +149,13 @@ struct class_lookup_data {
     bool is_type;
 };
 
-STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_type_t *type) {
+STATIC bool _mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_type_t *type) {
     assert(lookup->dest[0] == MP_OBJ_NULL);
     assert(lookup->dest[1] == MP_OBJ_NULL);
+    bool saw_native_base = false;
     for (;;) {
         DEBUG_printf("mp_obj_class_lookup: Looking up %s in %s\n", qstr_str(lookup->attr), qstr_str(type->name));
+        saw_native_base |= mp_obj_is_native_type(type) && type != &mp_type_object;
         // Optimize special method lookup for native types
         // This avoids extra method_name => slot lookup. On the other hand,
         // this should not be applied to class types, as will result in extra
@@ -163,7 +165,7 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
                 DEBUG_printf("mp_obj_class_lookup: Matched special meth slot (off=%d) for %s\n",
                     lookup->meth_offset, qstr_str(lookup->attr));
                 lookup->dest[0] = MP_OBJ_SENTINEL;
-                return;
+                return saw_native_base;
             }
         }
 
@@ -184,6 +186,7 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
                     if (obj != NULL && mp_obj_is_native_type(type) && type != &mp_type_object /* object is not a real type */) {
                         // If we're dealing with native base class, then it applies to native sub-object
                         obj_obj = obj->subobj[0];
+                        saw_native_base = true;
                     } else {
                         obj_obj = MP_OBJ_FROM_PTR(obj);
                     }
@@ -198,7 +201,7 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
                 }
                 DEBUG_printf("\n");
                 #endif
-                return;
+                return saw_native_base;
             }
         }
 
@@ -211,7 +214,7 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
                 subobj_type->attr(lookup->obj->subobj[0], lookup->attr, lookup->dest);
             }
             if (lookup->dest[0] != MP_OBJ_NULL) {
-                return;
+                return saw_native_base;
             }
         }
 
@@ -219,7 +222,7 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
 
         if (type->parent == NULL) {
             DEBUG_printf("mp_obj_class_lookup: No more parents\n");
-            return;
+            return saw_native_base;
         #if MICROPY_MULTIPLE_INHERITANCE
         } else if (((mp_obj_base_t *)type->parent)->type == &mp_type_tuple) {
             const mp_obj_tuple_t *parent_tuple = type->parent;
@@ -232,9 +235,9 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
                     // Not a "real" type
                     continue;
                 }
-                mp_obj_class_lookup(lookup, bt);
+                saw_native_base = _mp_obj_class_lookup(lookup, bt);
                 if (lookup->dest[0] != MP_OBJ_NULL) {
-                    return;
+                    return saw_native_base;
                 }
             }
 
@@ -247,8 +250,29 @@ STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_t
         }
         if (type == &mp_type_object) {
             // Not a "real" type
-            return;
+            return saw_native_base;
         }
+    }
+}
+
+STATIC void mp_obj_class_lookup(struct class_lookup_data *lookup, const mp_obj_type_t *type) {
+    bool saw_native_base = _mp_obj_class_lookup(lookup, type);
+    if (lookup->dest[0] != MP_OBJ_NULL || !saw_native_base) {
+        return;
+    }
+
+    // If we work with native type, there's clearly no subobj.
+    if (mp_obj_is_native_type(type)) {
+        return;
+    }
+
+    DEBUG_printf("Fallback lookup in 'object' type, saw_native_base: %d\n", saw_native_base);
+    _mp_obj_class_lookup(lookup, &mp_type_object);
+
+    mp_obj_instance_t *obj = lookup->obj;
+    if (lookup->dest[0] != MP_OBJ_NULL && obj != NULL) {
+        // If we're dealing with native base class, then it applies to native sub-object
+        lookup->dest[1] = obj->subobj[0];
     }
 }
 
