@@ -75,6 +75,8 @@ STATIC mp_obj_t uhashlib_sha256_update(mp_obj_t self_in, mp_obj_t arg);
 #endif
 
 STATIC mp_obj_t uhashlib_sha256_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(mbedtls_sha256_context));
     o->base.type = type;
@@ -107,6 +109,8 @@ STATIC mp_obj_t uhashlib_sha256_digest(mp_obj_t self_in) {
 #include "crypto-algorithms/sha256.c"
 
 STATIC mp_obj_t uhashlib_sha256_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(CRYAL_SHA256_CTX));
     o->base.type = type;
@@ -157,6 +161,8 @@ STATIC mp_obj_t uhashlib_sha1_update(mp_obj_t self_in, mp_obj_t arg);
 
 #if MICROPY_SSL_AXTLS
 STATIC mp_obj_t uhashlib_sha1_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(SHA1_CTX));
     o->base.type = type;
@@ -193,6 +199,8 @@ STATIC mp_obj_t uhashlib_sha1_digest(mp_obj_t self_in) {
 #endif
 
 STATIC mp_obj_t uhashlib_sha1_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(mbedtls_sha1_context));
     o->base.type = type;
@@ -244,6 +252,8 @@ STATIC mp_obj_t uhashlib_md5_update(mp_obj_t self_in, mp_obj_t arg);
 
 #if MICROPY_SSL_AXTLS
 STATIC mp_obj_t uhashlib_md5_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(MD5_CTX));
     o->base.type = type;
@@ -280,6 +290,8 @@ STATIC mp_obj_t uhashlib_md5_digest(mp_obj_t self_in) {
 #endif
 
 STATIC mp_obj_t uhashlib_md5_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     mp_arg_check_num(n_args, n_kw, 0, 1, false);
     mp_obj_hash_t *o = m_new_obj_var(mp_obj_hash_t, char, sizeof(mbedtls_md5_context));
     o->base.type = type;
