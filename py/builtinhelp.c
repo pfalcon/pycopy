@@ -33,7 +33,7 @@
 #if MICROPY_PY_BUILTINS_HELP
 
 const char mp_help_default_text[] =
-    "Welcome to MicroPython!\n"
+    "Welcome to Pycopy!\n"
     "\n"
     "For online docs please visit http://docs.micropython.org/\n"
     "\n"
