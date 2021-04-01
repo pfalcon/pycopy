@@ -130,7 +130,7 @@ int real_main(void) {
     int r = tinytest_main(1, argv, groups);
     printf("status: %d\n", r);
 
-    #ifdef CONFIG_ARM
+    #if defined(CONFIG_QEMU_TARGET) && defined(CONFIG_ARM)
     if (r == 0) {
         __asm volatile ("ldr r1, =0x20026");
         __asm volatile ("mov r0, #0x18");
