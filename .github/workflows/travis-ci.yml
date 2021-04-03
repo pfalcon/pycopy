@@ -202,9 +202,9 @@ jobs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 80
         sudo update-alternatives --config gcc
         sudo apt-get install python3-pip
-        sudo pip install cpp-coveralls
         sudo pip3 install setuptools
         sudo pip3 install pyelftools
+        sudo pip3 install cpp-coveralls
         gcc --version
         python3 --version
     # script
