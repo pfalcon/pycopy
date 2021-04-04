@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/pfalcon/pycopy/workflows/.github/workflows/travis-ci.yml/badge.svg)](https://github.com/pfalcon/pycopy/actions) [![Coverage Status](https://coveralls.io/repos/pfalcon/pycopy/badge.png?branch=master)](https://coveralls.io/github/pfalcon/pycopy?branch=master)
+[![Build Status](https://github.com/pfalcon/pycopy/actions/workflows/ports_unix.yml/badge.svg)](https://github.com/pfalcon/pycopy/actions) [![Coverage Status](https://coveralls.io/repos/pfalcon/pycopy/badge.png?branch=master)](https://coveralls.io/github/pfalcon/pycopy?branch=master)
 
 The Pycopy project
 ==================
