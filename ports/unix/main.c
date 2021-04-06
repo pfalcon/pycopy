@@ -392,9 +392,8 @@ STATIC int usage(char **argv) {
 STATIC void pre_process_options(int argc, char **argv) {
     for (int a = 1; a < argc; a++) {
         if (argv[a][0] == '-') {
-            if (strcmp(argv[a], "-m") == 0) {
-                // Anything after -m are arguments to module.
-                break;
+            if (strcmp(argv[a], "-c") == 0 || strcmp(argv[a], "-m") == 0) {
+                break; // Everything after this is a command/module and arguments for it
             }
 
             if (strcmp(argv[a], "-X") == 0) {
@@ -647,11 +646,10 @@ MP_NOINLINE int main_(int argc, char **argv) {
                 if (a + 1 >= argc) {
                     return usage(argv);
                 }
+                set_sys_argv(argv, a + 1, a); // The -c becomes first item of sys.argv, as in CPython
+                set_sys_argv(argv, argc, a + 2); // Then what comes after the command
                 ret = do_str(argv[a + 1]);
-                if (ret & FORCED_EXIT) {
-                    break;
-                }
-                a += 1;
+                break;
             } else if (strcmp(argv[a], "-m") == 0) {
                 if (a + 1 >= argc) {
                     return usage(argv);
