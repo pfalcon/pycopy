@@ -177,6 +177,26 @@ STATIC mp_obj_t stringio___exit__(size_t n_args, const mp_obj_t *args) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(stringio___exit___obj, 4, 4, stringio___exit__);
 
+STATIC mp_obj_t stringio_truncate(size_t n_args, const mp_obj_t *args) {
+    mp_obj_stringio_t *self = MP_OBJ_TO_PTR(args[0]);
+    check_stringio_is_open(self);
+    mp_uint_t size = self->pos;
+    if (n_args > 1) {
+        size = mp_obj_get_int_truncated(args[1]);
+    }
+
+    if (size != 0) {
+        mp_raise_NotImplementedError(MP_ERROR_TEXT("size!=0"));
+    }
+
+    // Note: "The current stream position isn’t changed."
+    self->ref_obj = MP_OBJ_NULL;
+    self->vstr->len = 0;
+
+    return MP_OBJ_NEW_SMALL_INT(size);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(stringio_truncate_obj, 1, 2, stringio_truncate);
+
 STATIC mp_obj_stringio_t *stringio_new(const mp_obj_type_t *type) {
     mp_obj_stringio_t *o = m_new_obj(mp_obj_stringio_t);
     o->base.type = type;
@@ -244,6 +264,7 @@ STATIC const mp_rom_map_elem_t stringio_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_writebin), MP_ROM_PTR(&mp_stream_writebin_obj) },
     { MP_ROM_QSTR(MP_QSTR_seek), MP_ROM_PTR(&mp_stream_seek_obj) },
     { MP_ROM_QSTR(MP_QSTR_flush), MP_ROM_PTR(&mp_stream_flush_obj) },
+    { MP_ROM_QSTR(MP_QSTR_truncate), MP_ROM_PTR(&stringio_truncate_obj) },
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&mp_stream_close_obj) },
     { MP_ROM_QSTR(MP_QSTR_getvalue), MP_ROM_PTR(&stringio_getvalue_obj) },
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&mp_identity_obj) },
