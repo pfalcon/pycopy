@@ -17,6 +17,7 @@
     -e vfs_fat_ramdisklarge -e vfs_fat_mtime -e vfs_lfs_mtime \
     -e usocket_udp_nonblock \
     -e utime_res \
+    -e 'subclass_(list|tuple)' \
     | ../tools/tinytest-codegen.py --stdin) > bin-testsuite.c
 
 make \
