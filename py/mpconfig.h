@@ -702,6 +702,8 @@ typedef long long mp_longint_impl_t;
 #error MICROPY_ENABLE_FUNCTION_DOC_STRING depends on MICROPY_ENABLE_DOC_STRING
 #endif
 
+// Exception messages are removed (requires disabling MICROPY_ROM_TEXT_COMPRESSION)
+#define MICROPY_ERROR_REPORTING_NONE     (0)
 // Exception messages are short static strings
 #define MICROPY_ERROR_REPORTING_TERSE    (1)
 // Exception messages provide basic error details

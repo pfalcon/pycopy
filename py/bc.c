@@ -79,7 +79,7 @@ STATIC NORETURN void raise_from_func(mp_code_state_t *code_state, mp_obj_t exc);
 
 STATIC NORETURN void fun_pos_args_mismatch(mp_code_state_t *code_state, size_t expected, size_t given) {
     mp_obj_fun_bc_t *f = code_state->fun_bc;
-    #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+    #if MICROPY_ERROR_REPORTING <= MICROPY_ERROR_REPORTING_TERSE
     // generic message, used also for other argument issues
     (void)f;
     (void)expected;
@@ -228,7 +228,7 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
             }
             // Didn't find name match with positional args
             if ((scope_flags & MP_SCOPE_FLAG_VARKEYWORDS) == 0) {
-                #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
+                #if MICROPY_ERROR_REPORTING <= MICROPY_ERROR_REPORTING_TERSE
                 mp_obj_t exc = mp_obj_new_exception_msg(&mp_type_TypeError,
                     MP_ERROR_TEXT("unexpected keyword argument"));
                 #else
