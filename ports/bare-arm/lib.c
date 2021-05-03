@@ -126,3 +126,13 @@ size_t strlen(const char *s) {
     }
     return ss - s;
 }
+
+// Dummy functions, used just in a couple of places.
+
+char *strstr(const char *where, const char *what) {
+    return NULL;
+}
+
+void *memchr(const void *s, int c, size_t n) {
+    return NULL;
+}
