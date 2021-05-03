@@ -343,10 +343,10 @@ dev:
 # based on coverage_test
 dev_test: dev
 	$(eval DIRNAME=ports/$(notdir $(CURDIR)))
-	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests -d thread
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --emit native
-#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests --via-mpy -d basics float
+	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests.py
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests.py -d thread
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests.py --emit native
+#	cd $(TOP)/tests && MICROPY_MICROPYTHON=../$(DIRNAME)/pycopy-dev ./run-tests.py --via-mpy -d basics float
 
 # build interpreter with nan-boxing as object model
 nanbox:
