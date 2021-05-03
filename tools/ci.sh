@@ -20,7 +20,7 @@ function ci_gcc_arm_setup {
 function ci_code_formatting_setup {
     sudo apt-add-repository --yes --update ppa:pybricks/ppa
     sudo apt-get install uncrustify
-    pip3 install black
+    pip3 install black==20.8b1
     uncrustify --version
     black --version
 }
