@@ -93,6 +93,7 @@ set(MICROPY_SOURCE_PY
     ${MICROPY_PY_DIR}/objstr.c
     ${MICROPY_PY_DIR}/objstringio.c
     ${MICROPY_PY_DIR}/objstrunicode.c
+    ${MICROPY_PY_DIR}/objtextio.c
     ${MICROPY_PY_DIR}/objtuple.c
     ${MICROPY_PY_DIR}/objtype.c
     ${MICROPY_PY_DIR}/objzip.c
@@ -117,6 +118,7 @@ set(MICROPY_SOURCE_PY
     ${MICROPY_PY_DIR}/smallint.c
     ${MICROPY_PY_DIR}/stackctrl.c
     ${MICROPY_PY_DIR}/stream.c
+    ${MICROPY_PY_DIR}/strict_mode.c
     ${MICROPY_PY_DIR}/unicode.c
     ${MICROPY_PY_DIR}/vm.c
     ${MICROPY_PY_DIR}/vstr.c
