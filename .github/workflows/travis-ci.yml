@@ -118,11 +118,11 @@ jobs:
         make ${MAKEOPTS} -C ports/unix submodules
         make ${MAKEOPTS} -C ports/unix deplibs
         make ${MAKEOPTS} -C ports/unix
-        (cd tests && ./run-tests --exclude 'uasyncio_(basic|heaplock|lock|wait_task)')
+        (cd tests && ./run-tests.py --exclude 'uasyncio_(basic|heaplock|lock|wait_task)')
         make ${MAKEOPTS} -C ports/unix VARIANT=coverage
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   stm32-port-build:
     # Rely on separate upstream action.
@@ -226,7 +226,7 @@ jobs:
         (cd tests && ./run-natmodtests.py extmod/{btree*,framebuf*,uheapq*,ure*,uzlib*}.py)
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   unix-coverage-32-bit-build-and-tests:
     runs-on: ubuntu-18.04
@@ -273,7 +273,7 @@ jobs:
         (cd tests && ./run-natmodtests.py --arch x86 extmod/{btree*,framebuf*,uheapq*,ure*,uzlib*}.py)
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   unix-port-build-and-tests:
     runs-on: ubuntu-16.04
@@ -295,7 +295,7 @@ jobs:
         (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy ./run-perfbench.py 1000 1000)
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   unix-port-with-mbedTLS-build-and-tests:
     runs-on: ubuntu-16.04
@@ -359,7 +359,7 @@ jobs:
         make ${MAKEOPTS} -C ports/unix test
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   unix-stackless-port-build-and-tests:
     runs-on: ubuntu-16.04
@@ -400,7 +400,7 @@ jobs:
         make ${MAKEOPTS} -C ports/unix CC=clang test
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   unix-port-with-sys-settrace-build-and-tests:
     runs-on: ubuntu-16.04
@@ -420,7 +420,7 @@ jobs:
         make ${MAKEOPTS} -C ports/unix MICROPY_PY_BTREE=0 MICROPY_PY_FFI=0 MICROPY_PY_USSL=0 CFLAGS_EXTRA="-DMICROPY_STACKLESS=1 -DMICROPY_STACKLESS_STRICT=1 -DMICROPY_PY_SYS_SETTRACE=1" test
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   minimal-unix-port-build-and-tests:
     runs-on: ubuntu-16.04
@@ -435,12 +435,12 @@ jobs:
     # script
     - run: |
         make ${MAKEOPTS} -C ports/unix minimal
-        (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy-minimal ./run-tests -e exception_chain \
+        (cd tests && MICROPY_CPYTHON3=python3 MICROPY_MICROPYTHON=../ports/unix/pycopy-minimal ./run-tests.py -e exception_chain \
           -e self_type_check -e subclass_native_init -e subclass_native6 -e class_slots_ -d basics \
           -e subclass_exception -e subclass_list -e subclass_tuple)
     - if: ${{ failure() }}
       run: |
-        tests/run-tests --print-failures
+        tests/run-tests.py --print-failures
 
   windows-port-build-via-mingw:
     runs-on: ubuntu-16.04
