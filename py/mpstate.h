@@ -80,7 +80,6 @@ typedef struct _mp_state_mem_t {
 
     int gc_stack_overflow;
     MICROPY_GC_STACK_ENTRY_TYPE gc_stack[MICROPY_ALLOC_GC_STACK_SIZE];
-    uint16_t gc_lock_depth;
 
     // This variable controls auto garbage collection.  If set to 0 then the
     // GC won't automatically run when gc_alloc can't find enough blocks.  But
@@ -259,6 +258,9 @@ typedef struct _mp_state_thread_t {
     // code_state structure of the currently running function.
     struct _mp_code_state_t *code_state;
     #endif
+
+    // Locking of the GC is done per thread.
+    uint16_t gc_lock_depth;
 
     ////////////////////////////////////////////////////////////
     // START ROOT POINTER SECTION
