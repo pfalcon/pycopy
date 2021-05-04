@@ -254,7 +254,7 @@ Q: How Pycopy differs from other Python implementations?
 
 A: Pycopy is intended to be a small, minimalist implementation of the
 "core of the Python language" (in some definition of the "core"). Beyond
-that,cthe aim is to be extensible, to be able to support features of other
+that, the aim is to be extensible, to be able to support features of other
 Python implementations. Pycopy is particularly intended to write software
 (and extensions just mentioned) in Python. This may sounds as oxymoron, but
 it's a matter of fact that other implementations have too much of their
