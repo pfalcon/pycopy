@@ -217,7 +217,7 @@ STATIC mp_uint_t uctypes_struct_agg_size(mp_obj_tuple_t *t, int layout_type, mp_
             mp_uint_t item_s;
             if (t->len == 2) {
                 // Elements of array are scalar
-                item_s = GET_SCALAR_SIZE(val_type);
+                item_s = uctypes_struct_scalar_size(val_type);
                 align = val_types_align[val_type];
             } else {
                 // Elements of array are aggregates
@@ -670,7 +670,7 @@ STATIC mp_obj_t uctypes_struct_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_ob
                         return value; // just !MP_OBJ_NULL
                     }
                 } else {
-                    byte *p = self->addr + GET_SCALAR_SIZE(val_type) * index;
+                    byte *p = self->addr + uctypes_struct_scalar_size(val_type) * index;
                     if (value == MP_OBJ_SENTINEL) {
                         return get_unaligned(val_type, p, self->flags);
                     } else {
