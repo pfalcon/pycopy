@@ -75,7 +75,10 @@ const byte *mp_decode_uint_skip(const byte *ptr) {
 
 #endif
 
-STATIC NORETURN void fun_pos_args_mismatch(mp_obj_fun_bc_t *f, size_t expected, size_t given) {
+STATIC NORETURN void raise_from_func(mp_code_state_t *code_state, mp_obj_t exc);
+
+STATIC NORETURN void fun_pos_args_mismatch(mp_code_state_t *code_state, size_t expected, size_t given) {
+    mp_obj_fun_bc_t *f = code_state->fun_bc;
     #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE
     // generic message, used also for other argument issues
     (void)f;
@@ -84,12 +87,14 @@ STATIC NORETURN void fun_pos_args_mismatch(mp_obj_fun_bc_t *f, size_t expected, 
     mp_arg_error_terse_mismatch();
     #elif MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_NORMAL
     (void)f;
-    mp_raise_msg_varg(&mp_type_TypeError,
+    mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
         MP_ERROR_TEXT("function takes %d positional arguments but %d were given"), expected, given);
+    raise_from_func(code_state, exc);
     #elif MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_DETAILED
-    mp_raise_msg_varg(&mp_type_TypeError,
+    mp_obj_t exc = mp_obj_new_exception_msg_varg(&mp_type_TypeError,
         MP_ERROR_TEXT("%q() takes %d positional arguments but %d were given"),
         mp_obj_fun_get_name(MP_OBJ_FROM_PTR(f)), expected, given);
+    raise_from_func(code_state, exc);
     #endif
 }
 
@@ -163,7 +168,7 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
     if (n_args > n_pos_args) {
         // given more than enough arguments
         if ((scope_flags & MP_SCOPE_FLAG_VARARGS) == 0) {
-            fun_pos_args_mismatch(self, n_pos_args, n_args);
+            fun_pos_args_mismatch(code_state, n_pos_args, n_args);
         }
         // put extra arguments in varargs tuple
         *var_pos_kw_args-- = mp_obj_new_tuple(n_args - n_pos_args, args + n_pos_args);
@@ -182,7 +187,7 @@ void mp_setup_code_state(mp_code_state_t *code_state, size_t n_args, size_t n_kw
                     code_state->state[n_state - 1 - i] = self->extra_args[i - (n_pos_args - n_def_pos_args)];
                 }
             } else {
-                fun_pos_args_mismatch(self, n_pos_args - n_def_pos_args, n_args);
+                fun_pos_args_mismatch(code_state, n_pos_args - n_def_pos_args, n_args);
             }
         }
     }
