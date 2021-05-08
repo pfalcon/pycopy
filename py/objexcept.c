@@ -287,6 +287,11 @@ void mp_obj_exception_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     } else if (self->base.type == &mp_type_StopIteration && attr == MP_QSTR_value) {
         dest[0] = mp_obj_exception_get_value(self_in);
     }
+    #if MICROPY_CPYTHON_COMPAT
+    else if (attr == MP_QSTR_errno) {
+        dest[0] = mp_obj_exception_get_value(self_in);
+    }
+    #endif
 }
 
 STATIC MP_NS_DICT_TABLE mp_rom_map_elem_t exception_locals_dict_table[] = {
