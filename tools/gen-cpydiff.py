@@ -103,7 +103,7 @@ def uimports(code):
 
 
 def clean_output(output):
-    """ remove unimport, transient details from output, like memory addresses """
+    """remove unimport, transient details from output, like memory addresses"""
     return re.sub(r"at 0x[0-9a-f]+", "at 0x7fffffff", output)
 
 
