@@ -34,6 +34,7 @@
 #include "py/objlist.h"
 #include "py/runtime.h"
 #include "py/stackctrl.h"
+#include "py/binary.h"
 
 #if MICROPY_PY_BUILTINS_STR_OP_MODULO
 STATIC mp_obj_t str_modulo_format(mp_obj_t pattern, size_t n_args, const mp_obj_t *args, mp_obj_t dict);
@@ -380,6 +381,7 @@ mp_obj_t mp_obj_str_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_i
 
     const byte *rhs_data;
     size_t rhs_len;
+    int rhs_typecode = BYTEARRAY_TYPECODE;
     if (lhs_type == mp_obj_get_type(rhs_in)) {
         GET_STR_DATA_LEN(rhs_in, rhs_data_, rhs_len_);
         rhs_data = rhs_data_;
@@ -391,6 +393,7 @@ mp_obj_t mp_obj_str_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_i
         }
         rhs_data = bufinfo.buf;
         rhs_len = bufinfo.len;
+        rhs_typecode = bufinfo.typecode;
     } else {
         // LHS is str and RHS has an incompatible type
         // (except if operation is EQUAL, but that's handled by mp_obj_equal)
@@ -423,6 +426,13 @@ mp_obj_t mp_obj_str_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_i
         case MP_BINARY_OP_LESS_EQUAL:
         case MP_BINARY_OP_MORE:
         case MP_BINARY_OP_MORE_EQUAL:
+            #if MICROPY_CPYTHON_COMPAT
+            if (rhs_typecode != BYTEARRAY_TYPECODE) {
+                return mp_const_false;
+            }
+            #else
+            (void)rhs_typecode;
+            #endif
             return mp_obj_new_bool(mp_seq_cmp_bytes(op, lhs_data, lhs_len, rhs_data, rhs_len));
 
         default:

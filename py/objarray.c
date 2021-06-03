@@ -349,7 +349,12 @@ STATIC mp_obj_t array_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs
             mp_buffer_info_t lhs_bufinfo;
             mp_buffer_info_t rhs_bufinfo;
             array_get_buffer(lhs_in, &lhs_bufinfo, MP_BUFFER_READ);
-            if (!mp_get_buffer(rhs_in, &rhs_bufinfo, MP_BUFFER_READ)) {
+            #if MICROPY_CPYTHON_COMPAT
+            const bool unequal = mp_obj_is_type(rhs_in, &mp_type_bytes) && lhs_bufinfo.typecode != BYTEARRAY_TYPECODE;
+            #else
+            const bool unequal = false;
+            #endif
+            if (unequal || !mp_get_buffer(rhs_in, &rhs_bufinfo, MP_BUFFER_READ)) {
                 return mp_const_false;
             }
             return mp_obj_new_bool(mp_seq_cmp_bytes(op, lhs_bufinfo.buf, lhs_bufinfo.len, rhs_bufinfo.buf, rhs_bufinfo.len));
