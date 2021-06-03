@@ -159,6 +159,8 @@ STATIC mp_obj_t array_construct(char typecode, mp_obj_t initializer) {
 
 #if MICROPY_PY_ARRAY
 STATIC mp_obj_t array_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     (void)type_in;
     mp_arg_check_num(n_args, n_kw, 1, 2, false);
 
@@ -177,6 +179,8 @@ STATIC mp_obj_t array_make_new(const mp_obj_type_t *type_in, size_t n_args, size
 
 #if MICROPY_PY_BUILTINS_BYTEARRAY
 STATIC mp_obj_t bytearray_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    MP_MAKE_NEW_GET_ONLY_FLAGS();
+    (void)only_new;
     (void)type_in;
     // Can take 2nd/3rd arg if constructs from str
     mp_arg_check_num(n_args, n_kw, 0, 3, false);
