@@ -945,6 +945,7 @@ mp_obj_t mp_obj_dict_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
 void mp_obj_dict_init(mp_obj_dict_t *dict, size_t n_args);
 size_t mp_obj_dict_len(mp_obj_t self_in);
 mp_obj_t mp_obj_dict_get(mp_obj_t self_in, mp_obj_t index);
+mp_obj_t mp_obj_dict_get_maybe(mp_obj_t self_in, mp_obj_t index);
 mp_obj_t mp_obj_dict_store(mp_obj_t self_in, mp_obj_t key, mp_obj_t value);
 mp_obj_t mp_obj_dict_delete(mp_obj_t self_in, mp_obj_t key);
 mp_obj_t mp_obj_dict_copy(mp_obj_t self_in);

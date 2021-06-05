@@ -187,6 +187,16 @@ STATIC mp_obj_t dict_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_
     }
 }
 
+mp_obj_t mp_obj_dict_get_maybe(mp_obj_t self_in, mp_obj_t index) {
+    mp_obj_dict_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_map_elem_t *elem = mp_map_lookup(&self->map, index, MP_MAP_LOOKUP);
+    if (MP_UNLIKELY(elem == NULL)) {
+        return MP_OBJ_NULL;
+    } else {
+        return elem->value;
+    }
+}
+
 // Note: Make sure this is inlined in load part of dict_subscr() below.
 mp_obj_t mp_obj_dict_get(mp_obj_t self_in, mp_obj_t index) {
     mp_obj_dict_t *self = MP_OBJ_TO_PTR(self_in);
