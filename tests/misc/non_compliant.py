@@ -122,10 +122,12 @@ def f():
     pass
 
 
-try:
-    f.x = 1
-except AttributeError:
-    print("AttributeError")
+# Function attributes may be supported, depending on
+# MICROPY_PY_FUNCTION_USER_ATTRS setting.
+# try:
+#    f.x = 1
+# except AttributeError:
+#    print("AttributeError")
 
 # can't call a function type (ie make new instances of a function)
 try:
