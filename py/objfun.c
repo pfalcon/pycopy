@@ -356,12 +356,35 @@ STATIC mp_obj_t fun_bc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const 
 
 #if MICROPY_PY_FUNCTION_ATTRS
 void mp_obj_fun_bc_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+    #if MICROPY_PY_FUNCTION_USER_ATTRS
+    mp_obj_fun_bc_t *self = MP_OBJ_TO_PTR(self_in);
+
+    // store or del
     if (dest[0] != MP_OBJ_NULL) {
-        // not load attribute
+        if (self->attrs == MP_OBJ_NULL) {
+            self->attrs = mp_obj_new_dict(1);
+        }
+        if (dest[1] != MP_OBJ_NULL) {
+            mp_obj_dict_store(self->attrs, MP_OBJ_NEW_QSTR(attr), dest[1]);
+        } else {
+            mp_obj_dict_delete(self->attrs, MP_OBJ_NEW_QSTR(attr));
+        }
+        dest[0] = MP_OBJ_NULL; // indicate success
         return;
     }
-    if (attr == MP_QSTR___name__) {
+
+    // load
+    if (self->attrs != MP_OBJ_NULL) {
+        dest[0] = mp_obj_dict_get_maybe(self->attrs, MP_OBJ_NEW_QSTR(attr));
+        if (dest[0] != MP_OBJ_NULL) {
+            return;
+        }
+    }
+    #endif
+
+    if (dest[0] == MP_OBJ_NULL && attr == MP_QSTR___name__) {
         dest[0] = MP_OBJ_NEW_QSTR(mp_obj_fun_get_name(self_in));
+        return;
     }
     #if 0
     if (attr == MP_QSTR___globals__) {

@@ -33,6 +33,9 @@ typedef struct _mp_obj_fun_bc_t {
     mp_obj_dict_t *globals;         // the context within which this function was defined
     const byte *bytecode;           // bytecode for the function
     const mp_uint_t *const_table;   // constant table
+    #if MICROPY_PY_FUNCTION_USER_ATTRS
+    mp_obj_t attrs;                 // dict with user-define function attrs (and __doc__)
+    #endif
     #if MICROPY_PY_SYS_SETTRACE
     const struct _mp_raw_code_t *rc;
     #endif
