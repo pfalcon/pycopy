@@ -380,6 +380,11 @@ void mp_obj_fun_bc_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             return;
         }
     }
+    // If __doc__ was requested, but didn't exist in attr dict, return None.
+    if (attr == MP_QSTR___doc__) {
+        dest[0] = mp_const_none;
+        return;
+    }
     #endif
 
     if (dest[0] == MP_OBJ_NULL && attr == MP_QSTR___name__) {

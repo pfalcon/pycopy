@@ -688,9 +688,18 @@ typedef long long mp_longint_impl_t;
 #define MICROPY_ENABLE_PRECISE_SOURCE_LINE (0)
 #endif
 
-// Whether to include doc strings (increases RAM usage)
+// Whether to include doc strings for modules/classes (increases RAM usage)
 #ifndef MICROPY_ENABLE_DOC_STRING
 #define MICROPY_ENABLE_DOC_STRING (0)
+#endif
+
+// Whether to include doc strings for functions in addition for modules/classes
+// (increases RAM usage). Depends on MICROPY_ENABLE_DOC_STRING.
+#ifndef MICROPY_ENABLE_FUNCTION_DOC_STRING
+#define MICROPY_ENABLE_FUNCTION_DOC_STRING (0)
+#endif
+#if MICROPY_ENABLE_FUNCTION_DOC_STRING && !MICROPY_ENABLE_DOC_STRING
+#error MICROPY_ENABLE_FUNCTION_DOC_STRING depends on MICROPY_ENABLE_DOC_STRING
 #endif
 
 // Exception messages are short static strings
@@ -908,6 +917,11 @@ typedef double mp_float_t;
 // Whether to support user-defined attributes on functions
 #ifndef MICROPY_PY_FUNCTION_USER_ATTRS
 #define MICROPY_PY_FUNCTION_USER_ATTRS (0)
+#endif
+// Function docstrings are stored as a "user attr"
+#if MICROPY_ENABLE_FUNCTION_DOC_STRING
+#undef MICROPY_PY_FUNCTION_USER_ATTRS
+#define MICROPY_PY_FUNCTION_USER_ATTRS (1)
 #endif
 
 // Whether to support the descriptors __get__, __set__, __delete__
