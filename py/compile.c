@@ -207,6 +207,7 @@ STATIC void compile_trailer_paren_helper(compiler_t *comp, mp_parse_node_t pn_ar
 STATIC void compile_comprehension(compiler_t *comp, mp_parse_node_struct_t *pns, scope_kind_t kind);
 STATIC void compile_atom_brace_helper(compiler_t *comp, mp_parse_node_struct_t *pns, bool create_map);
 STATIC void compile_node(compiler_t *comp, mp_parse_node_t pn);
+STATIC void check_for_doc_string(compiler_t *comp, mp_parse_node_t pn, bool store_as_attr);
 
 STATIC uint comp_next_label(compiler_t *comp) {
     return comp->next_label++;
@@ -630,6 +631,13 @@ STATIC void close_over_variables_etc(compiler_t *comp, scope_t *this_scope, int 
     } else {
         EMIT_ARG(make_closure, this_scope, nfree, n_pos_defaults, n_kw_defaults);
     }
+
+    #if MICROPY_ENABLE_FUNCTION_DOC_STRING
+    mp_parse_node_struct_t *pns = (mp_parse_node_struct_t *)this_scope->pn;
+    if (MP_PARSE_NODE_STRUCT_KIND(pns) == PN_funcdef) {
+        check_for_doc_string(comp, pns->nodes[3], true);
+    }
+    #endif
 }
 
 STATIC void compile_funcdef_lambdef_param(compiler_t *comp, mp_parse_node_t pn) {
@@ -3061,7 +3069,7 @@ tail_recursion:
     EMIT(for_iter_end);
 }
 
-STATIC void check_for_doc_string(compiler_t *comp, mp_parse_node_t pn) {
+STATIC void check_for_doc_string(compiler_t *comp, mp_parse_node_t pn, bool store_as_attr) {
     #if MICROPY_ENABLE_DOC_STRING
     // see http://www.python.org/dev/peps/pep-0257/
 
@@ -3094,15 +3102,24 @@ STATIC void check_for_doc_string(compiler_t *comp, mp_parse_node_t pn) {
              && MP_PARSE_NODE_LEAF_KIND(pns->nodes[0]) == MP_PARSE_NODE_STRING)
             || (MP_PARSE_NODE_IS_STRUCT_KIND(pns->nodes[0], PN_const_object)
                 && mp_obj_is_str(get_const_object((mp_parse_node_struct_t *)pns->nodes[0])))) {
+            if (store_as_attr) {
+                EMIT(dup_top);
+            }
             // compile the doc string
             compile_node(comp, pns->nodes[0]);
             // store the doc string
-            compile_store_id(comp, MP_QSTR___doc__, true);
+            if (store_as_attr) {
+                EMIT(rot_two);
+                EMIT_ARG(attr, MP_QSTR___doc__, MP_EMIT_ATTR_STORE);
+            } else {
+                compile_store_id(comp, MP_QSTR___doc__, true);
+            }
         }
     }
     #else
     (void)comp;
     (void)pn;
+    (void)store_as_attr;
     #endif
 }
 
@@ -3128,7 +3145,7 @@ STATIC void compile_scope(compiler_t *comp, scope_t *scope, pass_kind_t pass) {
         EMIT(return_value);
     } else if (scope->kind == SCOPE_MODULE) {
         if (!comp->is_repl) {
-            check_for_doc_string(comp, scope->pn);
+            check_for_doc_string(comp, scope->pn, false);
         }
         compile_node(comp, scope->pn);
         EMIT_ARG(load_const_tok, MP_TOKEN_KW_NONE);
@@ -3245,7 +3262,7 @@ STATIC void compile_scope(compiler_t *comp, scope_t *scope, pass_kind_t pass) {
         EMIT_ARG(load_const_str, MP_PARSE_NODE_LEAF_ARG(pns->nodes[0])); // 0 is class name
         compile_store_id(comp, MP_QSTR___qualname__, true);
 
-        check_for_doc_string(comp, pns->nodes[2]);
+        check_for_doc_string(comp, pns->nodes[2], false);
         compile_node(comp, pns->nodes[2]); // 2 is class body
 
         id_info_t *id = scope_find(scope, MP_QSTR___class__);
