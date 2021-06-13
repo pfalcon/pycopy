@@ -461,6 +461,7 @@ jobs:
         make ${MAKEOPTS} -C ports/windows CROSS_COMPILE=i686-w64-mingw32-
 
   esp32-ESP-IDFv3-port-build:
+    if: false
     runs-on: ubuntu-16.04
     steps:
     - name: Clone
@@ -489,6 +490,7 @@ jobs:
         make ${MAKEOPTS} -C ports/esp32
 
   esp32-ESP-IDFv4-port-build:
+    if: false
     runs-on: ubuntu-16.04
     steps:
     - name: Clone
