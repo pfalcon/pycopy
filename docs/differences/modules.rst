@@ -6,6 +6,31 @@ Modules
 array
 -----
 
+.. _cpydiff_module_array_comparison:
+
+Comparison between different typecodes not supported
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** Code size
+
+**Workaround:** Compare individual elements
+
+Sample code::
+
+    import array
+    
+    array.array("b", [1, 2]) == array.array("i", [1, 2])
+
++-------------+-------------------------------------------+
+| CPy output: | uPy output:                               |
++-------------+-------------------------------------------+
+|             | ::                                        |
+|             |                                           |
+|             |     Traceback (most recent call last):    |
+|             |       File "<stdin>", line 9, in <module> |
+|             |     NotImplementedError:                  |
++-------------+-------------------------------------------+
+
 .. _cpydiff_modules_array_containment:
 
 Looking for integer not implemented

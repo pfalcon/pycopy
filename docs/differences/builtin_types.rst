@@ -87,41 +87,6 @@ Sample code::
 |     IndexError: list index out of range    |     IndexError: list index out of range    |
 +--------------------------------------------+--------------------------------------------+
 
-.. _cpydiff_types_exception_subclassinit:
-
-Exception.__init__ method does not exist.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Cause:** Subclassing native classes is not fully supported in Pycopy.
-
-**Workaround:** Call using ``super()`` instead::
-
-    class A(Exception):
-        def __init__(self):
-            super().__init__()
-
-Sample code::
-
-    
-    
-    class A(Exception):
-        def __init__(self):
-            Exception.__init__(self)
-    
-    
-    a = A()
-
-+-------------+-----------------------------------------------------------+
-| CPy output: | uPy output:                                               |
-+-------------+-----------------------------------------------------------+
-|             | ::                                                        |
-|             |                                                           |
-|             |     Traceback (most recent call last):                    |
-|             |       File "<stdin>", line 18, in <module>                |
-|             |       File "<stdin>", line 15, in __init__                |
-|             |     TypeError: argument should be a 'Exception' not a 'A' |
-+-------------+-----------------------------------------------------------+
-
 bytearray
 ---------
 

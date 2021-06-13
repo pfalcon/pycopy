@@ -175,6 +175,35 @@ Sample code::
 |     append() takes exactly one argument (0 given) |     function takes 2 positional arguments but 1 were given |
 +---------------------------------------------------+------------------------------------------------------------+
 
+.. _cpydiff_core_function_moduleattr:
+
+Function objects do not have the ``__module__`` attribute
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** MicroPython is optimized for reduced code size and RAM usage.
+
+**Workaround:** Use ``sys.modules[function.__globals__['__name__']]`` for non-builtin modules.
+
+Sample code::
+
+    
+    
+    def f():
+        pass
+    
+    
+    print(f.__module__)
+
++--------------+---------------------------------------------------------------------+
+| CPy output:  | uPy output:                                                         |
++--------------+---------------------------------------------------------------------+
+| ::           | ::                                                                  |
+|              |                                                                     |
+|     __main__ |     Traceback (most recent call last):                              |
+|              |       File "<stdin>", line 13, in <module>                          |
+|              |     AttributeError: 'function' object has no attribute '__module__' |
++--------------+---------------------------------------------------------------------+
+
 .. _cpydiff_core_function_userattr:
 
 User-defined attributes for functions are not supported
