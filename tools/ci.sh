@@ -505,7 +505,7 @@ function ci_unix_qemu_mips_run_tests {
     # - (i)listdir does not work, it always returns the empty list (it's an issue with the underlying C call)
     # - ffi tests do not work
     file ./ports/unix/pycopy-coverage
-    (cd tests && MICROPY_MICROPYTHON=../ports/unix/pycopy-coverage ./run-tests.py --exclude 'vfs_posix.py' --exclude 'ffi_(callback|float|float2).py')
+    (cd tests && MICROPY_MICROPYTHON=../ports/unix/pycopy-coverage ./run-tests.py --exclude 'vfs_posix.py' --exclude 'ffi_(callback|float|float2|instances).py')
 }
 
 ########################################################################################
