@@ -406,6 +406,9 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
     VSTR_FIXED(path, MICROPY_ALLOC_PATH_MAX)
     mp_import_info_t imp;
     imp.path = &path;
+    // Needed to silence GCC11 over-smartness which considers that it may be
+    // used uninitialized.
+    imp.module_from_hook = MP_OBJ_NULL;
     module_obj = MP_OBJ_NULL;
     mp_obj_t top_module_obj = MP_OBJ_NULL;
     mp_obj_t outer_module_obj = MP_OBJ_NULL;
