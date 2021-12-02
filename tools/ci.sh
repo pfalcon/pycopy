@@ -530,8 +530,8 @@ function ci_unix_qemu_arm_run_tests {
     # Issues with ARM tests:
     # - (i)listdir does not work, it always returns the empty list (it's an issue with the underlying C call)
     export QEMU_LD_PREFIX=/usr/arm-linux-gnueabi
-    file ./ports/unix/micropython-coverage
-    (cd tests && MICROPY_MICROPYTHON=../ports/unix/micropython-coverage ./run-tests.py --exclude 'vfs_posix.py')
+    file ./ports/unix/pycopy-coverage
+    (cd tests && MICROPY_MICROPYTHON=../ports/unix/pycopy-coverage ./run-tests.py --exclude 'vfs_posix.py')
 }
 
 ########################################################################################
