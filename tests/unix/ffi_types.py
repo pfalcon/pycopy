@@ -1,7 +1,7 @@
 # test 8/16/32/64 bit signed/unsigned integer arguments and return types for ffi functions
 # requires ffi_lib.c to be compiled as: $(CC) -shared -o ffi_lib.so ffi_lib.c
 
-import uos, usys
+import uos, sys as usys
 
 try:
     import ffi
