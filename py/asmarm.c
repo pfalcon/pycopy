@@ -359,6 +359,7 @@ void asm_arm_b_label(asm_arm_t *as, uint label) {
 }
 
 void asm_arm_bl_ind(asm_arm_t *as, uint fun_id, uint reg_temp) {
+    (void)reg_temp;
     // The table offset should fit into the ldr instruction
     assert(fun_id < (0x1000 / 4));
     emit_al(as, asm_arm_op_mov_reg(ASM_ARM_REG_LR, ASM_ARM_REG_PC)); // mov lr, pc
