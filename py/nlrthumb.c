@@ -37,6 +37,7 @@
 //      r4-r11, r13=sp
 
 __attribute__((naked)) unsigned int nlr_push(nlr_buf_t *nlr) {
+    (void)nlr;
 
     __asm volatile (
         "str    r4, [r0, #12]       \n" // store r4 into nlr_buf
