@@ -179,6 +179,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
     - name: Build
       run: source tools/ci.sh && ci_unix_macos_build
     - name: Run tests
