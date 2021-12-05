@@ -35,7 +35,7 @@ jobs:
         git diff --exit-code
 
   esp8266-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
         PATH=${XTENSA_CROSS_BINDIR}:${PATH} make -C ports/esp8266
 
   zephyr-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -127,7 +127,7 @@ jobs:
   stm32-port-build:
     # Rely on separate upstream action.
     if: false
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -276,7 +276,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   unix-port-build-and-tests:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -298,7 +298,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   unix-port-with-mbedTLS-build-and-tests:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -315,7 +315,7 @@ jobs:
         make ${MAKEOPTS} -C ports/unix MICROPY_SSL_MBEDTLS=1 MICROPY_SSL_AXTLS=0 test RUN_TESTS_EXTRA="-e ussl_basic"
 
   unix-port-micropython-dev:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -362,7 +362,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   unix-stackless-port-build-and-tests:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -380,7 +380,7 @@ jobs:
         make ${MAKEOPTS} -C ports/unix test
 
   unix-port-with-clang:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -403,7 +403,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   unix-port-with-sys-settrace-build-and-tests:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -423,7 +423,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   minimal-unix-port-build-and-tests:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -443,7 +443,7 @@ jobs:
         tests/run-tests.py --print-failures
 
   windows-port-build-via-mingw:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -462,7 +462,7 @@ jobs:
 
   esp32-ESP-IDFv3-port-build:
     if: false
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -491,7 +491,7 @@ jobs:
 
   esp32-ESP-IDFv4-port-build:
     if: false
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -519,7 +519,7 @@ jobs:
         make ${MAKEOPTS} -C ports/esp32
 
   nrf-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -572,7 +572,7 @@ jobs:
         if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then cp ports/minimal/build/firmware.bin ${HOME}/persist/; fi
 
   cc3200-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -590,7 +590,7 @@ jobs:
         make ${MAKEOPTS} -C ports/cc3200 BTARGET=bootloader  BTYPE=release
 
   samd-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -608,7 +608,7 @@ jobs:
         make ${MAKEOPTS} -C ports/samd
 
   teensy-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -625,7 +625,7 @@ jobs:
         make ${MAKEOPTS} -C ports/teensy
 
   powerpc-port-build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
     - name: Clone
       uses: actions/checkout@v2
