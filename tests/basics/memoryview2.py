@@ -1,4 +1,4 @@
-# test memoryview accessing maximum values for signed/unsigned elements
+# test memoryview with arrays and accessing maximum values for signed/unsigned elements
 try:
     from uarray import array
 except ImportError:
@@ -13,6 +13,13 @@ try:
 except:
     print("SKIP")
     raise SystemExit
+
+a = array('i', [1, 2, 3, 4])
+m = memoryview(a)
+print(list(m))
+print(list(m[1:-1]))
+m[2] = 6
+print(a)
 
 print(list(memoryview(b'\x7f\x80\x81\xff')))
 print(list(memoryview(array('b', [0x7f, -0x80]))))

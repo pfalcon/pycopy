@@ -39,17 +39,6 @@ m = memoryview(bytearray(2))
 print(bytearray(m))
 print(list(memoryview(memoryview(b'1234')))) # read-only memoryview
 
-try:
-    import uarray as array
-except ImportError:
-    import array
-a = array.array('i', [1, 2, 3, 4])
-m = memoryview(a)
-print(list(m))
-print(list(m[1:-1]))
-m[2] = 6
-print(a)
-
 # invalid attribute
 try:
     memoryview(b'a').noexist
