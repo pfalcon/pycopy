@@ -385,6 +385,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
         "generator1",
         "globals_del",
         "memoryview1",
+        "memoryview2",
         "memoryview_gc",
         "object1",
         "python34",
