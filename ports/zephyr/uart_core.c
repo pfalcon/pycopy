@@ -55,7 +55,7 @@ void mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     #else
     static const struct device *uart_console_dev;
     if (uart_console_dev == NULL) {
-        uart_console_dev = device_get_binding(DT_LABEL(DT_CHOSEN(zephyr_console)));
+        uart_console_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
     }
 
     while (len--) {
