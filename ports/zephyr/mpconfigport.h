@@ -26,7 +26,7 @@
 #include <alloca.h>
 
 // Included here to get basic Zephyr environment (macros, etc.)
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 // Usually passed from Makefile
 #ifndef MICROPY_HEAP_SIZE

@@ -29,8 +29,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <zephyr.h>
-#include <drivers/i2c.h>
+#include <zephyr/kernel.h>
+#include <zephyr/drivers/i2c.h>
 
 #include "py/runtime.h"
 #include "py/gc.h"
