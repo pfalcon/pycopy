@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-# maybe need dependencies?
-#make -C mpy-cross
-#cd ports/unix
-#make submodules
-#make
+sudo apt-get -y install gcc-arm-none-eabi
 
 source tools/ci.sh && ci_unix_minimal_build
 source tools/ci.sh && ci_unix_standard_build
